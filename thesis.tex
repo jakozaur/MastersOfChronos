@@ -1,0 +1,131 @@
+\documentclass{pracamgr} 
+
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{epstopdf}
+\usepackage{color}
+\usepackage{textcomp}
+\usepackage[polish,english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{subfig}
+% Dane magistranta:
+
+% Alfabetycznie nazwiskiem
+\author{Przemysław Horban, Jacek Migdał}
+
+\nralbumu{262940, 262954}
+
+\title{Low-power Wireless Networks for Mobile Applications}
+\tytulang{Sieci bezprzewodowe o niskim poborze mocy dla aplikacji mobilnych}
+
+\kierunek{Informatics}
+
+\opiekun{dr Konrad Iwanicki\\
+Institute of Informatics\\
+}
+
+\date{June 2012}
+
+\dziedzina{
+11.3 Informatics\\
+}
+
+\klasyfikacja{
+%  D.4.3 File systems management~---~\textit{Distributed file systems}\\
+%  E.5 Files~---~\textit{Organization/structure}\\
+  C.1.4.b Mobile processors \\
+  C.2.1.k Wireless communication \\
+  C.2.7.c Sensor networks \\
+  C.2.7.e Wireless \\
+  C.2.8.c Mobile communication systems \\
+  C.2.8.d Mobile environments \\
+  J.9.e Wearable computers and body area networks \\
+  J.9.f Wireless sensor networks \\
+}
+
+% Słowa kluczowe:
+\keywords{sensor network, wireless network, mobile nodes, ez430-Chronos, TinyOS ???}
+
+% Tu jest dobre miejsce na Twoje własne makra i~rodowiska
+% \newtheorem{defi}{Definicja}[section]
+
+% koniec definicji
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+ABSTRACT
+% ewaluacja pokazala, ze to dziala i ze ma reasonable performance
+\end{abstract}
+
+\tableofcontents
+%\listoffigures
+%\listoftables
+
+%http://www.tjansson.dk/?p=419
+\lstset{
+	language=C++,
+	keywordstyle=\ttfamily\underbar,
+	identifierstyle=\ttfamily,
+	commentstyle=\ttfamily\bfseries,
+	stringstyle=\ttfamily,
+	showstringspaces=false,
+	basicstyle=\ttfamily\small,
+	numberstyle=\ttfamily\footnotesize,
+	numbers=left,
+	stepnumber=1,
+	numbersep=5pt,
+	tabsize=2,
+	breaklines=true,
+	prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+	breakatwhitespace=false,
+	aboveskip={1.5\baselineskip},
+  columns=fullflexible, % bylo fixed
+  upquote=true,
+  extendedchars=true,
+  captionpos=b
+% frame=single,
+% backgroundcolor=\color{lbcolor},
+}
+
+\include{01-introduction}
+
+\include{02-chronos-hardware}
+
+\include{03-assembling-programming-environment}
+
+\include{04-tinyos-and-nesc}
+
+\include{05-drivers-and-porting}
+
+\include{06-evaluation}
+
+\include{07-applications-for-chronos}
+
+\include{08-conclusion-and-further-work}
+
+\appendix
+
+\include{appendices}
+
+\begin{thebibliography}{99}
+\addcontentsline{toc}{chapter}{Bibliography}
+
+\bibitem[BerkDB]{berkdb}
+M. A. Olson, K. Bostic and M. Seltzer,
+\textit{Berkeley DB},
+In USENIX (June 1999), pages 183-192
+
+\end{thebibliography}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% coding: utf-8
+%%% End:
+
