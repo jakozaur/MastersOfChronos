@@ -5,11 +5,13 @@
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{epstopdf}
+\usepackage{hyperref}
 \usepackage{color}
 \usepackage{textcomp}
 \usepackage[polish,english]{babel}
 \usepackage[T1]{fontenc}
 \usepackage{subfig}
+
 % Dane magistranta:
 
 % Alfabetycznie nazwiskiem
@@ -111,15 +113,7 @@ ABSTRACT
 
 \include{appendices}
 
-\begin{thebibliography}{99}
-\addcontentsline{toc}{chapter}{Bibliography}
-
-\bibitem[BerkDB]{berkdb}
-M. A. Olson, K. Bostic and M. Seltzer,
-\textit{Berkeley DB},
-In USENIX (June 1999), pages 183-192
-
-\end{thebibliography}
+\include{bibliography}
 
 \end{document}
 

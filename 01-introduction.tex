@@ -1,3 +1,54 @@
 \chapter*{Introduction}
 \addcontentsline{toc}{chapter}{Introduction}
 
+% Internet of things
+Today, Most of the devices connected to the Internet are also connected to the power grid or could operate on batteries for just a few hours. The protocols of the Internet were designed for high throughput, low latencies and outstanding reliability. The power consumption was not a top priority. The Internet, as we know today, is one of the most successful technologies in the humankind history. However, Internet architecture principles does not serve well connecting items in real world.
+
+Most of the things are not connected to power grid or to any cable at all. Vast majority of things require maintaince only once every a few months or even years. Yet having a virtual representation of things in Internet-like structure would be extremely useful. It would allow to track and count everything in real world. Access to that kind of information could significantly reduce waste, use resources more efficiently and helps us to understand better our environment. This concept is called Internet of Things (\footnote{term first used by Kevin Ashton in RFID Journal, 22 July 2012: \url{http://www.rfidjournal.com/article/view/4986}}). 
+
+% Sensor net use cases
+
+First implementations of that idea already exists. They are called sensor networks and are used to monitor wildlife (\cite{liu2009long}), weather, reading the utility meters remotely, etc..  Their major benefit is capability of collecting data which otherwise would be almost impossible to obtain (e.g. temperature at regular intervals from bird nest) or much more expensive (e.g. entering every home to check utility usage).
+
+However the Internet of Things is still in early stage. There are lots of potential applications. Including:
+\begin{itemize}
+  \item smart grid - electric grid in which devices constantly monitor their usage/production and could act according to those data. E.g. wash machine is turned on when excess power is available.
+  \item parking space management - each space is monitored which enable routing drivers to free spots as well as smarter resource utilisation.
+  \item smart city - municipal infrastructure is monitored to manage city better (e.g. traffic control, prevent vandalism, dimming street lamps)
+\end{itemize}
+Many other use scenarios exists, but current technology is too expensive or is not mature enough.
+
+% Philosophy
+
+The Internet of Things has a huge potential to be ubiquitous. However there are a few core requirements which has to be met:
+\begin{itemize}
+  \item cheap replaceable hardware - each node placed in a thing should cost only a small percentage of an item. Ideally they should cost at least an order of magnitude less then current generation. E.g. we might want to place microcontroler in every LED light bulb.
+  \item fully wireless - cables are not feasible in most use cases. So both power and communication should not required them. Data could be transmitted using radio, infrared, light or sonic waves.
+  \item low-powered - the power is most precious resource in wireless nodes. It is needed by all of the components and could be provided from batteries or harvesting energy. The harvesting opportunities are very limited without hugely increasing the device complexity or requiring very specific environment (e.g. sunny place). The batteries are currently the main source and their capacity will probably increase slowly over the next years. So optimising for low-power usage seems to be only viable solution.
+  \item low duty cycle - some power savings are constrained due to physics limitation. Most notable wireless communication. So using most energy consuming components for only a tiny percent of total time seems to be the best option. That way even current sensors are capable of working even years without a service.
+\end{itemize}
+
+% Problem
+Moore's law brings hope to produce better hardware. While keeping the same performance we are capable of producing less power intensive hardware every year. However, the software and protocols needs to be developed to support this new technology.
+
+One of the fundamental problem in sensor networks are routing protocols. A routing protocol is capable of finding paths of nodes which are used for communication. In a typical environment a single node could only see a few nearest nodes. Sending a packet to other node requires passing it by intermediate nodes along the path founded by routing algorithm. Doing it efficiently, reliable with reasonable latencies is a challange.
+
+The rhoRoute project, sponsored by European Union, aims to investigate the problem and develop better routing algorithms. In order to accomplish that goal, a good infrastructure is required. Often algorithms which work well in simulation does not necessary achieve similar results in real world tests. Moreover the technical implementation of routing algorithm is usually non-trivial, because of nodes hardware constraints.
+
+In order to simplify programming model and be able to compare routing algorithms sensor network researches utilize TinyOS operating system. It provides many useful features and increase programmer productivity. However, it is not supported by many devices, including Chronos eZ430. The aim of this thesis is to port TinyOS to eZ430. It requires assembling a better programming environment and writing the device drivers.
+
+In addition to that, by using TinyOS on the mobile node eZ430 will be inter-operable with gnode. The gnode are a static nodes which were used to construct a static network of sensor nodes at MIMUW faculty (called testbed). This allow evaluation of routing algorithm using static or/and mobile nodes. 
+
+% Contributions
+The goal of this thesis project is to provide:
+\begin{itemize}
+  \item Platform Chronos in TinyOS
+  \item Programming environment
+  \item Conduct experiments of power usage and radio connectivity
+  \item Feasibility studies. Analyse what are the possible use case for Chronos.
+  \item Thesis paper - as an introduction to Chronos programming.
+\end{itemize}
+
+% Thesis organization
+The thesis is organised into 7 chapters. Chapter 1 discusses the Chronos hardware technical capabilities. Chapter 2 describes programming environment which was assembled to write drivers more efficiently and help application developers. Chapter 3 discusses TinyOS and NesC architecture, while chapter 4 describes in detail implementation work on device drivers. Chapter 5 is about all of the experiments and evaluations on Chronos. The further application for chronos are identified and analysed in chapter 6. The last chapter (7) summarise the progress and points further areas for improvement.
+
