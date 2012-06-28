@@ -42,6 +42,10 @@
       {\Large\bf\@author\par}
       \vspace{0.2cm}
       {\large Student no. \@nralbumu\par}
+      \vspace{0.2cm}
+      {\Large\bf\@authorN\par}
+      \vspace{0.2cm}
+      {\large Student no. \@nralbumuN\par}
       \vspace{8mm plus .1fill}
       {\Huge\textbf{\@title}\par}
       \vspace{8mm plus .1fill}
@@ -76,7 +80,7 @@
    Date \hfill Supervisor's signature
    
    \vspace{3cm}
-   \textbf{\Large Author's statement}
+   \textbf{\Large Authors' statement}
     \vspace{10mm}
 
     Hereby I declare that the present thesis was prepared by me and none of its contents was obtained by means that are against the law.
@@ -84,7 +88,7 @@
     Moreover, I declare that the present version of the thesis is identical to the attached electronic version.
    \vspace{15mm}
    
-   Date \hfill Author's signature
+   Date \hfill Authors' signature
     \vspace{4cm}
   \end{titlepage}
   \setcounter{footnote}{0}%
@@ -92,13 +96,19 @@
   \global\let\maketitle\relax
   \global\let\@thanks\@empty
   \global\let\@author\@empty
+  \global\let\@authorN\@empty
   \global\let\@date\@empty
   \global\let\@title\@empty
   \global\let\title\relax
   \global\let\author\relax
+  \global\let\authorN\relax
   \global\let\date\relax
   \global\let\and\relax
 }
+\def\authorN#1{\gdef\@authorN{#1}}
+\def\@authorN{???\ClassError{pracamgr}{Brak drugiego autora}\@ehc}
+\def\nralbumuN#1{\gdef\@nralbumuN{#1}}
+\def\@nralbumuN{???\ClassError{pracamgr}{Brak numeru albumu}\@ehc}
 \def\nralbumu#1{\gdef\@nralbumu{#1}}
 \def\@nralbumu{???\ClassError{pracamgr}{Brak numeru albumu}\@ehc}
 \def\kierunek#1{\gdef\@kierunek{#1}}
@@ -149,7 +159,7 @@
   \vspace*{26pt}%
 %-------------------nowosc----------------
   \begin{center}%
-    \bfseries\large Tytu{\l} pracy w j¦zyku polskim
+    \bfseries\large Tytu{\l} pracy w j?zyku polskim
     \@endparpenalty\@M
   \end{center}
   \@tytulang\par
