@@ -74,7 +74,7 @@
    \textbf{\Large Supervisor's statement }
       \vspace{10mm}
 
-   Hereby I confirm that the present thesis was prepared under my supervision and that it fulfils the requirements for the degere of Master of Informatics.
+   Hereby I confirm that the present thesis was prepared under my supervision and that it fulfils the requirements for the degree of Master in Computer Science.
    \vspace{15mm}
    
    Date \hfill Supervisor's signature
@@ -159,7 +159,7 @@
   \vspace*{26pt}%
 %-------------------nowosc----------------
   \begin{center}%
-    \bfseries\large Tytu{\l} pracy w j?zyku polskim
+    \bfseries\large Tytu{\l} pracy w jezyku polskim
     \@endparpenalty\@M
   \end{center}
   \@tytulang\par
