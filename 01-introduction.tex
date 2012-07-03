@@ -1,55 +1,78 @@
 \chapter{Introduction}
 
-The Internet is one of the most successful technologies in the humankind history. This is party due to its solid fundamentals - the protocols, which were designed and carefully optimised for high throughput, low latencies and outstanding reliability. As a result of this architectural decisions, devices connected by the Internet can communicate efficiently.
+The Internet is one of the most successful technologies in the humankind history.
+This is party due to its solid foundations --- the protocols, which were designed and carefully optimised for a high throughput, low latencies and outstanding reliability.
+As a result of this architectural decisions, devices connected by the Internet can communicate efficiently.
 
-However, novel ideas on the evolution of the Internet require revisiting the design goals of the protocols. In particular, power consumption was not considerate as an prioritised objective. Consequently, today's Internet devices either must be permanently connected to a power grid or live only a few hours on batteries.
+However, novel ideas on the evolution of the Internet require revisiting the design goals of the protocols.
+In particular, power consumption was not considered as a high-priority objective.
+Consequently, today's Internet devices either must be permanently connected to a power grid or live on batteries for only a few hours.
 
 % Internet of things
 \section{Internet of Things}
 
-The lack of focus on power constitutes a major problem for the novel vision of the global network: the so-called Internet of Things (\footnote{term first used by Kevin Ashton in RFID Journal, 22 July 2012: \url{http://www.rfidjournal.com/article/view/4986}}). The principal idea behind this vision is making ordinary physical objects - things - Internet-enabled, so they can communicate each other without human in the loop. Connecting ordinary things to the Internet would open plethora of new possibilities in information technology. Including tracking items (e.g. monitoring art images), reducing resource waste (e.g. controlling city lights) and would help us to better understand our environment (e.g. monitoring wildlife \cite{liu2009long}).
-The major challenge is that majority of things are currently not connected to a power grid. What is more, in many cases, employing power cables preclude normal use of things. Likewise, many things cannot be expected to be maintained regularly, for example, to swap the batteries.
-Therefore, the Internet of Things requires a rethought approach to the problem.
+The lack of focus on power constitutes a major problem for the novel vision of the global network: the so-called Internet of Things\footnote{term first used by Kevin Ashton \cite{InternetOfThings}}.
+The principal idea behind this vision is making ordinary physical objects --- things --- Internet-enabled, so that they can communicate each other without a human in the loop.
+Connecting ordinary things to the Internet would open a plethora of possibilities in information technology, including tracking items (e.g. monitoring art images), reducing resource waste (e.g. controlling city lights) and helping us better understand our environment (e.g. monitoring wildlife \cite{liu2009long}).
+A major challenge is that the most of things are currently not connected to a power grid.
+What is more, in many cases, employing power cables would preclude normal use of the things.
+Likewise, many things cannot be expected to be maintained regularly, for example, to replace their batteries.
+Therefore, the Internet of Things requires a rethought approach.
 
 % Philosophy
 
-More specifically, a technology used to connect everyday things to the Internet has to meet following core requirements:
+More specifically, a technology used to connect everyday things to the Internet has to meet the following core requirements:
 \begin{itemize}
-  \item fully wireless - cables are not feasible in most use cases. Therefore, both power and communication should not required them. Data could be transmitted using radio, infrared, light or sonic waves.
-  \item low-power - the energy is the precious resource in wireless nodes. It is needed by all of the components and could be provided from batteries or harvesting energy. The harvesting opportunities are very limited without hugely increasing the device complexity or requiring very specific environment (e.g. sunny place). The batteries are currently the main source and their capacity will probably increase slowly over the next years. So optimising for low-power usage seems to be only viable solution.
-  \item inexpensive hardware - each node placed in a thing should cost only a small percentage of the thing itself. Ideally they should cost at least an order of magnitude less then current generation. E.g. we might want to place microcontroler in every LED light bulb.
+  \item \textbf{Fully wireless.} Cables are not feasible in most use cases. Therefore, both power and communication should not require them.
+Data should be transmitted using radios, infrared, light or sonic waves.
+  \item \textbf{Low-power.} Energy is a precious resource for a wireless node.
+It is needed by all of the node's components and can be provided from batteries or ithe environment (by harvesting).
+Energy harvesting opportunities are limited without increasing the node's complexity or requiring a specific environment (e.g. a sunny place).
+Therefore batteries are currently the main source and their capacity will probably increase slowly over the next years. So optimising for low-power usage seems to be only viable solution.
+  \item \textbf{Inexpensive hardware.} Each node placed in a thing should cost only a small percentage of the thing itself.
+Ideally it should cost at least an order of magnitude less then acurrent generation sensor node.
   % \item low duty cycle - some power savings are constrained due to physics limitation. Most notable wireless communication. So using most energy consuming components for only a tiny percent of total time seems to be the best option. That way even current sensors are capable of working even years without a service.
 \end{itemize}
 
 % Problem
 \section{Routing}
-Moore's law brings hope to produce better hardware. While keeping the same performance we are able to produce less power hungry nodes every year. However, software and protocols need to be developed to support this new technology.
+Moore's law brings hope to produce better hardware: while keeping the same performance we are able to produce less power hungry nodes every year.
+However, software and protocols need to be developed to support this new technology.
 
-One of the fundamental problems in sensor networks is routing. The goal of routing protocol is finding paths in the network along which nodes can communicate.
-In a typical environment a single node can only communicate with a few nearest nodes. Sending a packet to another node requires passing it by intermediate nodes along the path provided by the routing protocol. Doing this efficiently, reliably and with reasonable latencies is a major challenge.
+One of the fundamental problems in sensor networks is routing.
+The goal of a routing protocol is finding paths in the network along which nodes can communicate.
+In a typical environment a single node can communicate with only a few nearest nodes.
+Sending a packet to another node thus requires passing it by intermediate nodes along the path provided by the routing protocol.
+Doing this efficiently, reliably and with reasonable latencies is a major challenge.
 
 % Mobility
-What makes this problem even more interesting, is the fact that the things often moves in real world, so do nodes.
-Mobility bring additional problems to routing protocols.
-The structure changes over time and algorithms have to be at the same time reliability without causing too much redundant communication.
+What makes this problem even more interesting is the fact that things often moves in the real world and so would nodes embedded into them.
+Mobility brings additional problems to routing protocols.
+The network topology changes over time and algorithms have to ensure reliable packet delivery without causing too much redundant communication.
 
-The rhoRoute project aims to investigate the problem and develop better routing algorithms for mobile networks. In order to accomplish this goal, an appropriate infrastructure is required.
-Often algorithms which work well in simulation do not necessarily achieve similar results in the real world. Moreover the technical implementation of a routing algorithm is usually non-trivial, because of node hardware constraints.
 
 \section{Problem statement}
+% TODO
+The \"Scalable Self-Managed Point-to-Point Routing for the Internet of Things Applications\" (rhoRoute) project aims to investigate the problem of routing and develop better routing algorithms for mobile networks.
+In order to accomplish this goal, an appropriate infrastructure is required.
+Often algorithms that work well in simulation do not necessarily achieve similar results in the real world. Moreover the technical implementation of a routing algorithm is usually non-trivial, because of node hardware constraints.
+
+% TODO
 In order to simplify programming model and be able to compare routing algorithms sensor network researches utilise TinyOS operating system. It provides many useful features and increase programmer productivity. However, it is not supported by many devices, including Chronos eZ430. The aim of this thesis is to port TinyOS to eZ430. It requires assembling a better programming environment and writing the device drivers.
 
 In addition to that, by using TinyOS on the mobile node eZ430 will be inter-operable with gnode. The gnode are a static nodes which were used to construct a static network of sensor nodes at MIMUW faculty (called testbed). This allow evaluation of routing algorithm using static or/and mobile nodes. 
 
 % Contributions
 \section{Contributions}
-The goal of this thesis project is to provide:
+Our contributions are manifold:
 \begin{itemize}
-  \item Platform Chronos in TinyOS - port of TinyOS on eZ430. Consist mainly of device drivers implementation.
-  \item Programming environment - set of configured and adapted developer tools. They enable and simplify programming TinyOS applications of eZ430.
-  \item Conduct experiments of power usage and radio connectivity - methodology of experiments and their results. Their extend our knowledge about device beyond official specification.
-  \item Feasibility studies. Analyse what are the possible use case for Chronos. It is based on experiments and our experience. The study provides examples of future applications and how suitable are they to Chronos platform.
-  \item Thesis paper. The paper itself could be an useful introduction to programming in TinyOS on eZ430.
+  \item A new TinyOS platform for eZ430 Chronos. Port of TinyOS on eZ430. Consist mainly of device drivers implementation.
+% TODO write more
+  \item A programming environment for eZ430 --- set of configured and adapted developer tools. They enable and simplify programming TinyOS applications of eZ430.
+% TODO write more
+  \item Experiments investigating power usage and radio connectivity of eZ430 --- methodology of experiments and their results. Their extend our knowledge about device beyond official specification.
+  \item Application feasibility studies. Analyse what are the possible use case for Chronos. It is based on experiments and our experience. The study provides examples of future applications and how suitable are they to Chronos platform.
+  \item It is worth mentioning, that this very thesis is a major contribution itself. More specifically, it constitutes an introduction to programming in TinyOS on eZ430. Therefore, it is likely to be useful not only for future members of the rhoRoute project, but also possibly for researches and developers from other groups.
 \end{itemize}
 
 % Thesis organisation
