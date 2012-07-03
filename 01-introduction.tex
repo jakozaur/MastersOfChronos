@@ -1,7 +1,7 @@
 \chapter{Introduction}
 
 The Internet is one of the most successful technologies in the humankind history.
-This is party due to its solid foundations --- the protocols, which were designed and carefully optimised for a high throughput, low latencies and outstanding reliability.
+This is party due to its solid foundations --- the protocols, which were designed and carefully optimized for a high throughput, low latencies and outstanding reliability.
 As a result of this architectural decisions, devices connected by the Internet can communicate efficiently.
 
 However, novel ideas on the evolution of the Internet require revisiting the design goals of the protocols.
@@ -26,11 +26,11 @@ More specifically, a technology used to connect everyday things to the Internet 
   \item \textbf{Fully wireless.} Cables are not feasible in most use cases. Therefore, both power and communication should not require them.
 Data should be transmitted using radios, infrared, light or sonic waves.
   \item \textbf{Low-power.} Energy is a precious resource for a wireless node.
-It is needed by all of the node's components and can be provided from batteries or ithe environment (by harvesting).
+It is needed by all of the node's components and can be provided from batteries or the environment (by harvesting).
 Energy harvesting opportunities are limited without increasing the node's complexity or requiring a specific environment (e.g. a sunny place).
-Therefore batteries are currently the main source and their capacity will probably increase slowly over the next years. So optimising for low-power usage seems to be only viable solution.
+Therefore batteries are currently the main source and their capacity will probably increase slowly over the next years. So optimizing for low-power usage seems to be only viable solution.
   \item \textbf{Inexpensive hardware.} Each node placed in a thing should cost only a small percentage of the thing itself.
-Ideally it should cost at least an order of magnitude less then acurrent generation sensor node.
+Ideally it should cost at least an order of magnitude less then a current generation sensor node.
   % \item low duty cycle - some power savings are constrained due to physics limitation. Most notable wireless communication. So using most energy consuming components for only a tiny percent of total time seems to be the best option. That way even current sensors are capable of working even years without a service.
 \end{itemize}
 
@@ -58,7 +58,7 @@ In order to accomplish this goal, an appropriate infrastructure is required.
 Often algorithms that work well in simulation do not necessarily achieve similar results in the real world. Moreover the technical implementation of a routing algorithm is usually non-trivial, because of node hardware constraints.
 
 % TODO
-In order to simplify programming model and be able to compare routing algorithms sensor network researches utilise TinyOS operating system. It provides many useful features and increase programmer productivity. However, it is not supported by many devices, including Chronos eZ430. The aim of this thesis is to port TinyOS to eZ430. It requires assembling a better programming environment and writing the device drivers.
+In order to simplify programming model and be able to compare routing algorithms sensor network researches utilize TinyOS operating system. It provides many useful features and increase programmer productivity. However, it is not supported by many devices, including Chronos eZ430. The aim of this thesis is to port TinyOS to eZ430. It requires assembling a better programming environment and writing the device drivers.
 
 In addition to that, by using TinyOS on the mobile node eZ430 will be inter-operable with gnode. The gnode are a static nodes which were used to construct a static network of sensor nodes at MIMUW faculty (called testbed). This allow evaluation of routing algorithm using static or/and mobile nodes. 
 
@@ -71,12 +71,12 @@ Our contributions are manifold:
   \item A programming environment for eZ430 --- set of configured and adapted developer tools. They enable and simplify programming TinyOS applications of eZ430.
 % TODO write more
   \item Experiments investigating power usage and radio connectivity of eZ430 --- methodology of experiments and their results. Their extend our knowledge about device beyond official specification.
-  \item Application feasibility studies. Analyse what are the possible use case for Chronos. It is based on experiments and our experience. The study provides examples of future applications and how suitable are they to Chronos platform.
+  \item Application feasibility studies. Analyze what are the possible use case for Chronos. It is based on experiments and our experience. The study provides examples of future applications and how suitable are they to Chronos platform.
   \item It is worth mentioning, that this very thesis is a major contribution itself. More specifically, it constitutes an introduction to programming in TinyOS on eZ430. Therefore, it is likely to be useful not only for future members of the rhoRoute project, but also possibly for researches and developers from other groups.
 \end{itemize}
 
-% Thesis organisation
-\section{Thesis organisation}
+% Thesis organization
+\section{Thesis organization}
 TODO: rewrite when thesis is done.
 
-The thesis is organised into 8 chapters. Chapter 2 discusses the Chronos hardware technical capabilities. Chapter 3 describes programming environment which was assembled to write drivers more efficiently and help application developers. Chapter 4 discusses TinyOS and NesC architecture, while chapter 5 describes in detail implementation work on device drivers. Chapter 6 is about all of the experiments and evaluations on Chronos. The further application for chronos are identified and analysed in chapter 7. The last chapter (8) summarise the progress and points further areas for improvement.
+The thesis is organized into 8 chapters. Chapter 2 discusses the Chronos hardware technical capabilities. Chapter 3 describes programming environment which was assembled to write drivers more efficiently and help application developers. Chapter 4 discusses TinyOS and NesC architecture, while chapter 5 describes in detail implementation work on device drivers. Chapter 6 is about all of the experiments and evaluations on Chronos. The further application for chronos are identified and analyzed in chapter 7. The last chapter (8) summarize the progress and points further areas for improvement.
