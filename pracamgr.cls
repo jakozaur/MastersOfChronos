@@ -159,7 +159,7 @@
   \vspace*{26pt}%
 %-------------------nowosc----------------
   \begin{center}%
-    \bfseries\large Tytu{\l} pracy w jezyku polskim
+    \bfseries\large Tytu{\l} pracy w j\k{e}zyku polskim
     \@endparpenalty\@M
   \end{center}
   \@tytulang\par
