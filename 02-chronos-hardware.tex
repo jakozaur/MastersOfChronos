@@ -63,7 +63,7 @@
         so called power states. They are called Active, LPM0, LPM1.. 
         Each successive consumes less energy, by disabling various
         functions and peripherals. This mechanism is crucial for
-        legthening the battery life. To give the reader a better feel of
+        lengthening the battery life. To give the reader a better feel of
         how important that is, we list some crude battery life
         estimates^2(note on the assumptions) :
         * In Active mode (executing instructions) watch battery would
@@ -109,7 +109,7 @@
      * Universal Serial Communication Interface (USCI) is a special
        hardware driver that can be configured to pose as one of
        standard communication interfaces. Most notably these are SPI
-       (Serial Peripherial Interface), I^2C (Inter-Integrated Circuit)
+       (Serial Peripheral Interface), I^2C (Inter-Integrated Circuit)
        and UART (Universal Asynchronous Receiver/Transmitter). Though
        cumbersome, each one can be implemented in software, however
        hardware support increases performance by an order of
@@ -122,7 +122,30 @@
        however necessary in CC430 family, because such functionality is
        built-in and known as port remapping. Special functions can
        be reconnected to arbitrary IO pins during MCU operation.
-
+     * RF1A module is 868MHz radio transceiver, which is capable of
+     sending and receiving short packets of data (around 50 bytes in
+     length). Typically such modules are implemented in separate
+     chips. CC430 family however has has it built in, which decreases
+     production costs. Also radio module is very power consuming and
+     must be used sparingly.
+     * REF is a reference voltage generator. Some components like the
+     LCD require a certain electric voltage for their operation.
+     Others perform comparisons of external voltages to the reference
+     voltage. It is very convenient to generate such voltage without
+     help of external circuitry.
+     * Comp_B is a voltage comparator. It is a circuit that can
+     compare two voltages and tell which one is higher. Also one of
+     them could be a reference voltage of known value. Comparators are
+     used to interface real world signals to digital circuitry
+     * ADC12_A is an analog to digital converter module. Conceptually
+     it's a generalised comparator ^(footnote, about realisation),
+     because it returns multiple bits of information instead of one.
+     An ADC circuit can very quickly measure the value of some
+     external voltage. Thus if you wanted to construct a thermometer
+     you would connect a thermo-resistor (resistance of which reflects
+     it's temperature) to the reference voltage and measure the
+     resulting voltage with ADC. From that result temperature can be
+     derived.
 
 
 \end{comment}
