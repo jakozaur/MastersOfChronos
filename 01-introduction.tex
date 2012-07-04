@@ -1,7 +1,7 @@
 \chapter{Introduction}
 
 The Internet is one of the most successful technologies in the humankind history.
-This is party due to its solid foundations --- the protocols, which were designed and carefully optimized for a high throughput, low latencies and outstanding reliability.
+This is party due to its solid foundations --- the protocols, designed and carefully optimized for a high throughput, low latencies and outstanding reliability.
 As a result of this architectural decisions, devices connected by the Internet can communicate efficiently.
 
 However, novel ideas on the evolution of the Internet require revisiting the design goals of the protocols.
@@ -29,10 +29,10 @@ Data should be transmitted using radios, infrared, light or sonic waves.
 It is needed by all of the node's components and can be provided from batteries or the environment (by harvesting).
 Energy harvesting opportunities are limited without increasing the node's complexity or requiring a specific environment (e.g. a sunny place).
 Therefore batteries are currently the main source of energy.
-However their capacity will probably increase slowly.
+However, their capacity will probably increase slowly.
 Consequently, minimizing energy usage seems to be the only reasonable solution.
   \item \textbf{Inexpensive hardware.} Each node placed in a thing should cost only a small percentage of the thing itself.
-Ideally it should cost at least an order of magnitude less then a current generation of sensor nodes.
+Ideally it should cost at least an order of magnitude less than a current generation of sensor nodes.
   % \item low duty cycle - some power savings are constrained due to physics limitation. Most notable wireless communication. So using most energy consuming components for only a tiny percent of total time seems to be the best option. That way even current sensors are capable of working even years without a service.
 \end{itemize}
 
@@ -48,7 +48,7 @@ Sending a packet to another node thus requires passing it by intermediate nodes 
 Doing this efficiently, reliably and with reasonable latencies is a major challenge.
 
 % Mobility
-What makes this problem even more interesting is the fact that things often moves in the real world and so would nodes embedded into them.
+What makes this problem even more interesting is the fact that things often move in the real world and so would nodes embedded into them.
 Mobility brings additional problems to routing protocols.
 The network topology changes over time and algorithms have to ensure reliable packet delivery without causing too much redundant communication.
 
@@ -57,36 +57,38 @@ The network topology changes over time and algorithms have to ensure reliable pa
 The ``Scalable Self-Managed Point-to-Point Routing for the Internet of Things Applications'' (rhoRoute) project aims to investigate the problem of routing and developing better routing algorithms for mobile networks.
 In order to accomplish this goal, an appropriate infrastructure is required.
 Often algorithms that work well in simulation do not necessarily achieve similar results in the real world.
-Moreover the technical implementation of a routing algorithm is usually non-trivial, because of node hardware constraints.
+Moreover, the technical implementation of a routing algorithm is usually non-trivial, because of node hardware constraints.
 
-The sensor node hardware is the vital equipment required for the real world evaluations.
-The ideal device should provide a decent radio range, different sensors, LCD display and buttons.
+The sensor node hardware is the vital equipment required for evaluations.
+The ideal device should provide a good radio range, different sensors, LCD display and buttons.
 For this purpose wireless smart watches constitute an ideal platform for testing mobile routing protocols.
 The model Chronos eZ430\footnote{\cite{eZ430Chronos}} was chosen, because of it is decent specification, popularity and reasonable price.
 
 However, the software is also an key element.
-The routing algorithms are often more complicated than producent's suggested use cases (e.g. sport performance monitoring). 
+The routing algorithms are often more complicated than manufacturer's suggested use cases (e.g. monitoring sport performance). 
 In order to produce high quality software the system should consist of modular, reusable components.
 The researchers are commonly using TinyOS\footnote{\cite{TinyOS}} to achieve that goal.
-It provides many useful features and increases programmers' productivity.
+It also provides many useful features and increases programmers' productivity.
 
 Unfortunately, eZ430 Chronos was not supported by TinyOS.
 The aim of this Master's thesis is to port TinyOS on eZ430 Chronos. 
 In addition to that, a programming environment should be provided.
 The result of that work should be usable by other researchers, who will use eZ430 Chronos as a platform for their experiments. 
 
-What is also very important, by using the same operating system --- TinyOS, researches are able to compare their algorithms and evaluation more accurately. 
+What is also very important, by using the same operating system (OS) --- TinyOS, researches are able to compare their algorithms and evaluation more accurately. 
 Common OS also simplify cross-devices interoperability, in particular eZ430 with GNode.
 This was another requirement for project rhoRoute, because the existing testbed\footnote{located at Faculty of Mathematics, Informatics and Mechanics, University of Warsaw} uses GNode sensor nodes.
-Accomplishing this requirement allows testing hybrid static-mobile networks in the future.
+Accomplishing this requirement allows testing hybrid static-mobile networks.
 
 % Contributions
 \section{Contributions}
 Our contributions are manifold:
 \begin{itemize}
-  \item A new TinyOS platform for eZ430 Chronos. Port of TinyOS on eZ430. It consist of device drivers for timers, keyboard, radio, accelerometer, altitude meter, beeper and LCD screen.
+  \item A new TinyOS platform for eZ430 Chronos.
+It is a port of existing operating system into the new hardware architecture.
+It consist of device drivers for timers, keyboard, radio, accelerometer, altitude meter, beeper and LCD screen.
 The drivers provide high-level abstraction and encapsulate hardware details.
-  \item A programming environment for eZ430 --- set of configured and adapted developer tools. They enable and simplify programming TinyOS applications on eZ430. It consist of mspdebug --- allows deploying programs on the device and debugger, different variants of printf, Eclipse --- Integrated Development Environment, vim --- text editor and a configured virtual machine.
+  \item A programming environment for eZ430 --- set of configured and adapted developer tools. They enable and simplify programming TinyOS applications on eZ430. It consist of mspdebug --- allows deploying programs on the device and debugger, different variants of printf, Eclipse --- Integrated Development Environment, vim --- text editor and a virtual machine image.
   \item Experiments investigating power usage and radio connectivity of eZ430 --- methodology of experiments and their results. Their extend our knowledge about device beyond official specification.
   \item Application feasibility studies. Analyze what are the possible use case for Chronos. It is based on experiments and our experience. The study provides examples of future applications and how suitable are they to Chronos platform.
   \item It is worth mentioning, that this very thesis is a major contribution itself. More specifically, it constitutes an introduction to programming in TinyOS on eZ430. Therefore, it is likely to be useful not only for future members of the rhoRoute project, but also possibly for researches and developers from other groups.
