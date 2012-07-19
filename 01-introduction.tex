@@ -24,7 +24,7 @@ Therefore, the Internet of Things requires a rethought approach.
 More specifically, a technology used to connect everyday things to the Internet has to meet the following core requirements:
 \begin{itemize}
   \item \textbf{Fully wireless.} Cables are not feasible in most use cases. Therefore, both power and communication should not require them.
-Data should be transmitted using radios, infrared or sonic waves.
+Data should be transmitted using radio, infrared or sonic waves.
   \item \textbf{Low-power.} Energy is a precious resource for a wireless node.
 It is needed by all of the node's components and can be provided from batteries or the environment (by harvesting).
 Energy harvesting opportunities are limited without increasing the node's complexity or requiring a specific environment (e.g. a sunny place).
@@ -66,7 +66,7 @@ The model Chronos eZ430\footnote{\cite{eZ430Chronos}} was chosen, because of its
 
 However, as we argue above, being able to develop software for the hardware is equally important.
 Routing algorithms are often more complicated than the manufacturer's suggested use cases (monitoring sport performance). 
-In order to be of a high quality software, software should consist of modular, reusable components.
+In order to be of a high quality software, the system should consist of modular, reusable components.
 Researchers commonly use TinyOS\footnote{\cite{TinyOS}} to achieve this goal.
 Moreover, TinyOS also provides many useful features and increases programmers' productivity.
 
@@ -78,7 +78,7 @@ The problem this Master's thesis addresses is porting TinyOS to eZ430 Chronos an
 % This was another requirement for project rhoRoute, because the existing testbed\footnote{located at Faculty of Mathematics, Informatics and Mechanics, University of Warsaw} uses GNode sensor nodes.
 % Accomplishing this requirement allows testing hybrid static-mobile networks.
 Cross-device interoperability is also an important issue.
-Port of TinyOS to eZ430 simplify radio communication with other devices which also use the same OS..
+Port of TinyOS to eZ430 simplify radio communication with other devices which also use the same OS.
 This requirement is motivated by the need for testing protocols in hybrid networks combining G-Nodes and eZ430, in which some nodes are static whereas others are mobile.
 
 % Contributions
@@ -87,13 +87,13 @@ Our contributions are manifold:
 \begin{itemize}
   \item A new TinyOS platform for eZ430 Chronos.
 It is a port of the existing operating system into the new hardware architecture.
-It consist of device drivers for timers, a keyboard, radio, accelerometer, altitude meter, beeper and LCD screen.
+It consist of device drivers for timers, keyboard, radio, accelerometer, altitude meter, beeper and LCD screen.
 The drivers provide a high-level abstraction and encapsulate hardware details.
   \item A programming environment for eZ430. It is set of configured and adapted developer tools. They enable and simplify programming TinyOS applications on eZ430.
 The environment consists of mspdebug (allows deploying programs on a device and debugger), different variants of printf, Eclipse (Integrated Development Environment), vim (a text editor) and a virtual machine image.
   \item Experiments investigating power usage and radio connectivity of eZ430.
 We present both, the methodology of experiments we conducted and their results.
-Their extend our knowledge on the Chronos devices beyond official specification.
+This data extend our knowledge on the Chronos devices beyond official specification.
   \item Application feasibility studies.
 We analyze what the possible use cases are for Chronos.
 The study is based on experiments and our experience.
