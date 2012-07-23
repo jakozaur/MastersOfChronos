@@ -1,5 +1,6 @@
 \chapter{Available hardware - Chronos watch and tools}
 
+
 \section{Hardware specification}
 
 \begin{figure}[h!]
@@ -10,12 +11,12 @@
 
 \begin{commnet}
   Contents of this chapter
-    # TI provides ez430-Chronos package with chronos watch (figure with watch box) and
-      other tools
-    # chapter will describe watch features, hinting applications they may be put to
-      by the developer
+    * TI provides ez430-Chronos package with chronos watch (figure
+    with watch box) and other tools
+    * chapter will describe watch hardware features, hinting on
+    applications they may be put to by the developer
     * Chronos watch
-      # chronos shown on figure x is a battery powered hand watch. It's
+      * chronos shown on figure x is a battery powered hand watch. It's
         primary components are:
       * nine digit LCD screen, with button triggered back light all segments can
         be lit independently, allowing to form not only digits but also crude
@@ -29,7 +30,7 @@
       * programmable mcu - described in a separate section below
       * radio transceiver built in to the mcu - described in mcu section
     * Watch MCU (Mobile Compute Unit)
-      # It has the low power MSP430 (Mixed Signal microProcessor) architecture.
+      * It has the low power MSP430 (Mixed Signal microProcessor) architecture.
         Belongs to the TI family of products code named CC430. Family datasheet
         describes most of chip functions.  The exact chip installed in the
         watch is code named CC430f6137. It's datasheet only describes details
@@ -53,7 +54,7 @@
           compared to an Intel Core 2 x86 processor. .. <Floyd-Warshal
           comparison>
     * Additional hardware features of the MCU chip
-      # There are certain functions that, though possible to implement in
+      * There are certain functions that, though possible to implement in
         software are also easily implemented in hardware. Choosing the second
         approach saves both execution time and energy.  Also some features can
         only be implemented with hardware support.  Here we'll walk through most
@@ -146,7 +147,44 @@
      it's temperature) to the reference voltage and measure the
      resulting voltage with ADC. From that result temperature can be
      derived.
+     * Watchdog Timer - a circuit that breaks infinite loops and other
+     MCU hangs. It needs to be refreshed periodically, otherwise it
+     resets the device.
+     * Bootstrap loader is a additional operating system on the
+     device. Most notably, it allows for software updates, whitout the
+     debug interface, through the radio for
+     instance.
+  * Other devices included in the set
+    - most notably the USB Debug Interface Dongle which is used to
+    upload new software to the watch.
+    - USB RF Access Point Dongle, which can communicate with the watch
+    over the radio and also forward it's commands to the PC.
+  * Use cases suggested by TI:
+  The eZ430-Chronos is a highly integrated, wearable wireless
+  development system based for the CC430 in a sports watch. It may be
+  used as a reference platform for watch systems, a personal display
+  for personal area networks, or as a wireless sensor node for remote
+  data collection.
 
+  Based on the CC430F6137 <1 GHz RF SoC, the eZ430-Chronos is a
+  complete CC430-based development system contained in a watch. This
+  tool features a 96 segment LCD display and provides an integrated
+  pressure sensor and 3-axis accelerometer for motion sensitive
+  control. The integrated wireless feature allows the Chronos to act
+  as a central hub for nearby wireless sensors such as pedometers and
+  heart rate monitors. The eZ430-Chronos offers temperature and
+  battery voltage measurement and is complete with a USB-based CC1111
+  wireless interface to a PC.
+
+  The eZ430-Chronos watch may be disassembled to be reprogrammed with
+  a custom application and includes an eZ430 USB programming
+  interface.
+
+  Check out the BM Innovations Chest Strap to use the Chronos as a
+  heart rate monitor.
+
+  For more information on other TI wireless solutions, please see the
+  CC430 Wireless Microcontrollers home page.
 
 \end{comment}
 
