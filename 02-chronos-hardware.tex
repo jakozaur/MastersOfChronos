@@ -1,196 +1,232 @@
 \chapter{Chronos hardware}
 
-<<<<<<< HEAD
+\section{Contents of the chapter}
 
-\section{Hardware specification}
-=======
+In this chapter we'll describe the hardware features witch are
+available in the chronos watch. We assume that the reader is
+interested in the applications watch can be put to, but these are
+limited by the hardware capabiliteis. Thus understanding what the
+hardware can do (and what it can't do) for us is the first step to
+understanding what applications are possible and may be supported by
+the platform.
+
+The descriptions will be short and high level, aiming rather to
+introduce the functionality and posibilites than boring into specific
+details.
+
+\section{eZ430-Chronos package from Texas Instruments}
+
 The eZ430 Chronos is a reference platform for wireless mobile systems.
-It is a versatile, highly integreated smart watch.
-According to manufactorer, Texas Instrument, this product was designed for developers as an evaluation platform.
-Although, it is not intended for consumer market, it is widely available and popular among technology hobbists.
+It is a versatile, highly integreated smart watch.  According to
+manufactorer, Texas Instrument, this product was designed for
+developers as an evaluation platform.  Although, it is not intended
+for consumer market, it is widely available and popular among
+technology hobbists.
 
-\section{Hardware specification and capabilities}
->>>>>>> remotes/origin/master
+It is sold in a box that contains the watch, USB programing dongle and
+USB radio dongle along with software disc and a screw driver. These
+are shown on figures \ref{fig:chronos_kit} and \ref{fig:chronos_watch}.
+The programming dongle is the upper right and radio dongle in
+lower right part of figure \ref{fig:chronos_watch}.
 
-\begin{figure}[h!]
+\begin{figure}[h]
   \centering
-  \includegraphics[width=0.6\textwidth]{img/chronos_watch.png}
-  \caption{}
-  \label{fig:eZ430_package}
+  \includegraphics[width=0.7\textwidth]{img/chronos_kit.jpg}
+  \caption{Contents of the chronos kit}
+  \label{fig:chronos_kit}
 \end{figure}
 
-<<<<<<< HEAD
-\begin{commnet}
-  Contents of this chapter
-    * TI provides ez430-Chronos package with chronos watch (figure
-    with watch box) and other tools
-    * chapter will describe watch hardware features, hinting on
-    applications they may be put to by the developer
-    * Chronos watch
-      * chronos shown on figure x is a battery powered hand watch. It's
-        primary components are:
-      * nine digit LCD screen, with button triggered back light all segments can
-        be lit independently, allowing to form not only digits but also crude
-        letters. All available segments and icons - figure. Blinking, and
-        contrast control is also supported.
-      * five user buttons
-      * digital accelerometer
-        <what can it detect - motion, free fall, ground, acceleration>
-      * digital temperature and pressure sensor (altimeter?)
-        <what can it be used to - elevation measuring>
-      * programmable mcu - described in a separate section below
-      * radio transceiver built in to the mcu - described in mcu section
-    * Watch MCU (Mobile Compute Unit)
-      * It has the low power MSP430 (Mixed Signal microProcessor) architecture.
-        Belongs to the TI family of products code named CC430. Family datasheet
-        describes most of chip functions.  The exact chip installed in the
-        watch is code named CC430f6137. It's datasheet only describes details
-        specific to this particular chip. What applications may be ran on the
-        watch is limited by MCU's resources:
-        * 32KB of flash memory. This is a non-volatile fast-read slow-write
-          on-chip memory. It stores code and data. After reset MCU jumps to a
-          location in this memory and starts executing instructions. I's amount
-          may seem little but with modern code-size optimizing compilers quite
-          complex applications are possible. For example this is just enough
-          memory to fit a temperature monitoring application in which each node
-          sends out it's readings and forwards ridings of other nodes in a way
-          that enables results to reach a single sink node.
-        * 4KB of RAM. It's operation consumes a lot of energy and this is the
-          main limitation for it's amount. 4KB is however just enough to fit a
-          temperature
-          monitoring application mentioned above.
-        * 20 Mhz of maximum clock speed. MSP430 RISC instructions are
-          however much simpler than, for example x86 ones. To give a
-          feel for this difference, 16 MHz (default in chronos) was
-          compared to an Intel Core 2 x86 processor. .. <Floyd-Warshal
-          comparison>
-    * Additional hardware features of the MCU chip
-      * There are certain functions that, though possible to implement in
-        software are also easily implemented in hardware. Choosing the second
-        approach saves both execution time and energy.  Also some features can
-        only be implemented with hardware support.  Here we'll walk through most
-        important ones available in the CC430f6137 MCU (and many other members of
-        the CC430 family for that matter):
-      * LPM support (Low Power Mode). The MCU can be in one of several
-=======
-Texas Instrument sell eZ430 in a package (\ref{fig:eZ430_package}) with:
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.6\textwidth]{img/chronos_watch.png}
+  \caption{Main elements of the chronos kit.}
+  \label{fig:chronos_watch}
+\end{figure}
+
+\section{Elements of the watch}
+Chronos watch is battery powered and has a typical wrist strap that
+allows to wear it like any other watch. It's uniqueness however comes
+from what lies within the waterproof housing. Of the more common
+elements it has a {\bf 96 segment LCD display}, which includes two
+rows of digits, respectively 4 and 5 digits long, and many other
+symbols. All segments can be lit (and even blinked) independently.
+This allows to display crude letters along with numbers. Available
+segments are shown in figure \ref{fig:chronos_segs}.  Watch also has 5
+programmable buttons, one of which controls the screen back-light.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.4\textwidth]{img/chronos_segs.png}
+  \caption{All segments of the LCD display}
+  \label{fig:chronos_segs}
+\end{figure}
+
+What's less common is it's MCU ({\bf Mobile Compute Unit}) labeled
+CC430F6137 that can be fully programmed by the user. This MCU is a, so
+called, system-on-chip (or SoC), because it contains a built in {\bf
+radio transceiver}. Conveniently it uses 868 Mhz radio waves, a band
+for which license is not required (2.4 GHz, that WiFi for instance
+uses, is another exception). The MCU will be further explored below.
+Watch also has some on-board sensors.  One is an {\bf accelerometer}
+and other a {\bf temperature and pressure sensor}. The accelerometer
+can detect watch position relative to the earth's gravity, notice
+sudden motion and also detect if watch is in free fall. The
+thermometer is quite typical, being able to measure current air
+temperature. Pressure sensor however is precise enough to measure even
+a 0.3 meter change in altitude. That's enough to detect on which floor
+of a building you are. Thus it's often called an {\bf altimeter}.
+
+Finally, the watch casing is water resistant up to 30 meters and typical
+CR2032 batteries, used in chronos, have capacity of 225 mAh and
+provide nominal voltage of 3.0 V.
+
+\section{Mobile Compute Unit}
+
+MCU is a Compute Programmable Unit (CPU) designed for extremely
+low-power usage. The one used in chronos has the MSP430 (Mixed Signal
+microProcessor) architecture particularly suited for such
+applications. It belongs to the TI family of products code named CC430
+which features 16-bit, RISC based (Reduced Instruction Set Computing)
+CPUs and is described in datasheet \cite{CC430ds}. The exact chip
+soldered in the watch is CC430F6137 and it's datasheet
+\cite{CC430F6137ds} only describes details specific to this particular
+chip.
+
+Applications that may be ran on the watch are limited by MCU's
+resources. Most limiting one is the memory. There are two types
+available:
 \begin{itemize}
-  \item wearable Chronos watch
-  \item eZ430 USB programming and debugging interface
-  \item CC1111 USB RF access point
-  \item CR2032 batteries (used in watch) and a screwdriver
+  \item {\bf 32KB of flash memory}. This is a non-volatile fast-read
+    slow-write on-chip memory. It stores code and data. After reset
+    MCU jumps to a location (address 0x8000) in this memory and starts
+    executing instructions recorded there. It's amount may seem little
+    but with
+    modern code-size optimizing compilers quite complex applications
+    are possible. For example this is just enough memory to fit a
+    temperature monitoring application in which each node sends out
+    it's readings and forwards ridings of other nodes in a way that
+    enables results to reach a single sink node.
+  \item {\bf 4KB of RAM} It is very similar to PC RAM and it's
+    operation consumes a lot of energy. That's why it's amount is so
+    small. 4KB is however just enough to fit the temperature monitoring
+    application mentioned above.
 \end{itemize}
 
-% Chronos
-The Chronos watch consist of:
-\begin{itemize}
-  \item 96 segment LCD screen: two rows of digits (4 and 5) and various symbols. Each block could be controlled independantly. In addition to that, it supports blinking and contrast control.
-  \item five pushable buttons. One of them also trigger backlight of LCD.
-  \item programable MCU (Mobile Compute Unit): CC430F6137
-\begin{itemize}
-    \item with integrated wireless 868 MHz transciver
-    \item onboard temperature and voltage sensor
-\end{itemize}
-  \item digital sensors
-\begin{itemize}
-    \item 3-Axis Accelerometer: VTI CMA3000 Series
-    \item Altimeter: VTI SCP1000 Series
-\end{itemize}
-\end{itemize}
+The MCU clock is scalable and can run at {\bf maximum frequency of 20 MHz}.
+MSP430 RISC instructions are however much simpler than, for example
+x86 ones. To give a feel for this difference, 16 MHz (default in
+chronos) was compared to an Intel Core 2 x86 processor. ..
+<Floyd-Warshal comparison> % TODO(horban): Dorobic test szybkosci
 
-Moreover, the watch casing is water resistant up to 30 meters.
-Typical CR2032 batteries got capacity of 225 mAh and provide nominal voltage 3.0 V.
+\section{Additional hardware functions}
 
-\subsection{Mobile Compute Unit}
-MCU is an Compute Programmable Unit (CPU) which aims for extremly low-power usage.
-The model used in Chronos (CC430f6317), is based on MSP430 (Mixed Signal micoProcessor) architecture.
-This processor family was designed by Texas Instruments.
-It features 16-bit, RISC based (Reduced Instruction Set Computing) CPUs.
+There are certain functions that, though possible to implement in
+software are also easily implemented in hardware. Choosing the second
+approach saves both execution time and energy.  Also some features can
+only be implemented with hardware support.  Here we'll walk through
+most important ones available in the CC430f6137 MCU (and many other
+members of the CC430 family for that matter).
 
-The CC430f6317 clock speed could be scaled, with 20 MHz as the maximum. It has two types of on-chip memory:
-\begin{itemize}
-  \item 32 KB non-volitile flash memory. Fast-read, but slow write. Stores both code and data.
-  \item 4 KB volitle RAM. Fast access. 
-\end{itemize}
-
-The MCU Also provides many custom operations, which could be implemented in software, but are provided by hardware to decrease power consumption. Including:
+{\bf LPM (Low Power Mode) support} allows MCU to dynamically switch to
+one of several power states.  They are called Active, LPM0, LPM1, etc.
+Each successive one consumes less energy, by disabling more hardware
+functions and peripherals. This mechanism is crucial for lengthening
+the battery life. To give the reader a better feel of how important
+that is, we list some crude battery life estimates:
 
 \begin{itemize}
-  \item LPM support (Low Power Mode). The MCU can be in one of several
->>>>>>> remotes/origin/master
-        so called power states. They are called Active, LPM0, LPM1.. 
-        Each successive consumes less energy, by disabling various
-        functions and peripherals. This mechanism is crucial for
-        lengthening the battery life. To give the reader a better feel of
-        how important that is, we list some crude battery life
-        estimates (note on the assumptions) :
-\begin{itemize}
-        \item In Active mode (executing instructions) watch battery would
-        last for a week (6.8 days)
-        \item If LPM0 or LPM1 was used this would grow to roughly 280 days
-        \item In LPM2 battery would last around 9 years
-        \item And finally in LPM3 or LPM4 if would last half a decade (52
-        years)
+    \item In Active mode (executing instructions) watch battery would
+    last for a week (6.8 days).
+    \item In LPM0 or LPM1 this would grow to roughly 280 days.
+    \item In LPM2 battery would last around 9 years.
+    \item And finally in LPM3 or LPM4 if would last half a decade (52
+    years) which is more than battery shelf-life.
 \end{itemize}
-        From this, it's clear that if the battery is to last years
-        than MCU must spend most of the time in lowest power modes.
- \item Timer\_A allows to sets an alarm that will fire (interrupt) after specific
-       period of time and execute certain piece of code. It's hard to
-       imagine using low power modes without such functionality.
- \item Real Time Clock - The RTC\_A module provides a real-time clock
-       and calendar function that can also be configured as a
-       general-purpose counter. Chronos is a watch after all and needs
-       calendar functions.
- \item IO pins and interrupts - MCU has pins coming out of it's chip.
-       Most of them can be configured as input, output or special
-       function. In input they inform of the signal that's connected to
-       them. In output mode they can generate high or low state (short
-       circuit warning). Special function mode connects the pin to an
-       internal hardware component i.e. the LCD driver.
-       Also it is possible to be notified (interrupt) if state of an
-       input pin changes. This gives a good way to implement buttons.
- \item CRC module - speeds up calculation of check sums. MSP430 MCUs
-       are poor in doing certain types of operations like shifts and
-       using this hardware leads to considerable speed improvements,
-       especially on large data blocks.
- \item AES128 Accelerator - Advanced Encryption Standard 128 is a very
-       secure symmetric cipher. Implementing it's encryption and
-       decryption algorithms (which are very complicated) in software
-       would not only be very slow but would also waste a large
-       amount of flash memory.
- \item LCD\_B hardware driver. There are many more LCD segments on the
-       display than there are pins on the chip. This means that the
-       chip must send more data than it's connection capacity. This is
-       solved by spreading data over time. Chip selects a group of
-       segments and lits only ones within this group. If groups are
-       changed quickly enough human won't notice the blinking. However
-       doing this in software would be very wasteful. LCD\_B hardware
-       driver does this instead.
- \item Universal Serial Communication Interface (USCI) is a special
-       hardware driver that can be configured to pose as one of
-       standard communication interfaces. Most notably these are SPI
-       (Serial Peripheral Interface), I$^2$C (Inter-Integrated Circuit)
-       and UART (Universal Asynchronous Receiver/Transmitter). Though
-       cumbersome, each one can be implemented in software, however
-       hardware support increases performance by an order of
-       magnitude.
- \item Port remapping. Typically special functions are hard-connected to
-       certain chip pins. I.e. UART's Tx and Rx may be mapped to pins
-       P1.0 and P1.1. If we had two components that wanted to
-       communicate with the MCU chip via UART, some external circuitry
-       would be needed to reconnect the pins on demand. This isn't
-       however necessary in CC430 family, because such functionality is
-       built-in and known as port remapping. Special functions can
-       be reconnected to arbitrary IO pins during MCU operation.
- \item REF is a reference voltage generator. Some components like the
-     LCD require a certain electric voltage for their operation.
-     Others perform comparisons of external voltages to the reference
-     voltage. It is very convenient to generate such voltage without
-     help of external circuitry.
- \item Comp\_B is a voltage comparator. It is a circuit that can
-     compare two voltages and tell which one is higher. Also one of
-     them could be a reference voltage of known value. Comparators are
-     used to interface real world signals to digital circuitry
+From this, it's plain that if the battery is to last years, MCU must
+spend most of the time in lowest power modes.
+
+For this reason, another vital subsystem is the {\bf Timer\_A} which
+allows to sets an alarm that will fire (interrupt) after specific
+period of time (on the order of milliseconds) and execute certain
+piece of code (interrupt handler). It would be impossible to use low
+power modes without such functionality.
+
+We should not forget that primarily our device is a watch. Thus a {\bf
+RTC\_A (Real Time Clock)} is provided. This module provides a
+wall-like clock and calendar functions. It is the best way to access
+seconds, minutes, hours, day of week, day of month, month, and year.
+Moreover it can also be configured as a general-purpose counter -
+something similar to Timer\_A.
+
+The MCU has pins coming out of it's chip. Most of them are called {\bf
+IO pins}. They can be configured to act as an input, output or special
+function.  In input mode they inform of the signal that's connected to
+them (high or low). Similarly in output mode they can generate high or
+low signal \footnote[1]{You may be tempted to connect such input and
+output pins to experiment with signal passing. Doing so is dangerous!
+Output pin will produce maximum of several mA of current. Input pin
+will try to accept all this current. Thus such a connection without a
+resistor results in a short circuit {\bf through the chip}. Use 2k
+$\Omega$ resistor to be safe.}. Special function mode connects the pin
+to an internal hardware component i.e.  the LCD driver.  Also it is
+possible to be notified (interrupt) if state of an input pin changes.
+This gives a good way to implement buttons.
+
+Now you may have noticed that there are many more LCD segments on the
+display than there are pins on the chip. Even if there were enough,
+using so many pins for the LCD would be wasteful. It's better to
+spread the data over time. In a technique called multiplexing, the
+chip selects a group of segments powering a control pin and lits ones
+within this group. 8 group pins and 8 element pins are enough to drive
+64 segments in this fashion. Groups are changed quickly enough that human
+won't notice the blinking which makes it a very practical solution.
+However doing this in software would be very wasteful so the {\bf
+LCD\_B} hardware driver does all this for us instead.
+
+Another vital hardware driver is called {\bf USCI (Universal Serial
+Communication Interface)}. It can be configured to pose as one of
+standardised communication interfaces. Most notably these are SPI
+(Serial Peripheral Interface), I$^2$C (Inter-Integrated Circuit) and
+UART (Universal Asynchronous Receiver/Transmitter). Though cumbersome,
+each one can be implemented in software, however hardware support
+increases performance by an order of magnitude. Mentioned UART is
+particularly important during development, because it allows sending
+text from watch MCU to a PC.
+
+An interesting and very practical feature of the CC430 family is
+their ability to do {\bf port remapping} in runtime. Typically special
+functions are hard-connected to certain chip pins. I.e. UART's Tx and
+Rx may be mapped to pins P1.0 and P1.1. If we had two components that
+wanted to communicate with the MCU chip via UART, some external
+circuitry would be needed to reconnect the pins on demand. This isn't
+however necessary in CC430 family, because such functionality is
+built-in. Hardware drivers can be reconnected to arbitrary IO pins
+without powering down the MCU.
+
+Following two hardware features are related to data integrity and
+security. The first one is a {\bf CRC module} that speeds up
+calculation of check sums.  MSP430 MCUs are poor in doing certain
+types of operations like shifts and using this hardware leads to
+considerable speed improvements, especially on large data blocks.
+
+Second one is the {\bf AES128 Accelerator}. Advanced Encryption
+Standard 128 is a very secure symmetric cipher. It's complicated
+encryption and decryption algorithms were implemented in hardware.
+
+Following three hardware functions ease interaction with analog
+circuits.  {\bf REF} is a reference voltage generator. Some components
+like the LCD require a certain electric voltage for their operation.
+Others perform comparisons of external voltages to the reference
+voltage. It is very convenient to generate such reference voltage
+without help of external circuitry.
+
+{\bf Comp\_B} is a voltage comparator. It is a circuit that can
+compare two voltages and tell which one is higher. Also one of them
+could be a reference voltage of known value. Comparators are used to
+interface real world signals to digital circuitry
+\begin{itemize}
+  \item 
+ \item 
  \item ADC12\_A is an analog to digital converter module. Conceptually
      it's a generalised comparator (footnote, about realisation),
      because it returns multiple bits of information instead of one.
@@ -281,4 +317,4 @@ There are many programs written by technology entusiasts. Some of the examples:
 
 % Vim settings:
 % vim: set textwidth=70:
-% vim: set formatoptions+=t:
+% vim: set fo+=t:
