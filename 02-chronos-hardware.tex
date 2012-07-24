@@ -5,23 +5,23 @@
 In this chapter we'll describe the hardware features witch are
 available in the chronos watch. We assume that the reader is
 interested in the applications watch can be put to, but these are
-limited by the hardware capabiliteis. Thus understanding what the
+limited by the hardware capabilities. Thus understanding what the
 hardware can do (and what it can't do) for us is the first step to
 understanding what applications are possible and may be supported by
 the platform.
 
 The descriptions will be short and high level, aiming rather to
-introduce the functionality and posibilites than boring into specific
+introduce the functionality and possibilities than boring into specific
 details.
 
 \section{eZ430-Chronos package from Texas Instruments}
 
 The eZ430 Chronos is a reference platform for wireless mobile systems.
-It is a versatile, highly integreated smart watch.  According to
-manufactorer, Texas Instrument, this product was designed for
+It is a versatile, highly integrated smart watch.  According to
+manufacturer, Texas Instrument, this product was designed for
 developers as an evaluation platform.  Although, it is not intended
 for consumer market, it is widely available and popular among
-technology hobbists.
+technology hobbyists.
 
 It is sold in a box that contains the watch, USB programing dongle and
 USB radio dongle along with software disc and a screw driver. These
@@ -32,14 +32,15 @@ lower right part of figure \ref{fig:chronos_watch}.
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.7\textwidth]{img/chronos_kit.jpg}
-  \caption{Contents of the chronos kit}
+  \caption{Contents of the chronos kit. (Courtesy Texas Instruments)}
   \label{fig:chronos_kit}
 \end{figure}
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.6\textwidth]{img/chronos_watch.png}
-  \caption{Main elements of the chronos kit.}
+  \caption{Main elements of the chronos kit. (Courtesy Texas
+  Instruments)}
   \label{fig:chronos_watch}
 \end{figure}
 
@@ -57,14 +58,15 @@ programmable buttons, one of which controls the screen back-light.
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.4\textwidth]{img/chronos_segs.png}
-  \caption{All segments of the LCD display}
+  \caption{All segments of the LCD display. (Courtesy Texas
+  Instruments)}
   \label{fig:chronos_segs}
 \end{figure}
 
 What's less common is it's MCU ({\bf Mobile Compute Unit}) labeled
 CC430F6137 that can be fully programmed by the user. This MCU is a, so
 called, system-on-chip (or SoC), because it contains a built in {\bf
-radio transceiver}. Conveniently it uses 868 Mhz radio waves, a band
+radio transceiver}. Conveniently it uses 868 MHz radio waves, a band
 for which license is not required (2.4 GHz, that WiFi for instance
 uses, is another exception). The MCU will be further explored below.
 Watch also has some on-board sensors.  One is an {\bf accelerometer}
@@ -162,7 +164,7 @@ The MCU has pins coming out of it's chip. Most of them are called {\bf
 IO pins}. They can be configured to act as an input, output or special
 function.  In input mode they inform of the signal that's connected to
 them (high or low). Similarly in output mode they can generate high or
-low signal \footnote[1]{You may be tempted to connect such input and
+low signal \footnote{You may be tempted to connect such input and
 output pins to experiment with signal passing. Doing so is dangerous!
 Output pin will produce maximum of several mA of current. Input pin
 will try to accept all this current. Thus such a connection without a
@@ -223,97 +225,106 @@ without help of external circuitry.
 {\bf Comp\_B} is a voltage comparator. It is a circuit that can
 compare two voltages and tell which one is higher. Also one of them
 could be a reference voltage of known value. Comparators are used to
-interface real world signals to digital circuitry
+interface analog signals to digital circuitry.
+
+And finally the {\bf ADC12\_A} is an analog to digital converter
+module. Conceptually it's a generalised comparator \footnote{In
+fact ACD is implemented using several comparators, with different
+reference voltages!}, because it returns multiple bits of information
+instead of one.  An ADC circuit can very quickly measure the value of
+some external voltage. Thus if you wanted to construct a thermometer
+you would connect a thermistor (resistance of which reflects it's
+temperature) to the reference voltage and measure the resulting
+voltage with ADC. From that temperature can be derived.
+
+There are also some subsystems that support development and in field
+operation. The {\bf Watchdog Timer} is a circuit that breaks infinite
+loops and other MCU hangs. It needs to be refreshed periodically,
+otherwise it will reset the device.
+
+{\bf Bootstrap loader} holds an additional operating system on the
+device.  Most notably, it allows for software updates, without the
+debug interface, through the radio or UART.
+
+\section{Radio transceiver}
+
+In the past radio transceivers typically comprised separate chips. In
+our case however such chip, called CC1101 has been integrated into the
+CC430F6137 MCU.  It operates on unlicensed 868 MHz band
+\footnote{However, European Telecommunications Standards Institute
+limits the duty cycle and maximal power output on 868 MHz band.}.  The
+module is capable of sending and receiving short packets of data (up
+to 52 bytes long).  The radio module is usually the most power
+consuming component and CC1101 is not an exception.  However, the
+module supports Low Power Listening (LPL) which allows to limit the
+percentage of time when radio needs to be on.
+
+\section{Other devices included in the kit}
+For the developer, the most important component is the {\bf USB debug
+interface}. It allows to:
 \begin{itemize}
-  \item 
- \item 
- \item ADC12\_A is an analog to digital converter module. Conceptually
-     it's a generalised comparator (footnote, about realisation),
-     because it returns multiple bits of information instead of one.
-     An ADC circuit can very quickly measure the value of some
-     external voltage. Thus if you wanted to construct a thermometer
-     you would connect a thermo-resistor (resistance of which reflects
-     it's temperature) to the reference voltage and measure the
-     resulting voltage with ADC. From that result temperature can be
-     derived.
-<<<<<<< HEAD
-     * Watchdog Timer - a circuit that breaks infinite loops and other
-     MCU hangs. It needs to be refreshed periodically, otherwise it
-     resets the device.
-     * Bootstrap loader is a additional operating system on the
-     device. Most notably, it allows for software updates, whitout the
-     debug interface, through the radio for
-     instance.
-  * Other devices included in the set
-    - most notably the USB Debug Interface Dongle which is used to
-    upload new software to the watch.
-    - USB RF Access Point Dongle, which can communicate with the watch
-    over the radio and also forward it's commands to the PC.
-  * Use cases suggested by TI:
-  The eZ430-Chronos is a highly integrated, wearable wireless
-  development system based for the CC430 in a sports watch. It may be
-  used as a reference platform for watch systems, a personal display
-  for personal area networks, or as a wireless sensor node for remote
-  data collection.
-
-  Based on the CC430F6137 <1 GHz RF SoC, the eZ430-Chronos is a
-  complete CC430-based development system contained in a watch. This
-  tool features a 96 segment LCD display and provides an integrated
-  pressure sensor and 3-axis accelerometer for motion sensitive
-  control. The integrated wireless feature allows the Chronos to act
-  as a central hub for nearby wireless sensors such as pedometers and
-  heart rate monitors. The eZ430-Chronos offers temperature and
-  battery voltage measurement and is complete with a USB-based CC1111
-  wireless interface to a PC.
-
-  The eZ430-Chronos watch may be disassembled to be reprogrammed with
-  a custom application and includes an eZ430 USB programming
-  interface.
-
-  Check out the BM Innovations Chest Strap to use the Chronos as a
-  heart rate monitor.
-=======
+  \item Program the device with a binary image (.hex or .exe file).
+  \item Receive text (printf messages) through UART \footnote{A small
+    hardware modification is necessary for that. It's described in
+    later chapters.}.
+  \item Connect to the watch with a debugger. In particular you can
+    view program execution, memory and registers in Eclipse IDE.
 \end{itemize}
+Connection with the watch is shown in figure \ref{fig:chronos_dongle}.
 
-\subsection{Radio transceiver}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/chronos_dongle.jpg}
+  \caption{Watch connected to the programming dongle.}
+  \label{fig:chronos_dongle}
+\end{figure}
 
-It is a CC1101 module, which is a part of CC430f6137 MCU.
-It operates on unlicensed 868 MHz band\footnote{However, European Telecommunications Standards Institute limits the duty cycle and maximal power output on 868 MHz band.}.
-The module is capable of sending and receiving short packets of data (up to 50 bytes length).
-The radio module ae usually the most power-intensive component and eZ430 is not an exception.
-However, the module supports Low Power Listening (LPL) which allows to limit the percentage of time when radio is on.
+Second device is the {\bf USB RF access point dongle}, which can
+communicate with the watch over the radio and also forward it's
+commands to the PC. One example use is driving PC mouse by moving the
+watch, or controlling a presentation with it's buttons. In fact this
+dongle is also uses a system-on-chip MCU, which additionally has USB
+support. It's architecture is however different and currently
+unsupported by TinyOS. Programming it is an interesting future work.
 
-\subsection{Additional sensors}
+The dongle is shown in figure \ref{fig:chronos_rfdongle}.
 
-TODO 
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.6\textwidth]{img/chronos_rfdongle.jpg}
+  \caption{USB RF access point dongle.}
+  \label{fig:chronos_rfdongle}
+\end{figure}
 
-\section{Existing use cases}
+\section{Intended use of the watch}
 
-\subsection{Factory Chronos Firmware}
+\subsection{Factory firmware}
 
-The software that is preloaded on every watch by manufacturer:
+TI provides software example that comes preloaded on every watch by
+the manufacturer. It provides standard watch functions like time,
+date, alarm and stopwatch. Also it shows averaged sensor measurements
+altitude, acceleration, battery voltage and temperature. If heart
+rate monitor is present it will also display it's readings. For the
+radio communication there are few wireless modes:
+
 \begin{itemize}
-  \item Watch functions: time, date, alarm and stopwatch
-  \item Sensor measurement and display: altitude, accelerometer, battery voltage, temperature, running speed and calories burned
-  \item Heart rate monitor: requires additional hardware
-  \item Wireless modes: ACC --- transmit accelerometer motion data, PPT --- wireless presentation control or bind Chronos keys to PC keyboard shortcuts, Sync --- syncs time and date with PC and calibrates temperature and altitude
-  \item Wireless protocols implemented: SimpliciTI, BlueRobin
+  \item ACC --- transmit accelerometer motion data.
+  \item PPT --- wireless presentation control or bind Chronos
+    keys to PC keyboard shortcuts.
+  \item Sync --- syncs time and date with PC and calibrates
+    temperature and altitude.
 \end{itemize}
 
 \subsection{Community use cases}
-There are many programs written by technology entusiasts. Some of the examples:
+There are many programs written by technology enthusiasts. Some of the
+examples:
 
 \begin{itemize}
   \item wireless door lock --- system of two devices, in addition to beaming two devices it is possible to define a password as a gesture meassured by accelerometer.
   \item flying mouse --- move watch and use it as a PC mouse.
-  \item automatic lighting system --- control light bolbs from your watch.
+  \item automatic lighting system --- control light bulbs from your watch.
   \item Time-based One Time Password (TOTP) Authenticator --- provides token based authorization system.
 \end{itemize}
->>>>>>> remotes/origin/master
-
-  For more information on other TI wireless solutions, please see the
-  CC430 Wireless Microcontrollers home page.
-
 
 % Vim settings:
 % vim: set textwidth=70:
