@@ -10,11 +10,75 @@
 
 \section{Printf library}
 
+When a code is first written, more often than not, it doesn't work as
+expected. Unit testing helps, but often errors arise from making false
+assumptions, and these may be reflected in tests as well. In such
+case, only observing real behaviour will lead to fixing the issue.
+
+But how to observe the behaviour of a node after it has been flashed
+with new executable image?
+
+One obvious source of information would be blinking LEDs on the board.
+In case of the chronos watch, which has no LEDs, we may use the LCD
+display, to even better results. But only small amount of information
+can be retrieved through this channel. The next idea is to use
+mspdebug tool mentioned before.  However if you ask a computer
+programmer which tool he most commonly uses to find out what's
+happening in his program, \emph{the debugger} will be his second
+answer. The first would be \emph{printf}.
+
+TinyOS has a convenient printf library that allows sending text
+messages from running device to the PC, and display them on a console.
+It's use is simple and comprises of following steps:
+
+\begin{itemize}
+  \item Include the printf library files to the build by adding
+    following line to your Makefile:
+
+    \texttt{CFLAGS += -I\$(TOSDIR)/lib/printf}
+
+  \item Instantiate printf components in your application
+    configuration. This step depends on which implementation of
+    printf you choose. See below for details.
+
+  \item Add following include in the file you wish to use printf in:
+
+    \texttt{\#include ``printf.h''}
+
+  \item Use \texttt{printf} statement to display messages and
+    ocasinally \texttt{printfflush} to ensure that they are not stuck
+    in a buffer.
+
+    \texttt{printf(``Value is \%d\textbackslash n'', value);} \\
+    \texttt{printfflush();}
+
+  \item To receive the messages you will need to run the printf
+    client. This also depends on which implementation of print you
+    choose.
+\end{itemize}
+
+Before we delve in to the specific implementations there's a warning
+regarding printf buffering. Only after the buffer is filled or when
+you call \texttt{printfflush} does the data get actually sent to the
+PC. This isn't however immediate. If you very quickly print more text
+than the capacity of the buffer, some of the messages will be lost!
+Also note that \texttt{printfflush} is non-blocking and after calling
+it, the buffer may still be ovefilled for a while, and thus messages
+may still get lost.
+
+To overcome this,  you can shorten your messages or slow down printing
+rate to ensure enough time to transmit current contents of the buffer.
+Also you can increase the size of the buffer, which is set to 250 by
+default, in \emph{print.h} header.
+
 \subsection{Mspdebug printf}
 
 \subsection{Radio printf}
 
 \subsection{Uart printf}
+
+
+-Hardware modification in appendix.
 
 % TODO: Przemek
 
@@ -33,3 +97,7 @@
 % vim syntax color and indent
 
 % virtual machine
+
+% Vim settings:
+% vim: set textwidth=70:
+% vim: set fo+=t:
