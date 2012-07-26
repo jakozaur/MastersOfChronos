@@ -9,6 +9,7 @@
 \section{Mspdebug}
 
 \section{Printf library}
+\label{sec:printf_library}
 
 When a code is first written, more often than not, it doesn't work as
 expected. Unit testing helps, but often errors arise from making false
@@ -46,7 +47,7 @@ It's use is simple and comprises of following steps:
     \texttt{\#include ``printf.h''}
 
   \item Use \texttt{printf} statement to display messages and
-    ocasinally \texttt{printfflush} to ensure that they are not stuck
+    occasionally \texttt{printfflush} to ensure that they are not stuck
     in a buffer.
 
     \texttt{printf(``Value is \%d\textbackslash n'', value);} \\
@@ -63,7 +64,7 @@ you call \texttt{printfflush} does the data get actually sent to the
 PC. This isn't however immediate. If you very quickly print more text
 than the capacity of the buffer, some of the messages will be lost!
 Also note that \texttt{printfflush} is non-blocking and after calling
-it, the buffer may still be ovefilled for a while, and thus messages
+it, the buffer may still be overfilled for a while, and thus messages
 may still get lost.
 
 To overcome this,  you can shorten your messages or slow down printing
@@ -75,10 +76,47 @@ default, in \emph{print.h} header.
 
 \subsection{Radio printf}
 
-\subsection{Uart printf}
+\subsection{Serial port printf}
+Third version of the printf library uses the serial port connection to
+communicate with the PC. On the watch end it uses the UART (Universal
+Asynchronous Receiver/Transmitter) hardware driver. This has both
+serious advantages and a disadvantage.
 
+Main advantage is, that serial communication is most reliable and best
+supported way of sending printf messages in TinyOS. For example the
+PrintfClient tool that comes with vanilla TinyOS, handles receiving
+the packets and displaying them in the console. Also it is the least
+intrusive one, since it neither requires halting the MCU nor sending
+packets through the radio transceiver.
 
--Hardware modification in appendix.
+Main drawback however is that Texas Instruments did not make the UART
+pins easily accessible on the chronos circuit board and certain
+hardware modification is necessary.  It is described in appendix
+\ref{appendix:uard_pins}. We will further assume that is has been
+applied to the watch.
+
+To enable this version of printf library you need to augment
+instructions given in section \ref{sec:printf_library} with following
+steps:
+
+\begin{itemize}
+  \item Instantiate these components in your application configuration:
+
+  \texttt{components PrintfC, SerialStartC;}
+
+  \item Connect the watch with hardware modification described in
+    appendix \ref{appendix:uart_pins} to the USB debug dongle and
+    connect the dongle to the PC.
+
+  \item To receive messages run PrintfClient:
+
+  \texttt{java net.tinyos.tools.PrintfClient -comm serial@/dev/ttyACM0:chronos}
+
+  Note that watch may have shown in \texttt{\textbackslash dev} under
+  different name, most commonly
+  \texttt{\textbackslash dev\textbackslash ttyACM1}
+\end{itemize}
+
 
 % TODO: Przemek
 
