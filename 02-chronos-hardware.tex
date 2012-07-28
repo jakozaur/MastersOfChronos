@@ -117,8 +117,38 @@ available:
 The MCU clock is scalable and can run at {\bf maximum frequency of 20 MHz}.
 MSP430 RISC instructions are however much simpler than, for example
 x86 ones. To give a feel for this difference, 16 MHz (default in
-chronos) was compared to an Intel Core 2 x86 processor. ..
-<Floyd-Warshal comparison> % TODO(horban): Dorobic test szybkosci
+chronos) was compared to an Intel Core 2 x86 processor clocked at 2.53
+GHz. Loops similar to those of Floyd-Warshal algorithm were used in the
+simulation:
+
+% \texttt{ TODO(horban): How to inline it?
+% 
+%     enum \{ N = 300 \};
+%     uint16_t M[N*2];
+% 
+%     void floydWarshal() \{
+%         uint16_t k, i, j;
+%         for(k = 0; k < N; k++)
+%           for(i = 0; i < N; i++)
+%             for(j = 0; j < N; j++) \{
+%                 if(M[i+j] > M[i+k] + M[k+j])
+%                   M[i+j] = M[i+k] + M[k+j];
+%             \}
+%     \}
+% }
+
+Execution on the watch took 27s while on the PC that was only 40ms.
+To make a fair comparison we must scale down the PC clock to 16MHz. If
+it were so, the execution would take 6.3 seconds. Thus watch MCU
+is over 4 times less efficient due to sole architectural differences.
+If we count in the clock speed difference, watch is over 670 times
+slower than a PC.
+
+However we can crudely compare power consumption in the same way.
+Intel CPU uses around 15W of power, while watch MCU only 11mW. If we
+scaled the MCU up to PC clock speed it would only use 1.7W. Thus it is
+much more power efficient. Everything depends on where the compromise
+is made.
 
 \section{Additional hardware functions}
 
@@ -219,7 +249,7 @@ Following three hardware functions ease interaction with analog
 circuits.  {\bf REF} is a reference voltage generator. Some components
 like the LCD require a certain electric voltage for their operation.
 Others perform comparisons of external voltages to the reference
-voltage. It is very convenient to generate such reference voltage
+voltage. It is very convenient to generate such reference voltages
 without help of external circuitry.
 
 {\bf Comp\_B} is a voltage comparator. It is a circuit that can
@@ -229,7 +259,7 @@ interface analog signals to digital circuitry.
 
 And finally the {\bf ADC12\_A} is an analog to digital converter
 module. Conceptually it's a generalised comparator \footnote{In
-fact ACD is implemented using several comparators, with different
+fact ACD is implemented using several comparators, with varying
 reference voltages!}, because it returns multiple bits of information
 instead of one.  An ADC circuit can very quickly measure the value of
 some external voltage. Thus if you wanted to construct a thermometer

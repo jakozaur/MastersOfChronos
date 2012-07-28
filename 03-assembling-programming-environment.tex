@@ -117,18 +117,103 @@ steps:
   \texttt{\textbackslash dev\textbackslash ttyACM1}
 \end{itemize}
 
+\section{Eclipse integrated development environment}
 
-% TODO: Przemek
+The most practical way to work with TinyOS code is using the Eclipse
+IDE. Some great work was done on that field, resulting in the Yeti 2
+plugin. It supports TinyOS application and platform development,
+providing many features. Below we'll describe the most important ones.
 
-% hardware modification
- 
+Firstly, in editor, there is some very good {\bf code completion} available
+which eases writing both module and configuration files. It completes
+component instantiations and connections. Also it completes interface
+calls, function calls and variable names, and after adding a
+\texttt{uses} or \texttt{provides} declaration, it offers to create
+command stubs. These features are best shown on the following series of
+figures - \ref{fig:first_compl} through \ref{fig:last_compl}.
 
-\section{Eclipse}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.85\textwidth]{img/eclipse_compl1.png}
+  \caption{Component instantiation completion.}
+  \label{fig:first_compl}
+\end{figure}
 
-% TODO: Przemek
-% gdb
-% code explorer
-% how to configure it (?)
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/eclipse_compl2.png}
+  \caption{User connection completion.}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.9\textwidth]{img/eclipse_compl3.png}
+  \caption{Provider connection completion.}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.9\textwidth]{img/eclipse_compl4.png}
+  \caption{Interface completion.}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.9\textwidth]{img/eclipse_compl5.png}
+  \caption{Command completion.}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.9\textwidth]{img/eclipse_compl6.png}
+  \caption{Command stubs generation.}
+  \label{fig:last_compl}
+\end{figure}
+
+Another very useful feature, especially for a new developer wishing to
+familiarize himself with TinyOS structure is the {\bf component
+explorer}. It graphically displays components instantiated and
+interconnected in configurations. Interfaces can be viewed as well.
+Starting at the top level application configuration, every part of
+it's code can be reached. This is by far the most efficient way to
+explore the call hierarchy and find where particular functions are
+implemented. Example of the PrintfC configuration, viewed through
+the component explorer is shown in figure
+\ref{fig:eclipse_compexp}.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{img/eclipse_compexp.png}
+  \caption{Component explorer showing PrintfC configuration.}
+  \label{fig:eclipse_compexp}
+\end{figure}
+
+The eclipse editor also gives many warnings about the code without
+triggering compilation. Moreover many of these useful warnings are not
+raised by NesC compiler, which is an added value. 
+
+Last but not least useful part of Yeti 2 is {\bf the debugger}. The
+chains of tools needed to debug applications on the chronos watch is
+long, but running them is as easy as pressing a button in the IDE. At
+the lowest level, the \emph{mspdebug} communicates with the watch
+through the USB debugging dongle. It runs a GDB Server to which newer
+versions of \emph{msp430-gdb} are able to connect. Eclipse runs this
+last executable and forms practical data views, reading crude data
+from GDB. Here is a list of most useful views and features:
+\begin{itemize}
+  \item Single stepping through code in NesC editor.
+  \item Call stack view.
+  \item Breakpoints list (though limited to 3 active at any moment).
+  \item Disassembly view.
+  \item Raw memory view.
+  \item Registers view.
+  \item Local variables view.
+  \item Module variables view.
+\end{itemize}
+
+There are many other features not mentioned here, most of which are
+standard to Eclipse IDE and expected to be available for any supported
+programming language.
 
 \section{Other tools}
 
