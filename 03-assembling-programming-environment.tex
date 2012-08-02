@@ -38,6 +38,11 @@ It's use is simple and comprises of following steps:
 
     \texttt{CFLAGS += -I\$(TOSDIR)/lib/printf}
 
+  \item Optionally increase the printf buffer size (250 bytes by
+    default) by adding following line to your Makefile:
+
+    \texttt{CFLAGS += -DPRINTF\_BUFFER\_SIZE=<NEW\_SIZE>}
+
   \item Instantiate printf components in your application
     configuration. This step depends on which implementation of
     printf you choose. See below for details.
@@ -67,10 +72,9 @@ Also note that \texttt{printfflush} is non-blocking and after calling
 it, the buffer may still be overfilled for a while, and thus messages
 may still get lost.
 
-To overcome this,  you can shorten your messages or slow down printing
-rate to ensure enough time to transmit current contents of the buffer.
-Also you can increase the size of the buffer, which is set to 250 by
-default, in \emph{print.h} header.
+To overcome this,  you can shorten your messages, slow down printing
+rate to ensure enough time to transmit current contents of the buffer,
+or increase the size of the buffer.
 
 \subsection{Mspdebug printf}
 

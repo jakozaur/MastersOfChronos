@@ -27,7 +27,7 @@ It is sold in a box that contains the watch, USB programing dongle and
 USB radio dongle along with software disc and a screw driver. These
 are shown on figures \ref{fig:chronos_kit} and \ref{fig:chronos_watch}.
 The programming dongle is the upper right and radio dongle in
-lower right part of figure \ref{fig:chronos_watch}.
+lower right part of Figure \ref{fig:chronos_watch}.
 
 \begin{figure}[h]
   \centering
@@ -152,120 +152,120 @@ is made.
 
 \section{Additional hardware functions}
 
-There are certain functions that, though possible to implement in
-software are also easily implemented in hardware. Choosing the second
-approach saves both execution time and energy.  Also some features can
-only be implemented with hardware support.  Here we'll walk through
-most important ones available in the CC430f6137 MCU (and many other
-members of the CC430 family for that matter).
+There are certain functions that, though possible to be implemented in
+software, are also easily implementable in hardware. Choosing the
+hardware approach saves both execution time and energy. Moreover, some
+features can be implemented only with hardware support. Let us discuss
+the most important hardware features available in the CC430f6137 MCU
+(and many other members of the CC430 family for that matter).
 
-{\bf LPM (Low Power Mode) support} allows MCU to dynamically switch to
+{\bf LPM (Low Power Mode) support} allows an MCU to dynamically switch to
 one of several power states.  They are called Active, LPM0, LPM1, etc.
-Each successive one consumes less energy, by disabling more hardware
+Each successive one consumes less energy by disabling more hardware
 functions and peripherals. This mechanism is crucial for lengthening
-the battery life. To give the reader a better feel of how important
-that is, we list some crude battery life estimates:
+the battery life. To illustrate how important this is, let us present
+some crude battery life estimates:
 
 \begin{itemize}
-    \item In Active mode (executing instructions) watch battery would
-    last for a week (6.8 days).
-    \item In LPM0 or LPM1 this would grow to roughly 280 days.
-    \item In LPM2 battery would last around 9 years.
-    \item And finally in LPM3 or LPM4 if would last half a decade (52
-    years) which is more than battery shelf-life.
+    \item In Active mode (executing instructions), the watch's battery
+      would last for a week (6.8 days).
+    \item In LPM0 or LPM1 the battery life would grow to roughly 280 days.
+    \item In LPM2 the battery would last around 9 years.
+    \item And finally in LPM3 or LPM4 it would last half a decade (52
+    years), which is more than the battery's shelf-life.
 \end{itemize}
-From this, it's plain that if the battery is to last years, MCU must
-spend most of the time in lowest power modes.
+If a battery is to last years, an MCU must spend most of the time in
+the lowest power modes.
 
-For this reason, another vital subsystem is the {\bf Timer\_A} which
-allows to sets an alarm that will fire (interrupt) after specific
+For this reason, another vital subsystem is {\bf Timer\_A}, which
+allows for setting an alarm that will fire (interrupt) after a specific
 period of time (on the order of milliseconds) and execute certain
-piece of code (interrupt handler). It would be impossible to use low
+piece of code (an interrupt handler). It would be impossible to use low
 power modes without such functionality.
 
-We should not forget that primarily our device is a watch. Thus a {\bf
-RTC\_A (Real Time Clock)} is provided. This module provides a
-wall-like clock and calendar functions. It is the best way to access
-seconds, minutes, hours, day of week, day of month, month, and year.
-Moreover it can also be configured as a general-purpose counter -
-something similar to Timer\_A.
+Since chronos is primarily a watch, {\bf RTC\_A (Real Time Clock)} is
+provided. This module provides wall clock and calendar functions. It
+is the means for accessing seconds, minutes, hours, days of week, days
+of month, months, and years.  Moreover it can also be configured as a
+general-purpose counter --- something similar to Timer\_A.
 
-The MCU has pins coming out of it's chip. Most of them are called {\bf
-IO pins}. They can be configured to act as an input, output or special
-function.  In input mode they inform of the signal that's connected to
-them (high or low). Similarly in output mode they can generate high or
-low signal \footnote{You may be tempted to connect such input and
-output pins to experiment with signal passing. Doing so is dangerous!
-Output pin will produce maximum of several mA of current. Input pin
-will try to accept all this current. Thus such a connection without a
-resistor results in a short circuit {\bf through the chip}. Use 2k
-$\Omega$ resistor to be safe.}. Special function mode connects the pin
-to an internal hardware component i.e.  the LCD driver.  Also it is
-possible to be notified (interrupt) if state of an input pin changes.
-This gives a good way to implement buttons.
+The MCU has 64 pins. Most of them are {\bf IO pins}. They can be
+configured to act as an input, output or special function.  In input
+mode, they inform of the signal that's connected to them (high or
+low). Similarly, in output mode, they can generate a high or low
+signal \footnote{If one were tempted to connect input and output pins
+to experiment with signal passing, if careless, he could destroy the
+MCU.  An output pin produces a maximum of several mA of current. An
+input pin would then accept all this current. In effect, such a
+connection without a resistor would result in a short circuit {\bf
+through the chip}. Using a 2k $\Omega$ resistor can alleviate the
+problem.}. Special function mode connects the pin to an internal
+hardware component i.e.  the LCD driver.  Also it is possible to be
+notified (via interrupt) if the state of an input pin changes.  This
+enables, for instance, implementing button drivers.
 
-Now you may have noticed that there are many more LCD segments on the
-display than there are pins on the chip. Even if there were enough,
-using so many pins for the LCD would be wasteful. It's better to
-spread the data over time. In a technique called multiplexing, the
-chip selects a group of segments powering a control pin and lits ones
-within this group. 8 group pins and 8 element pins are enough to drive
-64 segments in this fashion. Groups are changed quickly enough that human
-won't notice the blinking which makes it a very practical solution.
-However doing this in software would be very wasteful so the {\bf
-LCD\_B} hardware driver does all this for us instead.
+There are more LCD segments on the display than there are pins on the
+chip. Even if there were enough, using so many pins for the LCD would
+be wasteful. It's better to spread data over time. In a technique
+called multiplexing, the chip selects a group of segments by powering
+a control pin and lits the ones within this group. Eight group pins
+and eight element pins are enough to drive 64 LCD segments in this
+fashion. Groups are changed quickly enough that human doesn't notice
+any blinking, which makes it a practical solution.  However
+implementing this in software would be wasteful, therefore {\bf LCD\_B}
+driver does all this in hardware.
 
-Another vital hardware driver is called {\bf USCI (Universal Serial
+Another vital hardware driver is {\bf USCI (Universal Serial
 Communication Interface)}. It can be configured to pose as one of
-standardised communication interfaces. Most notably these are SPI
+standardized communication interfaces. Most notably these are SPI
 (Serial Peripheral Interface), I$^2$C (Inter-Integrated Circuit) and
 UART (Universal Asynchronous Receiver/Transmitter). Though cumbersome,
-each one can be implemented in software, however hardware support
-increases performance by an order of magnitude. Mentioned UART is
-particularly important during development, because it allows sending
-text from watch MCU to a PC.
+each one can be implemented in software. However, hardware support
+increases performance by an order of magnitude. UART, for example, is
+particularly important during development, because it allows for sending
+text from watch's MCU to a PC.
 
-An interesting and very practical feature of the CC430 family is
-their ability to do {\bf port remapping} in runtime. Typically special
-functions are hard-connected to certain chip pins. I.e. UART's Tx and
-Rx may be mapped to pins P1.0 and P1.1. If we had two components that
-wanted to communicate with the MCU chip via UART, some external
-circuitry would be needed to reconnect the pins on demand. This isn't
-however necessary in CC430 family, because such functionality is
-built-in. Hardware drivers can be reconnected to arbitrary IO pins
-without powering down the MCU.
+An interesting and practical feature of the CC430 family is the
+ability to do {\bf port remapping} at runtime. Typically special
+functions are hard-connected to certain chip pins. For example UART's
+Tx and Rx may be mapped to pins P1.0 and P1.1. If we had two
+components that wanted to communicate with the MCU chip via UART, some
+external circuitry would be needed to reconnect the pins on demand.
+This isn't, however, necessary in the CC430 family, because such
+functionality is built-in. Hardware drivers can be reconnected to
+arbitrary IO pins without powering down the MCU.
 
-Following two hardware features are related to data integrity and
+The following two hardware features are related to data integrity and
 security. The first one is a {\bf CRC module} that speeds up
 calculation of check sums.  MSP430 MCUs are poor in doing certain
 types of operations like shifts and using this hardware leads to
 considerable speed improvements, especially on large data blocks.
 
-Second one is the {\bf AES128 Accelerator}. Advanced Encryption
-Standard 128 is a very secure symmetric cipher. It's complicated
+The second one is the {\bf AES128 Accelerator}. Advanced Encryption
+Standard 128 is a secure symmetric cipher. Its complicated
 encryption and decryption algorithms were implemented in hardware.
 
-Following three hardware functions ease interaction with analog
-circuits.  {\bf REF} is a reference voltage generator. Some components
-like the LCD require a certain electric voltage for their operation.
-Others perform comparisons of external voltages to the reference
-voltage. It is very convenient to generate such reference voltages
-without help of external circuitry.
+Finally, the following three hardware functions ease the interaction
+of the MCU with analog circuits.  {\bf REF} is a reference voltage
+generator. Some components, like the LCD, require a certain electric
+voltage for their operation.  Others perform comparisons of external
+voltages to a reference voltage. It is convenient to generate such a
+reference voltages without the help from external circuitry.
 
 {\bf Comp\_B} is a voltage comparator. It is a circuit that can
-compare two voltages and tell which one is higher. Also one of them
-could be a reference voltage of known value. Comparators are used to
-interface analog signals to digital circuitry.
+compare two voltages and tell which one is higher. Moreover one of
+them can be a reference voltage of a known value. Comparators are used
+to interface analog signals to digital circuitry.
 
-And finally the {\bf ADC12\_A} is an analog to digital converter
-module. Conceptually it's a generalised comparator \footnote{In
-fact ACD is implemented using several comparators, with varying
-reference voltages!}, because it returns multiple bits of information
+And finally {\bf ADC12\_A} is an analog to digital converter
+module. Conceptually it's a generalized comparator \footnote{In
+fact ADC is implemented using several comparators, with varying
+reference voltages.}, because it returns multiple bits of information
 instead of one.  An ADC circuit can very quickly measure the value of
-some external voltage. Thus if you wanted to construct a thermometer
-you would connect a thermistor (resistance of which reflects it's
-temperature) to the reference voltage and measure the resulting
-voltage with ADC. From that temperature can be derived.
+some external voltage. Therefore, if you wanted to construct a thermometer
+you would connect a thermistor (resistance of which reflects its
+temperature) to a reference voltage and measure the resulting
+voltage with ADC. From that, temperature would be derived.
 
 There are also some subsystems that support development and in field
 operation. The {\bf Watchdog Timer} is a circuit that breaks infinite
@@ -273,51 +273,56 @@ loops and other MCU hangs. It needs to be refreshed periodically,
 otherwise it will reset the device.
 
 {\bf Bootstrap loader} holds an additional operating system on the
-device.  Most notably, it allows for software updates, without the
-debug interface, through the radio or UART.
+device.  Most notably, it allows for software updates, through the
+radio or UART.
 
 \section{Radio transceiver}
 
 In the past radio transceivers typically comprised separate chips. In
-our case however such chip, called CC1101 has been integrated into the
-CC430F6137 MCU.  It operates on unlicensed 868 MHz band
-\footnote{However, European Telecommunications Standards Institute
-limits the duty cycle and maximal power output on 868 MHz band.}.  The
-module is capable of sending and receiving short packets of data (up
-to 52 bytes long).  The radio module is usually the most power
-consuming component and CC1101 is not an exception.  However, the
-module supports Low Power Listening (LPL) which allows to limit the
-percentage of time when radio needs to be on.
+our case however such a chip, called CC1101, has been integrated into
+the CC430F6137 MCU.  It operates on the unlicensed 868 MHz band
+\footnote{However, the European Telecommunications Standards Institute
+limits the duty cycle and maximal power output on the 868 MHz band.}.
+The module is capable of sending and receiving short packets of
+data\footnote{Typically up to 63 bytes long, but through software, it
+is possible to support longer packets. Theoretically even $2^{16}$
+bytes long.}.  The radio module is usually the most power consuming
+component and CC1101 is not an exception. Therefore, it is important
+to keep it off as much as possible.
 
 \section{Other devices included in the kit}
+
 For the developer, the most important component is the {\bf USB debug
-interface}. It allows to:
+interface}. It allows for:
 \begin{itemize}
-  \item Program the device with a binary image (.hex or .exe file).
-  \item Receive text (printf messages) through UART \footnote{A small
+  \item Programing the device with a binary image (.hex or .exe file).
+  \item Receiving text (printf messages) through UART \footnote{A small
     hardware modification is necessary for that. It's described in
-    later chapters.}.
-  \item Connect to the watch with a debugger. In particular you can
-    view program execution, memory and registers in Eclipse IDE.
+    appendix \ref{appendix:uard_pins}.}.
+  \item Connecting to the watch with a debugger. In particular, the
+    developer can view the program execution, memory and registers in
+    the Eclipse IDE.
 \end{itemize}
-Connection with the watch is shown in figure \ref{fig:chronos_dongle}.
+A connection of the debug interface with the watch is shown in Figure
+\ref{fig:chronos_dongle}.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.8\textwidth]{img/chronos_dongle.jpg}
-  \caption{Watch connected to the programming dongle.}
+  \caption{Watch connected to the debug interface.}
   \label{fig:chronos_dongle}
 \end{figure}
 
-Second device is the {\bf USB RF access point dongle}, which can
-communicate with the watch over the radio and also forward it's
-commands to the PC. One example use is driving PC mouse by moving the
-watch, or controlling a presentation with it's buttons. In fact this
-dongle is also uses a system-on-chip MCU, which additionally has USB
-support. It's architecture is however different and currently
-unsupported by TinyOS. Programming it is an interesting future work.
+Another supporting device is the {\bf USB RF access point dongle},
+which can communicate with the watch over the radio and also forward
+its commands to the PC. One example use is driving a PC mouse by
+moving the watch or controlling a presentation with the watch's
+buttons. In fact, the dongle also uses a system-on-chip MCU, which
+additionally has USB support. Its architecture is, however, different
+from MSP430 and currently unsupported by TinyOS. Programming it is an
+interesting future work.
 
-The dongle is shown in figure \ref{fig:chronos_rfdongle}.
+The dongle is shown in Figure \ref{fig:chronos_rfdongle}.
 
 \begin{figure}[h]
   \centering
@@ -330,12 +335,12 @@ The dongle is shown in figure \ref{fig:chronos_rfdongle}.
 
 \subsection{Factory firmware}
 
-TI provides software example that comes preloaded on every watch by
-the manufacturer. It provides standard watch functions like time,
-date, alarm and stopwatch. Also it shows averaged sensor measurements
-altitude, acceleration, battery voltage and temperature. If heart
-rate monitor is present it will also display it's readings. For the
-radio communication there are few wireless modes:
+Texas Instruments provides software example that is preloaded on every
+watch. It provides standard watch functions like time, date, alarm and
+stopwatch. Also it shows averaged sensor measurements: altitude,
+acceleration, battery voltage and temperature. If an external  heart
+rate monitor is present the watch will also display its readings. For
+the radio communication, there are few wireless modes:
 
 \begin{itemize}
   \item ACC --- transmit accelerometer motion data.
@@ -347,14 +352,66 @@ radio communication there are few wireless modes:
 
 \subsection{Community use cases}
 There are many programs written by technology enthusiasts. Some of the
-examples:
+examples include:
 
 \begin{itemize}
-  \item wireless door lock --- system of two devices, in addition to beaming two devices it is possible to define a password as a gesture meassured by accelerometer.
+  \item wireless door lock --- a system, of two devices, with which it
+    is possible to define a password as a gesture recognized by the
+    accelerometer.
   \item flying mouse --- move watch and use it as a PC mouse.
-  \item automatic lighting system --- control light bulbs from your watch.
-  \item Time-based One Time Password (TOTP) Authenticator --- provides token based authorization system.
+  \item automatic lighting system --- control light bulbs from your
+    watch.
+  \item Time-based One Time Password (TOTP) Authenticator --- provides
+    token based authentication system.
 \end{itemize}
+
+\subsection{Deficiency of the currently existing software}
+
+Applications written for the chronos watch tend to be simple. Examples
+above confirm that. Typically, they are one person projects tailored to
+perform one particular task and share little or no code at all.  While
+it would be beneficial if a common software platform emerged from
+these efforts, nothing like this happened yet. Above applications do
+not leverage advanced algorithms that may be found in scientific
+publications. Yet chronos watch is, in essence, just another wireless
+sensor node and not utilizing all the research that has been done on
+this field is wasteful. One may expect much more from this platform.
+
+There are three main difficulties that contribute to this situation.
+Firstly watch software development is very different from what
+developers are used to on the PCs. There is no operating system
+available, that would create convenient abstractions of underlying
+hardware like: multitasking, data persistence, memory protection and
+process resource management. Also inability to run the developed
+application side by side with debugging tools makes it more difficult
+to use them. Limited resources on the MCU, most notably power, require
+writing more complicated code. Managing the MCU power states is a good
+example. Libraries could alleviate that problem, but without an
+operating system they are hard to come by. In effect, developer is
+forced to write both application and the operating system.
+
+
+Secondly, the C language
+it self makes it difficult to manage large projects. All names are in
+a global name space, there are no boundaries between components and
+it encourages poor programing practises, like register bit manipulation
+without any comments.
+
+Thirdly, working directly with the hardware
+creates many new opportunities for errors. Most common ones are: race
+conditions during interrupt handling, memory access violations and
+leaks, omitted or doubled component initialization. In any reasonably
+complex application there is need for some form of concurrency.
+Implementing it from scratch is difficult, is very common cause of
+programming errors. % TODO(horban): Dokoncz to
+
+
+
+% Why is the softwar from TI and the enthusiasts insufficient?
+% Explain (introduce) shortly
+
+
+
 
 % Vim settings:
 % vim: set textwidth=70:
