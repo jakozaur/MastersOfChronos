@@ -1,59 +1,54 @@
 \chapter{Chronos hardware}
 
-\section{Contents of the chapter}
+This chapter describes the hardware constituting a Chronos watch. The
+applications that can be deployed on the watch are limited by the
+capabilities of the hardware. Therefore understanding what the
+hardware can do is essential to understand what applications are
+possible.
 
-In this chapter we'll describe the hardware features witch are
-available in the chronos watch. We assume that the reader is
-interested in the applications watch can be put to, but these are
-limited by the hardware capabilities. Thus understanding what the
-hardware can do (and what it can't do) for us is the first step to
-understanding what applications are possible and may be supported by
-the platform.
+\section{The eZ430-Chronos package}
 
-The descriptions will be short and high level, aiming rather to
-introduce the functionality and possibilities than boring into specific
-details.
-
-\section{eZ430-Chronos package from Texas Instruments}
-
-The eZ430 Chronos is a reference platform for wireless mobile systems.
-It is a versatile, highly integrated smart watch.  According to
-manufacturer, Texas Instrument, this product was designed for
-developers as an evaluation platform.  Although, it is not intended
-for consumer market, it is widely available and popular among
+eZ430 Chronos was meant as a reference platform for wireless mobile
+systems.  It is a versatile, highly integrated smart watch.  According
+to the manufacturer, Texas Instruments, it was designed  as an
+evaluation platform for developers.  Although it is not intended for
+the consumer market, it is widely available and popular among
 technology hobbyists.
 
-It is sold in a box that contains the watch, USB programing dongle and
-USB radio dongle along with software disc and a screw driver. These
-are shown on figures \ref{fig:chronos_kit} and \ref{fig:chronos_watch}.
-The programming dongle is the upper right and radio dongle in
-lower right part of Figure \ref{fig:chronos_watch}.
+eZ430 is sold in a box that contains the watch, USB programing dongle
+and USB radio dongle along with a software disc and a screw driver.
+These are shown in Figures \ref{fig:chronos_kit} and
+\ref{fig:chronos_watch}.  The programming dongle is in the top right
+corner and the radio dongle is in the bottom right corner of Figure
+\ref{fig:chronos_watch}.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.7\textwidth]{img/chronos_kit.jpg}
-  \caption{Contents of the chronos kit. (Courtesy Texas Instruments)}
+  \caption{Contents of the chronos kit. (Courtesy Marc de
+  Vinck)}
   \label{fig:chronos_kit}
 \end{figure}
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.6\textwidth]{img/chronos_watch.png}
-  \caption{Main elements of the chronos kit. (Courtesy Texas
+  \caption{Main elements of the chronos kit. (Courtesy of Texas
   Instruments)}
   \label{fig:chronos_watch}
 \end{figure}
 
 \section{Elements of the watch}
-Chronos watch is battery powered and has a typical wrist strap that
-allows to wear it like any other watch. It's uniqueness however comes
-from what lies within the waterproof housing. Of the more common
-elements it has a {\bf 96 segment LCD display}, which includes two
-rows of digits, respectively 4 and 5 digits long, and many other
-symbols. All segments can be lit (and even blinked) independently.
-This allows to display crude letters along with numbers. Available
-segments are shown in figure \ref{fig:chronos_segs}.  Watch also has 5
-programmable buttons, one of which controls the screen back-light.
+A Chronos watch is battery powered and has a typical wrist strap that
+allows for wearing it like any other watch. Its uniqueness, however,
+comes from what lies within the housing. Of the more common elements
+it has a {\bf 96 segment LCD display}, which includes two rows of
+digits, respectively 4 and 5 digits long, and many other symbols. All
+segments can be lit (and even blinked) independently.  This allows the
+watch to display crude letters along with numbers. The available
+segments are shown in Figure \ref{fig:chronos_segs}.  The watch also
+has 5 programmable buttons, one of which controls the screen
+back-light.
 
 \begin{figure}[h]
   \centering
@@ -63,79 +58,77 @@ programmable buttons, one of which controls the screen back-light.
   \label{fig:chronos_segs}
 \end{figure}
 
-What's less common is it's MCU ({\bf Mobile Compute Unit}) labeled
-CC430F6137 that can be fully programmed by the user. This MCU is a, so
-called, system-on-chip (or SoC), because it contains a built in {\bf
-radio transceiver}. Conveniently it uses 868 MHz radio waves, a band
-for which license is not required (2.4 GHz, that WiFi for instance
-uses, is another exception). The MCU will be further explored below.
-Watch also has some on-board sensors.  One is an {\bf accelerometer}
-and other a {\bf temperature and pressure sensor}. The accelerometer
-can detect watch position relative to the earth's gravity, notice
-sudden motion and also detect if watch is in free fall. The
-thermometer is quite typical, being able to measure current air
-temperature. Pressure sensor however is precise enough to measure even
-a 0.3 meter change in altitude. That's enough to detect on which floor
-of a building you are. Thus it's often called an {\bf altimeter}.
+What's less common is its MCU ({\bf Mobile Compute Unit}) labeled
+CC430F6137,  which can be fully programmed by the user. This MCU is a so
+called system-on-chip (or SoC), because it contains a built-in {\bf
+radio transceiver}. Conveniently it uses the 868 MHz radio band
+for which no license is required.
 
-Finally, the watch casing is water resistant up to 30 meters and typical
-CR2032 batteries, used in chronos, have capacity of 225 mAh and
-provide nominal voltage of 3.0 V.
+The MCU will be discussed in more detail in the next section.
+Moreover the watch has some on-board sensors: an {\bf accelerometer}
+and a {\bf temperature and pressure sensor}. The accelerometer can
+detect the watch's position relative to the Earth's gravity, notice a
+sudden motion and detect if the watch is falling. The thermometer
+simply measures the current air temperature, the pressure though is
+precise enough to measure even a 0.3 meter change in altitude, which
+is sufficient to detect on which floor of a building the watch is. For
+this reason, the pressure sensor is often called an {\bf altimeter}.
+
+Finally, the watch casing is water resistant up to 30 meters and hosts
+typical CR2032 batteries, which have a capacity of 225 mAh and provide
+a nominal voltage of 3.0 V.
 
 \section{Mobile Compute Unit}
 
 MCU is a Compute Programmable Unit (CPU) designed for extremely
-low-power usage. The one used in chronos has the MSP430 (Mixed Signal
-microProcessor) architecture particularly suited for such
-applications. It belongs to the TI family of products code named CC430
-which features 16-bit, RISC based (Reduced Instruction Set Computing)
-CPUs and is described in datasheet \cite{CC430ds}. The exact chip
-soldered in the watch is CC430F6137 and it's datasheet
-\cite{CC430F6137ds} only describes details specific to this particular
-chip.
+low power usage. The one used in Chronos has the MSP430 (Mixed Signal
+microProcessor) architecture, which is particularly suited for low
+power applications. It belongs to the TI family of products codenamed
+CC430 which features 16-bit, RISC based (Reduced Instruction Set
+Computing) CPUs \cite{CC430ds}. The exact chip soldered in the watch
+is CC430F6137 and its datasheet describes details specific only to this
+particular chip \cite{CC430F6137ds}.
 
-Applications that may be ran on the watch are limited by MCU's
-resources. Most limiting one is the memory. There are two types
-available:
+Applications that may be run on the watch are limited by MCU's
+resources. The most limiting one is memory. There are two types
+of memory available:
 \begin{itemize}
-  \item {\bf 32KB of flash memory}. This is a non-volatile fast-read
-    slow-write on-chip memory. It stores code and data. After reset
-    MCU jumps to a location (address 0x8000) in this memory and starts
-    executing instructions recorded there. It's amount may seem little
-    but with
-    modern code-size optimizing compilers quite complex applications
-    are possible. For example this is just enough memory to fit a
-    temperature monitoring application in which each node sends out
-    it's readings and forwards ridings of other nodes in a way that
-    enables results to reach a single sink node.
-  \item {\bf 4KB of RAM} It is very similar to PC RAM and it's
+  \item {\bf 32KB of flash memory}. This is non-volatile fast-read
+    slow-write on-chip memory. It stores code and data. After a reset,
+    the MCU jumps to a location (address 0x8000) in this memory and
+    starts executing instructions recorded there. Although the 32KB of
+    flash may seem little, with modern code-size optimizing compilers,
+    quite complex applications are possible. For example, this is just
+    enough memory to fit a temperature monitoring application in which
+    each node sends out its readings and forwards readings of other
+    nodes to a single sink node.
+  \item {\bf 4KB of RAM} It is very similar to PC RAM and its
     operation consumes a lot of energy. That's why it's amount is so
     small. 4KB is however just enough to fit the temperature monitoring
     application mentioned above.
 \end{itemize}
 
-The MCU clock is scalable and can run at {\bf maximum frequency of 20 MHz}.
-MSP430 RISC instructions are however much simpler than, for example
-x86 ones. To give a feel for this difference, 16 MHz (default in
-chronos) was compared to an Intel Core 2 x86 processor clocked at 2.53
-GHz. Loops similar to those of Floyd-Warshal algorithm were used in the
-simulation:
+The MCU clock is scalable and can run at the {\bf maximum frequency of
+20 MHz}.  MSP430 RISC instructions are however much simpler than, for
+example, x86 ones. To give a feel for this difference, 16 MHz (default
+in Chronos) was compared to an Intel Core 2 x86 processor clocked at
+2.53 GHz. Loops, similar to those of Floyd-Warshal algorithm, were used
+in the simulation:
 
-% \texttt{ TODO(horban): How to inline it?
-% 
-%     enum \{ N = 300 \};
-%     uint16_t M[N*2];
-% 
-%     void floydWarshal() \{
-%         uint16_t k, i, j;
-%         for(k = 0; k < N; k++)
-%           for(i = 0; i < N; i++)
-%             for(j = 0; j < N; j++) \{
-%                 if(M[i+j] > M[i+k] + M[k+j])
-%                   M[i+j] = M[i+k] + M[k+j];
-%             \}
-%     \}
-% }
+\begin{lstlisting}[numbers=none, language=Pascal]
+    enum { N = 300 };
+    uint16_t M[N*2];
+
+    void floydWarshal() {
+        uint16_t k, i, j;
+        for (k = 0; k < N; k++)
+          for (i = 0; i < N; i++)
+            for (j = 0; j < N; j++) {
+                if(M[i+j] > M[i+k] + M[k+j])
+                  M[i+j] = M[i+k] + M[k+j];
+            }
+    }
+\end{lstlisting}
 
 Execution on the watch took 27s while on the PC that was only 40ms.
 To make a fair comparison we must scale down the PC clock to 16MHz. If
@@ -183,7 +176,7 @@ period of time (on the order of milliseconds) and execute certain
 piece of code (an interrupt handler). It would be impossible to use low
 power modes without such functionality.
 
-Since chronos is primarily a watch, {\bf RTC\_A (Real Time Clock)} is
+Since Chronos is primarily a watch, {\bf RTC\_A (Real Time Clock)} is
 provided. This module provides wall clock and calendar functions. It
 is the means for accessing seconds, minutes, hours, days of week, days
 of month, months, and years.  Moreover it can also be configured as a
@@ -365,52 +358,43 @@ examples include:
     token based authentication system.
 \end{itemize}
 
-\subsection{Deficiency of the currently existing software}
+\subsection{Shortcomings of existing software}
 
-Applications written for the chronos watch tend to be simple. Examples
-above confirm that. Typically, they are one person projects tailored to
-perform one particular task and share little or no code at all.  While
+Applications written for the Chronos watch tend to be simple. Examples
+above confirm that. Typically they are written, by one person, to
+perform a particular task and share little or no code at all.  While
 it would be beneficial if a common software platform emerged from
-these efforts, nothing like this happened yet. Above applications do
-not leverage advanced algorithms that may be found in scientific
-publications. Yet chronos watch is, in essence, just another wireless
+these efforts, nothing like this happened. Moreover, the
+applications listed above, leverage none of the advanced algorithms published in
+scientific papers. Chronos watch is, in essence, a mobile wireless
 sensor node and not utilizing all the research that has been done on
-this field is wasteful. One may expect much more from this platform.
+that field is wasteful. One may expect much more from this platform.
 
 There are three main difficulties that contribute to this situation.
 Firstly watch software development is very different from what
-developers are used to on the PCs. There is no operating system
-available, that would create convenient abstractions of underlying
-hardware like: multitasking, data persistence, memory protection and
-process resource management. Also inability to run the developed
-application side by side with debugging tools makes it more difficult
-to use them. Limited resources on the MCU, most notably power, require
-writing more complicated code. Managing the MCU power states is a good
-example. Libraries could alleviate that problem, but without an
-operating system they are hard to come by. In effect, developer is
-forced to write both application and the operating system.
+developers are used to on the PCs. There is no operating system that
+would create abstractions of underlying hardware, like: multitasking,
+data persistence, memory protection and process resource management.
+Also, inability to run the developed application side by side with
+debugging tools makes it more cumbersome to trace problems.  Limited
+resources on the MCU, most notably power, require writing more
+complicated code - managing the MCU power states being a good example.
+Libraries could alleviate that problem, but without a solid software
+platform, its difficult to create them. In effect, developer is forced
+to write both application and the operating system.
 
+Secondly, the C language it self makes it difficult to manage larger
+projects. Basically all names are in a global name space, there are no
+boundaries between components and it encourages poor programing
+practises, like register bit manipulation without any comments.
 
-Secondly, the C language
-it self makes it difficult to manage large projects. All names are in
-a global name space, there are no boundaries between components and
-it encourages poor programing practises, like register bit manipulation
-without any comments.
-
-Thirdly, working directly with the hardware
-creates many new opportunities for errors. Most common ones are: race
-conditions during interrupt handling, memory access violations and
-leaks, omitted or doubled component initialization. In any reasonably
-complex application there is need for some form of concurrency.
-Implementing it from scratch is difficult, is very common cause of
-programming errors. % TODO(horban): Dokoncz to
-
-
-
-% Why is the softwar from TI and the enthusiasts insufficient?
-% Explain (introduce) shortly
-
-
+Thirdly, working directly with the hardware, creates many new
+opportunities for errors. Most common ones are: race conditions during
+interrupt handling, memory access violations and leaks, omitted or
+doubled component initialization and improper use of hardware.
+Moreover in any reasonably complex application there is need for some
+form of concurrency.  Implementing it from scratch is difficult and
+often causes many additional programming errors.
 
 
 % Vim settings:
