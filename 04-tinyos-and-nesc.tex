@@ -1,1 +1,116 @@
 \chapter{TinyOS and NesC}
+
+\section{The NesC language}
+
+% extension of C
+% - adds language constructions that help form abstractions
+% - adds limitations
+%   - static memory allocation - resolves issues with access violations and
+%   memory limit exceed
+%   - forbids function pointers - enables static code analisys
+%
+
+Recall traditional C code. In essence it consists of function
+definitions and variable declarations listed in some order.  Calling
+one function, causes a cascade of other calls, that eventually gets
+useful work done. But how to know which function to call? Typically one
+would find that out in documentation.
+
+\subsection{Modules and interfaces}
+
+In NesC, above issue, is solved more systematically. Each C code file
+must {\bf provide} interfaces, and only through them it's functions may be
+called. An {\bf interface} is nothing more but a set of function names
+that are implemented in the file that provides it. We call such,
+an interface enriched C file, a {\bf module}.
+
+If interfaces can expose functions to external modules than, by
+symmetry, there must also be a way to call functions exposed by those
+external modules. To accomplish that, NesC module is not only allowed
+to provide interfaces, but can also {\bf use} them. If a module declares to
+use an interface, than it's free to call any function this interface
+contains. At this point, it isn't however decided where interfaces, it
+declares to use, will be implemented. It merely states that it will
+need them.
+
+Summarizing, a module is a C file that provides a set of interfaces
+and uses a different set of interfaces to help it do the work. This
+decomposition of an application, that used to be global, into module
+sized pieces makes complexity much easier to manage. Moreover,
+dependencies between modules are now explicitly stated. To understand
+inner workings of a module you only need to see it's code and the code
+of interfaces it declares to use or provide.
+
+\subsection{Configurations}
+
+We didn't yet mention, how a module that uses an interface, gets
+paired with one that provides it. This is done, through a new type of
+a file, called a {\bf configuration}. Configurations however, do much
+more than just connect interfaces of modules together.
+
+Firstly they can use and provide interfaces just as modules
+do\footnote{Though only modules contain actual function
+implementations.}. In fact modules and configurations are so similar
+than we jointly name them {\bf components}.
+
+Secondly they can instantiate components. By default all components
+(modules and configurations) are singletons. If a singleton component
+isn't ever instantiated in an application, it isn't considered during
+compilation.
+
+Each configuration first instantiates all components it intends to
+work with. Then it defines connections between their interfaces. And
+finally, if it has declared to use or provide any interfaces, it passes
+these interfaces to components it instantiated.  This means that an
+interface provided by a configuration, may be passed through several
+layers of configurations until it finally is implemented by some
+module.
+
+This mechanism forms basis for creating {\bf self-contained hermetic
+abstractions}. Namely, a top level configuration can provide a set of
+useful interfaces and hide all their implementation details. Said
+implementation can utilize several layers of abstraction, connect
+itself to components shard within application and manage module
+initialization, but user doesn't have to know any of it. All he will
+have to do, is instantiate this top level configuration in his
+application and make use of provided interfaces\footnote{In fact, each
+TinyOS application is such a high level configuration, that pulls in
+all dependencies and connects them to the module that implements
+application logic.}.
+
+
+\begin{figure}
+\centering
+\begin{emp}[classdiag2](20, 20)
+Component.PL("PlatformLedsC")();
+Component.LD("LCDDriver")();
+leftToRight(80)(PL, LD);
+drawObjects(PL, LD);
+% link.aname(providedInterface)( PL.e -- .5[PL.e, LD.w]);
+% link(requiredInterface)( LD.w -- .5[PL.e, LD.w] );
+\end{emp}
+\caption{Another class diagram}
+\end{figure}
+
+\subsection{Two-way interfaces}
+
+\subsection{Parametrized interfaces}
+
+\subsection{Parametrized interfaces}
+
+
+
+% consists of modules interfaces and configurations
+
+% top level configuration forms a self-contained component
+
+
+% a form of object oriented programming, done fullin in compile time
+
+% static memory allocation
+
+% execution flow: task, command, event
+
+% Vim settings:
+
+% vim: set fo+=t:
