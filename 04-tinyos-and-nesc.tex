@@ -46,7 +46,7 @@ of interfaces it declares to use or provide.
 We didn't yet mention, how a module that uses an interface, gets
 paired with one that provides it. This is done, through a new type of
 a file, called a {\bf configuration}. Configurations however, do much
-more than just connect interfaces of modules together.
+more than just connecting interfaces of modules together.
 
 Firstly they can use and provide interfaces just as modules
 do\footnote{Though only modules contain actual function
@@ -78,39 +78,124 @@ TinyOS application is such a high level configuration, that pulls in
 all dependencies and connects them to the module that implements
 application logic.}.
 
+We will use graphical representation of components, suggested in
+\cite{UML2ForTOS} (see Figure \ref{fig:example_component}) and where
+it's relevant, we'll distinct modules from configurations by adding
+\emph{<<realization>>} or \emph{<<specification>>} stereotypes
+respectively.
 
-\begin{figure}
-\centering
-\begin{emp}[classdiag2](20, 20)
-Component.PL("PlatformLedsC")();
-Component.LD("LCDDriver")();
-leftToRight(80)(PL, LD);
-drawObjects(PL, LD);
-% link.aname(providedInterface)( PL.e -- .5[PL.e, LD.w]);
-% link(requiredInterface)( LD.w -- .5[PL.e, LD.w] );
-\end{emp}
-\caption{Another class diagram}
+\begin{figure}[h]
+  \centering
+  \includegraphics{diagrams/example_component.eps}
+  \caption{Component with one provided and one used interface.}
+  \label{fig:example_component}
 \end{figure}
 
 \subsection{Two-way interfaces}
 
-\subsection{Parametrized interfaces}
+NesC interfaces are in fact {\bf two-way}. To explain this concept,
+we'll consider an example, where user requests an asynchronous
+operation. One possible way to support this through interface
+connections is shown in Figure \ref{fig:two_way_interface1}. The user
+calls \emph{start()} to initiate the operation and provider calls
+\emph{completed()} to notify user about it's completion.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics{diagrams/two_way_interface1.eps}
+  \caption{Asynchronous operation implemented with two interfaces.}
+  \label{fig:two_way_interface1}
+\end{figure}
+
+Though this scheme works, it forces the use of two connections where
+there is only one logical association. Need to connect callbacks
+separately from requests is an unnecessary nuisance. Instead NesC allows
+{\bf events} to be part of interfaces, in addition to normal function
+calls known as {\bf commands}. User of such interface will have to
+implement handlers for all events, which again are nothing more than C
+functions with proper names. Above scheme, implemented using events,
+is shown in Figure \ref{fig:two_way_interface2}.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics{diagrams/two_way_interface2.eps}
+  \caption{Asynchronous operation implemented with a two-way interface.}
+  \label{fig:two_way_interface2}
+\end{figure}
 
 \subsection{Parametrized interfaces}
+A component may provide a vitalized resource. This means that a real
+resource is split by software to serve several users. For example,
+let's consider the problem of waking a group people in a hotel.
+Everyone wants to be woken at different hours, but manager only has a
+single alarm clock. Solution is simple, he has to set the alarm for
+himself, to the nearest waking time of one of his customers. Then, when it
+fires, he can wake that person up and reset the alarm to the next
+nearest waking time. In essence this scheme crates multiple alarm
+clocks using only one. We may say that it virtualizes the alarm clock
+\footnote{This is actually a practical problem in low level
+programming. Few hardware timers need to be virtualized, to serve
+multiple software components.}.
 
+In NesC this would correspond to providing several \emph{Alarm}
+interfaces, while using only one. Exactly how many of these virtual
+interfaces should be provided, isn't however known ahead of time.
+Moreover, if for each virtualized interface, separate function
+implementations were needed, it would lead to wasteful code
+duplication.
 
+Instead NesC offers {\bf parametrized interfaces}. They differer from
+regular interfaces in that each implementing function receives an
+additional parameter denoting number of the interface that was used to
+call it. Notice that this is by far the most convenient way to
+implement our alarm replicator, because it can use this additional
+argument to index and update an array of firing times and then easily
+find the closest one. Exemplary replication of the \emph{Alarm}
+resource is presented in Figure~\ref{fig:parametrized_interface}
 
-% consists of modules interfaces and configurations
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.9\textwidth]{diagrams/parametrized_interface.eps}
+  \caption{Parametrized interface used in timer vitalization.}
+  \label{fig:parametrized_interface}
+\end{figure}
 
-% top level configuration forms a self-contained component
+\subsection{Generic components}
 
+Implementing a data structure like \emph{BitVector} as a singleton,
+doesn't make much sens. Therefore NesC allows for a component to be
+made {\bf generic}. Making a module or configuration generic has two
+major consequences.  Firstly all it's instantiations will create
+separate and independent components, just as if the code was copied.
+Secondly it is possible to pass arguments (both type and value) that
+will parametrize such newly created component. Graphically, generic
+components are distinguished by the parentheses after their name, as
+in Figure~\ref{fig:generic_component}. Also note that interfaces can
+be type parametrized as well, because it well supplements generic
+components.
 
-% a form of object oriented programming, done fullin in compile time
+\begin{figure}[h]
+  \centering
+  \includegraphics{diagrams/generic_component.eps}
+  \caption{A generic component with type and integer arguments,
+  providing a parametrized interface.}
+  \label{fig:generic_component}
+\end{figure}
 
-% static memory allocation
+\subsection{Memory allocation}
+Many errors found on wireless sensor nodes, for which software was
+written in C, were caused by various memory related errors. Failed
+allocation due to lack of available memory and leaks were problems
+particularly painful on nodes with very limited resources.
+
+For this reason, in NesC all memory allocation is static and resolved
+during compilation. This way, compiler can easily detect if the
+required amount of memory exceeds the amount available on the device.
+
+\section{The TinyOS operating system}
 
 % execution flow: task, command, event
 
 % Vim settings:
-
+% vim: set textwidth=70:
 % vim: set fo+=t:
