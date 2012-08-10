@@ -2,14 +2,6 @@
 
 \section{The NesC language}
 
-% extension of C
-% - adds language constructions that help form abstractions
-% - adds limitations
-%   - static memory allocation - resolves issues with access violations and
-%   memory limit exceed
-%   - forbids function pointers - enables static code analisys
-%
-
 Recall traditional C code. In essence it consists of function
 definitions and variable declarations listed in some order.  Calling
 one function, causes a cascade of other calls, that eventually gets
@@ -18,11 +10,12 @@ would find that out in documentation.
 
 \subsection{Modules and interfaces}
 
-In NesC, above issue, is solved more systematically. Each C code file
-must {\bf provide} interfaces, and only through them it's functions may be
-called. An {\bf interface} is nothing more but a set of function names
-that are implemented in the file that provides it. We call such,
-an interface enriched C file, a {\bf module}.
+In NesC\footnote{For a deeper discussion of the language see
+\cite{NesC}}, above issue, is solved more systematically.  Each C code
+file must {\bf provide} interfaces, and only through them it's
+functions may be called. An {\bf interface} is nothing more but a set
+of function names that are implemented in the file that provides it.
+We call such, an interface enriched C file, a {\bf module}.
 
 If interfaces can expose functions to external modules than, by
 symmetry, there must also be a way to call functions exposed by those
@@ -156,7 +149,7 @@ resource is presented in Figure~\ref{fig:parametrized_interface}
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.9\textwidth]{diagrams/parametrized_interface.eps}
-  \caption{Parametrized interface used in timer vitalization.}
+  \caption{Parametrized interface used in timer virtualization.}
   \label{fig:parametrized_interface}
 \end{figure}
 
@@ -194,7 +187,62 @@ required amount of memory exceeds the amount available on the device.
 
 \section{The TinyOS operating system}
 
-% execution flow: task, command, event
+\begin{quotation}
+TinyOS is an open source, BSD-licensed operating system designed for
+low-power wireless devices, such as those used in sensor networks,
+ubiquitous computing, personal area networks, smart buildings, and
+smart meters. A worldwide community from academia and industry use,
+develop, and support the operating system as well as its associated
+tools, averaging 35,000 downloads a year.
+
+It started as a collaboration between the University of
+California, Berkeley in co-operation with Intel Research and Crossbow
+Technology, and has since grown to be an international consortium, the
+TinyOS Alliance.
+
+{\hfill \cite{TOSnet,TOSw}}
+\end{quotation}
+TinyOS is written in NesC programming language. This means, that its
+made of components which interact with each other only through,
+separately specified, interfaces. The great advantage of this is
+that these components have very clear boundaries and its easy to
+understand how to use them. Consider example\footnote{This isn't a
+cleverly chosen example. Components tend to be this intuitive.} shown
+in Figure~\ref{fig:platform_serial}.
+\begin{figure}[h]
+  \centering
+  \includegraphics{diagrams/platform_serial.eps}
+  \caption{\emph{PlatformSerialC} gives access to the serial port of the 
+           Chronos watch.}
+  \label{fig:platform_serial}
+\end{figure}
+Its obvious, that first you need to call \emph{start()}, then send
+bytes with \emph{send()} method and optionally call \emph{stop()} when
+serial port is no longer needed. Complex details of handling the
+hardware are hidden beneath the abstraction.
+
+Another TinyOS's advantage is its portability. Officially it comes
+with support for 22 platforms and many more are available through
+various project forks. It also comes with many applications that share
+its core components, and most of them are platform independent. This
+results in a cartesian cross of platforms and applications, which is
+incomparably more effective, that having application and platform
+tied together.
+
+Testing is also well supported on TinyOS. Firstly, a whole-network
+simulator \cite{TOSSIM} is available. It alows to simulate the
+software of not one, but a whole network of nodes, on a PC. Moreover
+its radio connectivity models are precise enough to draw, resonably
+realistic, conclusions from the simulations. {\bf TOSSIM} is an
+envaluable tool for TinyOS developers. Secondly, a NesC unit-testing
+framework \cite{TOSMock}, has been recently added to TinyOS. {\bf TOSMock}'s
+ability to verify each component's behaviour gratly supplements
+high level testing provided by TOSSIM.
+
+
+
+
+
 
 % Vim settings:
 % vim: set textwidth=70:
