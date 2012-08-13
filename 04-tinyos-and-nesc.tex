@@ -230,16 +230,196 @@ incomparably more effective, that having application and platform
 tied together.
 
 Testing is also well supported on TinyOS. Firstly, a whole-network
-simulator \cite{TOSSIM} is available. It alows to simulate the
+simulator \cite{TOSSIM} is available. It allows to simulate the
 software of not one, but a whole network of nodes, on a PC. Moreover
-its radio connectivity models are precise enough to draw, resonably
+its radio connectivity models are precise enough to draw, reasonably
 realistic, conclusions from the simulations. {\bf TOSSIM} is an
-envaluable tool for TinyOS developers. Secondly, a NesC unit-testing
-framework \cite{TOSMock}, has been recently added to TinyOS. {\bf TOSMock}'s
-ability to verify each component's behaviour gratly supplements
-high level testing provided by TOSSIM.
+invaluable tool for TinyOS developers. Secondly, a NesC unit-testing
+framework \cite{TOSMock}, has been recently added to TinyOS. {\bf
+TOSMock}'s ability to verify each component's behaviour greatly
+supplements high level testing provided by TOSSIM.
+
+Together these advantages make TinyOS, a good platform for scientific
+research. It eases the implementation of new algorithms and
+techniques.  Richness of already built components, spares the need to
+implement everything from scratch.  Also existing components tend to
+be better tested, lightening the burden of inevitable programming
+errors.  Multitude of supported platforms makes it easy for different
+groups to use the same software on their varying hardware.  Comparison
+between results is also much easier thanks to the use of common
+platform.  Often, researchers can easily run competitive solutions
+side-by-site to learn their flaws and find ways to improve on them.
+Particularly, in networking research, it's much easier to experiment
+with a single element of the network stack, when all the rest of it is
+available and tested. It is possible to do incremental improvements
+and that is the essence of scientific development.
+
+\subsection{Anatomy of an application}
+
+In this section, we explore a simple TinyOS application and explain
+how it works. Its purpose is to periodically blink a
+LED\footnote{Light-Emitting Diode}. The root of the application is a
+configuration named \emph{BlinkAppC}\footnote{Letter \emph{P}, at the end
+of component's name, means that its private while \emph{C}, marks a
+useful public abstraction.}. The logic is implemented in module \emph{BlinkC}.
+It uses three interfaces to achieve its goals. Firstly, it needs an
+entry point. This is provided by the \emph{Boot} interface which sends an
+event \emph{booted()} after all system initialization is complete.
+Secondly, the LED is controlled through \emph{Leds} interface.
+And finally, timing is managed through the
+\emph{Timer<TMilli>}\footnote{\emph{TMilli}, is in fact an empty
+struct. It serves to distinguish timers with different resolution.}
+interface. Whole structure of the application is shown in
+Figure~\ref{fig:app_anatomy}.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=1.01\textwidth]{diagrams/app_anatomy.eps}
+  \caption{Structure of the Blink application.}
+  \label{fig:app_anatomy}
+\end{figure}
+The \emph{booted()} event implementation configures the timer to
+repeatedly send the \emph{fired()} event. It's implementation, in
+turn, toggles the state of the LED.
+
+The interfaces are implemented by three distinct components.
+The \emph{LedC} configuration is provided by TinyOS library.
+As shown Figure~\ref{fig:ledc} it uses a, platform specific, component
+\emph{PlatformLedsC}, which simply gives access to the IO pins to
+which LEDs are connected. Most platforms supported by TinyOS provide
+this component.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{diagrams/ledsc.eps}
+  \caption{The \emph{LedsC} configuration. To use the same interface
+  more than once, you have to rename it with the \emph{as} keyword.
+  This can also be done to make implementation more self-explanatory.}
+  \label{fig:ledc}
+\end{figure}
+
+This pattern is quite common. Often platform independent logic is
+implemented in the library. To support such library, platform must
+implement certain lower level components.  If it doesn't, attempt to
+use the library causes a compilation error.
+
+Timer library works this way and is explained, in more detail, in the
+next section. \emph{MainC} is related to the system initialization
+sequence and task scheduler must be introduced before we look into
+it.
+
+\subsection{Timer subsystem}
+
+The generic configuration \emph{TimerMilliC()} serves one purpose. It
+provides a single instance of the \emph{Timer<TMilli>} interface and
+internally connects it to the component that virtualizes the timers,
+thorough a parametrized interface. This way the user doesn't have to
+figure out the parameters himself\footnote{Details of how these
+parameters are handled, are explained in \cite[ch. 6]{TOSProg}.}.
+Figure~\ref{fig:timermillic} shows that the interface is connected to
+component \emph{TimerMilliP}.
+\begin{figure}[h]
+  \centering
+  \includegraphics{diagrams/timermillic.eps}
+  \caption{The generic \emph{TimerMilliC} configuration.}
+  \label{fig:timermillic}
+\end{figure}
+It is a singleton supporting all instances of \emph{TimerMilliC}. Its
+structure is presented in Figure~\ref{fig:timermillip}.
+\begin{figure}[h]
+  \centering
+  \includegraphics{diagrams/timermillip.eps}
+  \caption{The singleton \emph{TimerMilliP} configuration.}
+  \label{fig:timermillip}
+\end{figure}
+For the initialization, it relies on the \emph{MainC}
+and the timers are actually virtualized by a third component called
+\emph{HilTimerMilliC}\footnote{HIL stands for Hardware Independence
+Layer. It is explained in section \ref{haa_arch}}. This last one is
+provided by the platform, though in its implementation many library
+components are used.
+
+\subsection{Tasks and the task scheduler}
+
+Applications need to perform multiple operations simultaneously. As
+sensor nodes typically have too little memory to support fully fledged
+threads, some other solution is needed. Therefore, NesC cooperates with
+TinyOS to provide {\bf task management}. A task is simply a
+parameterless C function with no return value. They are used to split
+all lengthy operations into small portions, that can be interleaved
+with each other, giving the impression of parallel execution. Its
+important to keep the tasks short. Otherwise, throughput of the system
+may be reduced, when tasks of several quick operations wait for a
+lagging one.
+
+Only one task may runs at any given instant and it can not be
+interrupted to run another task. Moreover task will only run once
+regardless of the number of times that it's posted for execution.
+Single bit is preallocated to mark a task as posted.
+
+The execution is handled by the \emph{TinySchedulerC} component,
+depicted in Figure~\ref{fig:tinyschedulerc}. This component is also
+used by NesC compiler to generate task related code. Exactly, what
+happens behind the scenes, is that when a component declares a task it
+actually provides a hidden \emph{TaskBasic} interface. All such
+interfaces are then connected to the \emph{SchedulerBasicP} module
+that handles their queueing and also contains the main task loop.
+
+The \emph{McuSleep} interface is used when the main task loop has been
+started but there are no tasks pending. Then MCU enters lowest possible
+sleep state\footnote{Sleep level depends on the peripherals left
+running. Not all can operate in the lowest power mode.}.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.98\textwidth]{diagrams/tinyschedulerc.eps}
+  \caption{The TinyOS's task scheduler structure.}
+  \label{fig:tinyschedulerc}
+\end{figure}
+
+\subsection{\emph{MainC} configuration and system initialization}
+
+The \emph{MainC} component is special it two ways. Firstly, it
+contains the entry point to all TinyOS code, because it implements the
+\emph{main()} function. It's characteristic for NesC to, abstract
+something like the \emph{main()} function with a component. Secondly,
+it handles whole initialization sequence of TinyOS and the current
+platform. The diagram of its structure is shown in
+Figure~\ref{fig:mainc}.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.98\textwidth]{diagrams/mainc.eps}
+  \caption{Structure of \emph{MainC} configuration.}
+  \label{fig:mainc}
+\end{figure}
+The \emph{PlatformC} component is the top level abstraction for the
+underlying platform. Its responsibility is to initialize all of the
+hardware. This is done, when the \emph{RealMainP}, which contains the
+\emph{main()} function implementation, calls the \emph{PlatformInit}
+interface. The TinyOS {\bf initialization sequence} consists of the
+following steps:
+\begin{itemize}
+  \item Global function \emph{platform\_bootstrap()} is called to do
+    any platform initialization that cannot wait. I.e. disabling the
+    watchdog.
+  \item Scheduler is initialized through the \emph{Scheduler} interface.
+  \item Platform is initialized through the \emph{PlatformInit} interface.
+  \item Any tasks requested during platform initialization are ran
+    until completion.
+  \item Software components are initialized through the
+    \emph{SoftwareInit} interface.
+  \item Any tasks requested during software initialization are ran
+    until completion.
+  \item When both hardware and software are ready, hardware interrupts
+    are enabled.
+  \item \emph{booted()} function of the \emph{Boot} interface is
+    called.
+  \item Task scheduler enters main task loop.
+\end{itemize}
+All other software components connect their initialization to
+\emph{MainC}. This helps avoid the omitted or double initialization
+errors.
 
 
+\label{haa_arch} % TODO(horban): Connect this somewhere
 
 
 

@@ -10,7 +10,7 @@ thesis.pdf: *.tex $(EPS)
 %.eps: %.svg
 	sed -i '' 's/Visual Paradigm for UML Standard Edition(Warsaw University)//' $<
 	/Applications/Inkscape.app/Contents/Resources/bin/inkscape $< -P $@
-	rm diagrams/*-eps-converted-to.pdf
+	rm diagrams/*eps-converted-to.pdf
 
 clear:
 	rm -f *.toc *.aux *.log
