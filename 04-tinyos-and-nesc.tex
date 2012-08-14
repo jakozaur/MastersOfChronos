@@ -205,7 +205,7 @@ TinyOS Alliance.
 TinyOS is written in NesC programming language. This means, that its
 made of components which interact with each other only through,
 separately specified, interfaces. The great advantage of this is
-that these components have very clear boundaries and its easy to
+that these components have very clear boundaries and it's easy to
 understand how to use them. Consider example\footnote{This isn't a
 cleverly chosen example. Components tend to be this intuitive.} shown
 in Figure~\ref{fig:platform_serial}.
@@ -216,7 +216,7 @@ in Figure~\ref{fig:platform_serial}.
            Chronos watch.}
   \label{fig:platform_serial}
 \end{figure}
-Its obvious, that first you need to call \emph{start()}, then send
+It's obvious, that first you need to call \emph{start()}, then send
 bytes with \emph{send()} method and optionally call \emph{stop()} when
 serial port is no longer needed. Complex details of handling the
 hardware are hidden beneath the abstraction.
@@ -226,11 +226,11 @@ with support for 22 platforms and many more are available through
 various project forks. It also comes with many applications that share
 its core components, and most of them are platform independent. This
 results in a cartesian cross of platforms and applications, which is
-incomparably more effective, that having application and platform
+incomparably more effective, than having application and platform
 tied together.
 
 Testing is also well supported on TinyOS. Firstly, a whole-network
-simulator \cite{TOSSIM} is available. It allows to simulate the
+simulator (\cite{TOSSIM}) is available. It allows to simulate the
 software of not one, but a whole network of nodes, on a PC. Moreover
 its radio connectivity models are precise enough to draw, reasonably
 realistic, conclusions from the simulations. {\bf TOSSIM} is an
@@ -260,13 +260,13 @@ In this section, we explore a simple TinyOS application and explain
 how it works. Its purpose is to periodically blink a
 LED\footnote{Light-Emitting Diode}. The root of the application is a
 configuration named \emph{BlinkAppC}\footnote{Letter \emph{P}, at the end
-of component's name, means that its private while \emph{C}, marks a
+of component's name, means that its private, while \emph{C} marks a
 useful public abstraction.}. The logic is implemented in module \emph{BlinkC}.
 It uses three interfaces to achieve its goals. Firstly, it needs an
 entry point. This is provided by the \emph{Boot} interface which sends an
 event \emph{booted()} after all system initialization is complete.
 Secondly, the LED is controlled through \emph{Leds} interface.
-And finally, timing is managed through the
+And finally, timing is managed with the help of the
 \emph{Timer<TMilli>}\footnote{\emph{TMilli}, is in fact an empty
 struct. It serves to distinguish timers with different resolution.}
 interface. Whole structure of the application is shown in
@@ -278,21 +278,24 @@ Figure~\ref{fig:app_anatomy}.
   \label{fig:app_anatomy}
 \end{figure}
 The \emph{booted()} event implementation configures the timer to
-repeatedly send the \emph{fired()} event. It's implementation, in
+repeatedly send the \emph{fired()} event.  and its implementation in
 turn, toggles the state of the LED.
 
-The interfaces are implemented by three distinct components.
+These interfaces are implemented by three distinct components.
 The \emph{LedC} configuration is provided by TinyOS library.
 As shown Figure~\ref{fig:ledc} it uses a, platform specific, component
 \emph{PlatformLedsC}, which simply gives access to the IO pins to
-which LEDs are connected. Most platforms supported by TinyOS provide
-this component.
+which LEDs are connected. Most platforms, supported by TinyOS, provide
+this component\footnote{Though, some platforms provide fewer leds,
+replacing missing ones with stubs. Chronos watch, having no LEDs,
+uses it's LCD display.}.
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.8\textwidth]{diagrams/ledsc.eps}
-  \caption{The \emph{LedsC} configuration. To use the same interface
-  more than once, you have to rename it with the \emph{as} keyword.
-  This can also be done to make implementation more self-explanatory.}
+  \caption{The \emph{LedsC} configuration. Note that, to use the same
+  interface more than once, you have to rename it with the \emph{as}
+  keyword.  This can also be done to make implementation more
+  self-explanatory.}
   \label{fig:ledc}
 \end{figure}
 
@@ -303,7 +306,7 @@ use the library causes a compilation error.
 
 Timer library works this way and is explained, in more detail, in the
 next section. \emph{MainC} is related to the system initialization
-sequence and task scheduler must be introduced before we look into
+sequence, therefore task scheduler must be introduced before we look into
 it.
 
 \subsection{Timer subsystem}
@@ -342,29 +345,33 @@ components are used.
 Applications need to perform multiple operations simultaneously. As
 sensor nodes typically have too little memory to support fully fledged
 threads, some other solution is needed. Therefore, NesC cooperates with
-TinyOS to provide {\bf task management}. A task is simply a
+TinyOS to provide {\bf task management}. A task, is simply a
 parameterless C function with no return value. They are used to split
 all lengthy operations into small portions, that can be interleaved
-with each other, giving the impression of parallel execution. Its
+with each other, giving the impression of parallel execution. It's
 important to keep the tasks short. Otherwise, throughput of the system
 may be reduced, when tasks of several quick operations wait for a
 lagging one.
 
 Only one task may runs at any given instant and it can not be
-interrupted to run another task. Moreover task will only run once
+interrupted to run another task. Moreover, a task will only run once
 regardless of the number of times that it's posted for execution.
 Single bit is preallocated to mark a task as posted.
 
 The execution is handled by the \emph{TinySchedulerC} component,
-depicted in Figure~\ref{fig:tinyschedulerc}. This component is also
-used by NesC compiler to generate task related code. Exactly, what
-happens behind the scenes, is that when a component declares a task it
-actually provides a hidden \emph{TaskBasic} interface. All such
-interfaces are then connected to the \emph{SchedulerBasicP} module
-that handles their queueing and also contains the main task loop.
+depicted in Figure~\ref{fig:tinyschedulerc}\footnote{Meaning of the
+\emph{async} keyword is explained in Section
+\ref{sec:interrupts_and_async}.}. This component is also used by NesC
+compiler to generate task related code. Exactly, what happens behind
+the scenes, is that when a component declares a task it actually
+provides a hidden \emph{TaskBasic} interface. It allows the component
+to post task to the scheduler and is obliged to run it, when scheduler
+requests it.  All such interfaces are then connected to the
+\emph{SchedulerBasicP} module that handles their queueing and also
+contains the main task loop.
 
 The \emph{McuSleep} interface is used when the main task loop has been
-started but there are no tasks pending. Then MCU enters lowest possible
+started but there are no tasks pending. Then MCU enters lowest safe
 sleep state\footnote{Sleep level depends on the peripherals left
 running. Not all can operate in the lowest power mode.}.
 
@@ -417,6 +424,53 @@ following steps:
 All other software components connect their initialization to
 \emph{MainC}. This helps avoid the omitted or double initialization
 errors.
+
+\subsection{Interrupt handling and asynchronous events}
+\label{sec:interrupts_and_async}
+
+Hardware often needs to notify the software that certain event
+occurred. This could be, among others, a radio packet arrival or a temperature
+measurement completion. Sending such a notification is possible,
+through a mechanism of so called {\bf interrupts}. When an interrupt
+condition occurs, processor immediately stops executing instructions
+and jumps to a special interrupt handler function\footnote{TinyOS
+allows to implement the interrupt handlers with the
+\emph{TOSH\_SIGNAL()} macro.}. After it returns, execution resumes
+from where it was interrupted.
+
+The fact that interrupts can fire at arbitrary moments however, causes serious
+concurrency problems. They can and often do occur in the middle of
+some task being executed.  Consider following scenario: A task is
+copying bytes from a queue. Then a radio packet arrives and an interrupt is
+fires. The handler adds this packet to the queue. But after the task
+resumes execution, being unaware of the interrupt, it overwrites queue
+state variables with stale values.  Packet is lost and queue ends up
+in an invalid state.
+
+Interrupts might be made to wait for the current task to finish.
+Alternatively, each interrupt could post a special task to the
+scheduler. Neither of these is an option however, because most
+interrupts are time critical. For example, if an interrupt notifies
+the MCU about a byte received through the serial port, it has to be
+handled before the next byte arrives.
+
+NesC and TinyOS solve these concurrency problems by dividing the code
+into two parts: synchronous code (SC) and asynchronous code (AC).  All
+code reachable from the interrupt handlers is considered to be AC.
+Now implementation is considered safe, if each variable is either only
+accessed from SC or every access to it is protected with an
+\emph{atomic} block. Tasks, by definition are SC and commands and
+events, that are not SC, have to be denoted with the \emph{async}
+keyword. In particular, its use shown in
+Figure~\ref{fig:tinyschedulerc}, means that tasks can be posted from
+AC. Clear separation of the interrupt handling from the normal execution,
+reduces the chances of errors and makes code more readable. Moreover  NesC
+compiler verifies above constraints and issues warnings, if potential
+race conditions are detected. For more information, refer to
+\cite[ch. 8]{NesCMan}.
+
+\section{The TinyOS operating system}
+
 
 
 \label{haa_arch} % TODO(horban): Connect this somewhere
