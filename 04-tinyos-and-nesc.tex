@@ -469,7 +469,178 @@ compiler verifies above constraints and issues warnings, if potential
 race conditions are detected. For more information, refer to
 \cite[ch. 8]{NesCMan}.
 
-\section{The TinyOS operating system}
+\subsection{The TinyOS component organization structure}
+
+TinyOS components are organized based on their function, hardware
+dependence and re-usability. In this section, we list the most
+important categories present in the system.
+
+\begin{itemize}
+  \item {\bf Global interfaces} are the sews that allow to connect
+    many important and independent components. Among them are the
+    definitions of \emph{Read}, \emph{Write}, \emph{Send}, \emph{Boot}
+    and \emph{Init} interfaces. They are located under
+    \emph{tos/interfaces/} path.
+
+  \item {\bf Libraries} contain relatively hardware independent code.
+    This means, for instance, that a MAC layer library may assume that
+    the radio chip operates on packets, rather than byte streams, but
+    it will not assume usage of any particular chip family. Libraries
+    are located under \emph{tos/lib/}, \emph{tos/system/} paths. The
+    first one, typically contains various protocols and algorithm
+    implementations. The second, contains components that are
+    integral parts of TinyOS or are heavily shared among platforms.
+    Examples include the \emph{LedsC} and \emph{MainC} configurations.
+
+  \item {\bf Chip drivers} contain sets of components, meant to
+    operate particular hardware chips. They are located under
+    \emph{tos/chips/} path. For example, one of the drivers is called
+    \emph{at45db} and supports an external flash memory chip, of the
+    same name. Any platform, that makes use of this chip, can also use
+    this driver. In hardware design, chips are abstractions that hide
+    their internal workings. The same is true about their
+    drivers. Often, it's only necessary to make a few component
+    connections, that represent physical connections on the circuit
+    board, to incorporate the driver into a platform.
+
+  \item {\bf Platforms} contain sets of components needed to support
+    particular circuit boards. They are located under
+    \emph{tos/platforms/}. One notable example is the \emph{chronos}
+    platform, which is the subject of this work. A special file, named
+    \emph{.platform}, holds the configuration parameters for the
+    compiler. Among others, it lists platform dependencies and the
+    architecture the compiler should generate code for. Platform
+    directory  also contains the \emph{PlatformC} component which is
+    the main entry point to hardware initialization code, along with
+    many other hardware dependent components that enable various
+    functions and features.
+
+  \item {\bf Applications} are located under \emph{apps/} path. Each
+    consists of a root configuration, helper components, a
+    \emph{Makefile} and a \emph{README.txt} file. The \emph{Makefile}
+    guides the build process\footnote{It's worth to note, that nowhere
+    in an application is any particular platform specified. Instead
+    every application can be built for any platform, selected by an
+    argument to the \emph{make} command.} and the \emph{README.txt}
+    contains useful comments on the application operation.
+
+  \item {\bf Support build rules} are located under
+    \emph{support/make/} path. They define exactly how build for each
+    platform should progress.
+
+\end{itemize}
+
+\subsection{The Hardware Abstraction Architecture (HAA)}
+
+Concept of the {\bf Hardware Abstraction Architecture} arises from the
+desire, for the hardware related code, to have three valuable
+properties. Firstly, we would like the low level code to be clear and
+readable. Code that, for example, makes uncommented register accesses
+is very difficult to maintain in the long run. Such bad practices also
+cause many programming errors, yet they are tempting. Secondly, we
+would like to have useful abstractions of all available hardware
+features. Often, they allow to make important performance
+optimizations. Access to hardware should however be made on a
+relatively high level, that prevents errors caused by forgetting
+certain details related to it's operation. Such details should be
+taken care of behind the scenes. Thirdly, we would like to have
+certain abstractions that are hardware independent. Most notable
+example is the radio networking, where we want an interface that
+allows us to communicate, regardless of the used radio chip. Often
+conforming to such interface requires implementing some of its
+functions in software, while ignoring some other features that the
+hardware provides.
+
+To meet these goals \cite{TEP2}\footnote{TinyOS Extension Proposal}
+proposes splitting the code according to a three layer architecture,
+handsomely depicted in Figure~\ref{fig:haa_diagram}.
+\begin{figure}[h]
+  \begin{verbatim}
+                           +-----------------------------+
+                           |                             |
+                           | Cross-platform applications |
+                           |                             |
+                           +--------------+--------------+
+ +-----------------+                      |                  +-----------------+
+ |Platform-specific|                      |                  |Platform-specific|
+ |  applications   |                      |                  |  applications   |
+ +--------+--------+                      |                  +--------+--------+
+          |          Platform-independent | hardware interface        |
+          |        +-------------+--------+----+-------------+        |
+          |        |             |             |             |        |
+          |  +-----+-----+ +-----+-----+ +-----+-----+ +-----+-----+  |
+          |  |.----+----.| |.----+----.| |.----+----.| |.----+----.|  |
+          |  ||         || ||         || ||         || ||  HIL 4  ||  |
+          |  ||  HIL 1  || ||  HIL 2  || ||  HIL 3  || |`----+----'|  |
+          |  ||         || |`----+----'| |`----+----'| |     |     |  |
+          |  |`----+----'| |     |     | |     |     | |     |  +--+--+
+          +--+--+  |     | |.----+----.| |     |     | |     |  |  |
+             |  |  |     | ||         || |.----+----.| |.----+--+-.|
+             |.-+--+----.| ||         || ||         || ||         ||
+             ||         || ||  HAL 2  || ||         || ||         ||
+             ||         || ||         || ||  HAL 3  || ||  HAL 4  ||
+             ||  HAL 1  || |`----+----'| ||         || ||         ||
+             ||         || |     |     | ||         || ||         ||
+             ||         || |     |     | |`----+----'| |`----+----'|
+             |`----+----'| |.----+----.| |     |     | |     |     |
+             |     |     | ||         || |.----+----.| |     |     |
+             |.----+----.| ||  HPL 2  || ||         || |.----+----.|
+             ||  HPL 1  || ||         || ||  HPL 3  || ||  HPL 4  ||
+             |`----+----'| |`----+----'| |`----+----'| |`----+----'|
+             +-----+-----+ +-----+-----+ +-----+-----+ +-----+-----+  HW/SW
+                   |             |             |             |          boundary
+        ************************************************************************
+            +------+-----+ +-----+-----+ +-----+-----+ +-----+-----+
+            |HW Plat 1   | |HW Plat 2  | |HW Plat 3  | |HW Plat 4  |
+            +------------+ +-----------+ +-----------+ +-----------+
+  \end{verbatim}
+  \centering
+  \caption{The Hardware Abstraction Architecture (source \cite{TEP2})}
+  \label{fig:haa_diagram}
+\end{figure}
+Each layer is founded on top of the previous one, hardware being at
+the bottom and hardware independent applications at the top. Now we'll
+describe purpose and function of each of the HAA layers.
+
+Right above the hardware lies the {\bf Hardware Presentation Layer
+(HPL)}. Its purpose is to hide, often crude, ways in which hardware is
+accessed behind NesC interfaces. It's possible for several
+components to form the HPL layer. For example, register access can
+better handled if register reading and writing is separated from
+meaning of these operations. But these components should, non the
+less, have no state, no logic and only precisely present commands that
+can be sent to the hardware and translate interrupts that it fires
+into asynchronous events. The rationale for this, is that we want to
+keep HPL components as simple as possible, because hardware access
+makes them already complex enough.
+
+The {\bf Hardware Abstraction Layer} is made of components that
+implement all the logic to handle the hardware. They access it through
+HPL and provide abstract, easy to use interfaces for application and
+the HIL layer. HAL can have state and should use it to hide the burden
+and subtleties related to hardware operation. On one hand it should
+ease the application development and on the other allow to fully
+utilise the hardware, for maximum application performance.
+
+By its nature, HAL is hardware dependent. Therefore, on top of it,
+the {\bf Hardware Independence Layer} is introduced. It should provide
+a set of well defined\footnote{Most HIL interfaces are described in a
+TEPs.} interfaces, which in their design, are balanced for hardware
+independence. Often there is a discrepancy between hardware features
+and what is required to meet the interface.  Designers try to shorten
+this gap by distilling a common subset of functions typically
+available in most types of hardware. Still there may be need to either
+virtualize the resource or provide some kind of access arbitration to
+hide its singleton character and provide other features through
+software algorithms.
+
+Typically, developer should first try to use only HIL interfaces in
+his application and only if considerable performance gains are possible,
+should he resort to using the HAL interfaces. This way, maximum
+hardware independence is assured.
+
+
+
 
 
 
