@@ -1,6 +1,6 @@
 \chapter{TinyOS and NesC}
 
-\section{The NesC language}
+\section{The NesC programming language}
 
 Recall traditional C code. In essence it consists of function
 definitions and variable declarations listed in some order.  Calling
@@ -11,11 +11,11 @@ would find that out in documentation.
 \subsection{Modules and interfaces}
 
 In NesC\footnote{For a deeper discussion of the language see
-\cite{NesC}}, above issue, is solved more systematically.  Each C code
-file must {\bf provide} interfaces, and only through them it's
+\cite{NesC}.}, the above issue, is solved more systematically.  Each C code
+file must {\bf provide} interfaces, and only through them its
 functions may be called. An {\bf interface} is nothing more but a set
 of function names that are implemented in the file that provides it.
-We call such, an interface enriched C file, a {\bf module}.
+We call such an interface enriched C file, a {\bf module}.
 
 If interfaces can expose functions to external modules than, by
 symmetry, there must also be a way to call functions exposed by those
@@ -26,12 +26,12 @@ contains. At this point, it isn't however decided where interfaces, it
 declares to use, will be implemented. It merely states that it will
 need them.
 
-Summarizing, a module is a C file that provides a set of interfaces
+To summarize, a module is a C file that provides a set of interfaces
 and uses a different set of interfaces to help it do the work. This
 decomposition of an application, that used to be global, into module
 sized pieces makes complexity much easier to manage. Moreover,
-dependencies between modules are now explicitly stated. To understand
-inner workings of a module you only need to see it's code and the code
+dependencies between modules are now explicitly declared. To understand
+inner workings of a module you only need to see its code and the code
 of interfaces it declares to use or provide.
 
 \subsection{Configurations}
@@ -41,15 +41,14 @@ paired with one that provides it. This is done, through a new type of
 a file, called a {\bf configuration}. Configurations however, do much
 more than just connecting interfaces of modules together.
 
-Firstly they can use and provide interfaces just as modules
+Firstly, they can use and provide interfaces just as modules
 do\footnote{Though only modules contain actual function
-implementations.}. In fact modules and configurations are so similar
+implementations.}. In fact, modules and configurations are so similar
 than we jointly name them {\bf components}.
 
 Secondly they can instantiate components. By default all components
 (modules and configurations) are singletons. If a singleton component
-isn't ever instantiated in an application, it isn't considered during
-compilation.
+isn't ever instantiated in an application, it's omitted during compilation.
 
 Each configuration first instantiates all components it intends to
 work with. Then it defines connections between their interfaces. And
@@ -60,7 +59,7 @@ layers of configurations until it finally is implemented by some
 module.
 
 This mechanism forms basis for creating {\bf self-contained hermetic
-abstractions}. Namely, a top level configuration can provide a set of
+abstractions}. Precisely, a top level configuration can provide a set of
 useful interfaces and hide all their implementation details. Said
 implementation can utilize several layers of abstraction, connect
 itself to components shard within application and manage module
@@ -71,8 +70,8 @@ TinyOS application is such a high level configuration, that pulls in
 all dependencies and connects them to the module that implements
 application logic.}.
 
-We will use graphical representation of components, suggested in
-\cite{UML2ForTOS} (see Figure \ref{fig:example_component}) and where
+We will use graphical representation of components, suggested by
+\cite{Bachmaier} (see Figure \ref{fig:example_component}) and, where
 it's relevant, we'll distinct modules from configurations by adding
 \emph{<<realization>>} or \emph{<<specification>>} stereotypes
 respectively.
@@ -102,8 +101,8 @@ calls \emph{start()} to initiate the operation and provider calls
 
 Though this scheme works, it forces the use of two connections where
 there is only one logical association. Need to connect callbacks
-separately from requests is an unnecessary nuisance. Instead NesC allows
-{\bf events} to be part of interfaces, in addition to normal function
+separately from requests is an unnecessary nuisance. Instead, NesC allows
+{\bf events} to be part of interfaces in addition to normal function
 calls known as {\bf commands}. User of such interface will have to
 implement handlers for all events, which again are nothing more than C
 functions with proper names. Above scheme, implemented using events,
@@ -117,10 +116,10 @@ is shown in Figure \ref{fig:two_way_interface2}.
 \end{figure}
 
 \subsection{Parametrized interfaces}
-A component may provide a vitalized resource. This means that a real
+A component may provide a virtualized resource. This means that a real
 resource is split by software to serve several users. For example,
 let's consider the problem of waking a group people in a hotel.
-Everyone wants to be woken at different hours, but manager only has a
+Everyone wants to be waken up at different times, but manager only has a
 single alarm clock. Solution is simple, he has to set the alarm for
 himself, to the nearest waking time of one of his customers. Then, when it
 fires, he can wake that person up and reset the alarm to the next
@@ -137,22 +136,23 @@ Moreover, if for each virtualized interface, separate function
 implementations were needed, it would lead to wasteful code
 duplication.
 
-Instead NesC offers {\bf parametrized interfaces}. They differer from
-regular interfaces in that each implementing function receives an
-additional parameter denoting number of the interface that was used to
-call it. Notice that this is by far the most convenient way to
-implement our alarm replicator, because it can use this additional
-argument to index and update an array of firing times and then easily
-find the closest one. Exemplary replication of the \emph{Alarm}
-resource is presented in Figure~\ref{fig:parametrized_interface}
-
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.9\textwidth]{diagrams/parametrized_interface.eps}
+  \includegraphics[width=1.0\textwidth]{diagrams/parametrized_interface.eps}
   \caption{Parametrized interface used in timer virtualization.}
   \label{fig:parametrized_interface}
 \end{figure}
 
+Instead NesC offers {\bf parametrized interfaces}. They differ from
+regular interfaces by an additional parameter that their implementing
+functions receive. This parameter caries the unique identification
+number of the interface that was used to make the call. It can be
+treated as a client id.   Notice that this is by far the most
+convenient way to implement our alarm replicator, because it can use
+this additional argument to index and update an array of firing times
+and then easily find the closest one.  Exemplary replication of the
+\emph{Alarm} resource is presented in
+Figure~\ref{fig:parametrized_interface}
 \subsection{Generic components}
 
 Implementing a data structure like \emph{BitVector} as a singleton,
@@ -163,8 +163,8 @@ separate and independent components, just as if the code was copied.
 Secondly it is possible to pass arguments (both type and value) that
 will parametrize such newly created component. Graphically, generic
 components are distinguished by the parentheses after their name, as
-in Figure~\ref{fig:generic_component}. Also note that interfaces can
-be type parametrized as well, because it well supplements generic
+shown in Figure~\ref{fig:generic_component}. Also note that interfaces
+can be type parametrized as well, which greatly supplements generic
 components.
 
 \begin{figure}[h]
@@ -230,7 +230,7 @@ incomparably more effective, than having application and platform
 tied together.
 
 Testing is also well supported on TinyOS. Firstly, a whole-network
-simulator (\cite{TOSSIM}) is available. It allows to simulate the
+simulator (see \cite{TOSSIM}) is available. It allows to simulate the
 software of not one, but a whole network of nodes, on a PC. Moreover
 its radio connectivity models are precise enough to draw, reasonably
 realistic, conclusions from the simulations. {\bf TOSSIM} is an
@@ -246,8 +246,8 @@ implement everything from scratch.  Also existing components tend to
 be better tested, lightening the burden of inevitable programming
 errors.  Multitude of supported platforms makes it easy for different
 groups to use the same software on their varying hardware.  Comparison
-between results is also much easier thanks to the use of common
-platform.  Often, researchers can easily run competitive solutions
+between results is also much easier thanks to the use of a common
+system.  Often, researchers can easily run competitive solutions
 side-by-site to learn their flaws and find ways to improve on them.
 Particularly, in networking research, it's much easier to experiment
 with a single element of the network stack, when all the rest of it is
@@ -283,7 +283,7 @@ turn, toggles the state of the LED.
 
 These interfaces are implemented by three distinct components.
 The \emph{LedC} configuration is provided by TinyOS library.
-As shown Figure~\ref{fig:ledc} it uses a, platform specific, component
+As shown in Figure~\ref{fig:ledc}, it uses a platform specific component
 \emph{PlatformLedsC}, which simply gives access to the IO pins to
 which LEDs are connected. Most platforms, supported by TinyOS, provide
 this component\footnote{Though, some platforms provide fewer leds,
@@ -346,7 +346,7 @@ Applications need to perform multiple operations simultaneously. As
 sensor nodes typically have too little memory to support fully fledged
 threads, some other solution is needed. Therefore, NesC cooperates with
 TinyOS to provide {\bf task management}. A task, is simply a
-parameterless C function with no return value. They are used to split
+parameterless C function with no return value. Tasks are used to split
 all lengthy operations into small portions, that can be interleaved
 with each other, giving the impression of parallel execution. It's
 important to keep the tasks short. Otherwise, throughput of the system
@@ -377,7 +377,7 @@ running. Not all can operate in the lowest power mode.}.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.98\textwidth]{diagrams/tinyschedulerc.eps}
+  \includegraphics[width=1.02\textwidth]{diagrams/tinyschedulerc.eps}
   \caption{The TinyOS's task scheduler structure.}
   \label{fig:tinyschedulerc}
 \end{figure}
@@ -438,10 +438,10 @@ allows to implement the interrupt handlers with the
 \emph{TOSH\_SIGNAL()} macro.}. After it returns, execution resumes
 from where it was interrupted.
 
-The fact that interrupts can fire at arbitrary moments however, causes serious
+The fact that interrupts can fire at arbitrary moments causes serious
 concurrency problems. They can and often do occur in the middle of
 some task being executed.  Consider following scenario: A task is
-copying bytes from a queue. Then a radio packet arrives and an interrupt is
+copying bytes from a queue. Then a radio packet arrives and an interrupt
 fires. The handler adds this packet to the queue. But after the task
 resumes execution, being unaware of the interrupt, it overwrites queue
 state variables with stale values.  Packet is lost and queue ends up
@@ -457,14 +457,14 @@ handled before the next byte arrives.
 NesC and TinyOS solve these concurrency problems by dividing the code
 into two parts: synchronous code (SC) and asynchronous code (AC).  All
 code reachable from the interrupt handlers is considered to be AC.
-Now implementation is considered safe, if each variable is either only
+Implementation is considered safe, if {\bf each variable is either only
 accessed from SC or every access to it is protected with an
-\emph{atomic} block. Tasks, by definition are SC and commands and
-events, that are not SC, have to be denoted with the \emph{async}
+\emph{atomic} block}. Tasks, by definition are SC. Commands and
+events, that are not SC, have to be marked with the \emph{async}
 keyword. In particular, its use shown in
 Figure~\ref{fig:tinyschedulerc}, means that tasks can be posted from
 AC. Clear separation of the interrupt handling from the normal execution,
-reduces the chances of errors and makes code more readable. Moreover  NesC
+reduces the chances of errors and makes code more readable. Moreover, NesC
 compiler verifies above constraints and issues warnings, if potential
 race conditions are detected. For more information, refer to
 \cite[ch. 8]{NesCMan}.
@@ -509,8 +509,8 @@ important categories present in the system.
     platform, which is the subject of this work. A special file, named
     \emph{.platform}, holds the configuration parameters for the
     compiler. Among others, it lists platform dependencies and the
-    architecture the compiler should generate code for. Platform
-    directory  also contains the \emph{PlatformC} component which is
+    MCU the compiler should generate code for. Platform
+    directory  also contains the \emph{PlatformC} component, which is
     the main entry point to hardware initialization code, along with
     many other hardware dependent components that enable various
     functions and features.
@@ -531,6 +531,7 @@ important categories present in the system.
 \end{itemize}
 
 \subsection{The Hardware Abstraction Architecture (HAA)}
+\label{haa_arch}
 
 Concept of the {\bf Hardware Abstraction Architecture} arises from the
 desire, for the hardware related code, to have three valuable
@@ -555,6 +556,7 @@ To meet these goals \cite{TEP2}\footnote{TinyOS Extension Proposal}
 proposes splitting the code according to a three layer architecture,
 handsomely depicted in Figure~\ref{fig:haa_diagram}.
 \begin{figure}[h]
+  \linespread{0}
   \begin{verbatim}
                            +-----------------------------+
                            |                             |
@@ -595,7 +597,7 @@ handsomely depicted in Figure~\ref{fig:haa_diagram}.
             +------------+ +-----------+ +-----------+ +-----------+
   \end{verbatim}
   \centering
-  \caption{The Hardware Abstraction Architecture (source \cite{TEP2})}
+  \caption{The Hardware Abstraction Architecture (source \cite{TEP2}).}
   \label{fig:haa_diagram}
 \end{figure}
 Each layer is founded on top of the previous one, hardware being at
@@ -607,12 +609,12 @@ Right above the hardware lies the {\bf Hardware Presentation Layer
 accessed behind NesC interfaces. It's possible for several
 components to form the HPL layer. For example, register access can
 better handled if register reading and writing is separated from
-meaning of these operations. But these components should, non the
-less, have no state, no logic and only precisely present commands that
-can be sent to the hardware and translate interrupts that it fires
-into asynchronous events. The rationale for this, is that we want to
-keep HPL components as simple as possible, because hardware access
-makes them already complex enough.
+meaning of these operations. But these components should have no
+state, no logic and only precisely present commands that can be sent
+to the hardware and translate interrupts that it fires into
+asynchronous events. The rationale for this, is that we want to keep
+HPL components as simple as possible, because hardware access makes
+them already complex enough.
 
 The {\bf Hardware Abstraction Layer} is made of components that
 implement all the logic to handle the hardware. They access it through
@@ -624,7 +626,7 @@ utilise the hardware, for maximum application performance.
 
 By its nature, HAL is hardware dependent. Therefore, on top of it,
 the {\bf Hardware Independence Layer} is introduced. It should provide
-a set of well defined\footnote{Most HIL interfaces are described in a
+a set of well defined\footnote{Most HIL interfaces are described in
 TEPs.} interfaces, which in their design, are balanced for hardware
 independence. Often there is a discrepancy between hardware features
 and what is required to meet the interface.  Designers try to shorten
@@ -635,19 +637,71 @@ hide its singleton character and provide other features through
 software algorithms.
 
 Typically, developer should first try to use only HIL interfaces in
-his application and only if considerable performance gains are possible,
+his application and only, if considerable performance gains are possible,
 should he resort to using the HAL interfaces. This way, maximum
 hardware independence is assured.
 
+\subsection{Integrated power management and concurrency control}
 
+Power management is critical in sensor network applications, which
+rely on batteries. One aspect of this is related to peripheral devices
+- external chips, MCU subsystems and data buses. They need to be
+powered down whenever they are not in use\footnote{Actually, the best
+policy is to power devices down when they are not in use for a specific
+period of time.}. For this, exact information about the device usage
+is needed.  Getting it is tricky however, because multiple clients may
+compete for access to the device and it has to be arbitrated, to avoid
+collisions.  This leads to the conclusion, that joining concurrency
+control and power management may be beneficial. Knowing the
+concurrency, we can share the device among clients and also power it
+down when its not in use.
 
+\cite{Klues et al.} proposes an elegant design that allows to
+implement this idea in TinyOS. We will present it on the following
+example, which closely resembles real applications:
 
+Assume that the node contains a certain hardware device. This
+device can perform several functions, but only one can be selected at
+a time and only one user can use the device at any time. Moreover, it
+is necessary to power down the device once its current function has
+been deactivated. There are several clients wishing to use the device
+and each knows ahead of time which function it's interested in.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=1.0\textwidth]{diagrams/devicearbiterp.eps}
+  \caption{Component that arbitrates access to the device and powers
+  it down when not in use.}
+  \label{fig:devicearbiterp}
+\end{figure}
 
-
-\label{haa_arch} % TODO(horban): Connect this somewhere
-
-
-
+Solution consists of two abstractions. Arbitration between the clients
+is handled by the \emph{DeviceArbiterP}, which uses a system library
+component named \emph{FcfsArbiterC}. The first-come-first-server
+arbiter queues requests for device access and grants it to each client
+in turn. It also takes care of configuring the device for each client,
+before granting the access. Finally, when there are no more pending
+requests, it leaves the device to its default owner - the
+\emph{DevicePowerDownP}. This power manager, turns the device off upon
+acquisition and  on when it's requested again by the arbiter.
+The connections, are shown in Figure~\ref{fig:devicearbiterp}. Users do
+not access \emph{DeviceArbiterP} directly though, but rather use a series of
+generic function access components. One of them is shown in
+Figure~\ref{fig:devicefunction1}.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=1.0\textwidth]{diagrams/devicefunction1c.eps}
+  \caption{Generic configuration that client uses to access the
+  the device.}
+  \label{fig:devicefunction1}
+\end{figure}
+A client wanting to use the first function of the device creates an
+instance of this configuration, which gives him \emph{Resource} and
+\emph{DeviceFunction1} interfaces. The first one must be used to
+secure access to the device.  Then, second one allows to actually use
+the device.  Note that, in NesC it's possible to wire twice to the
+same interface.  \emph{DeviceFunction1P} uses this feature, to assert
+that device access really was acquired by the user. In a variation of
+this schema, it could acquire the resource behind the scenes as well.
 
 % Vim settings:
 % vim: set textwidth=70:

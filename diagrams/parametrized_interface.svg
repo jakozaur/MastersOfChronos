@@ -82,8 +82,8 @@
       >&lt;&lt;component&gt;&gt;</text
       ><text x="21" xml:space="preserve" y="28" clip-path="url(#clipPath2)" stroke="none"
       >&lt;&lt;realization&gt;&gt;</text
-      ><text x="13" xml:space="preserve" y="42" font-weight="bold" clip-path="url(#clipPath2)" stroke="none"
-      >ClosestAlarmSetter</text
+      ><text x="21" xml:space="preserve" y="42" font-weight="bold" clip-path="url(#clipPath2)" stroke="none"
+      >AlarmReplicator</text
     ></g
     ><g font-size="11" transform="translate(542,2)" fill-opacity="1" fill="rgb(224,224,224)" text-rendering="geometricPrecision" font-family="sans-serif" stroke="rgb(224,224,224)" font-weight="bold" stroke-opacity="1"
     ><rect x="0" width="140" height="40" y="0" clip-path="url(#clipPath3)" stroke="none"
@@ -143,7 +143,7 @@
     ><g font-size="11" stroke-linecap="butt" transform="translate(452,2)" fill-opacity="1" fill="black" text-rendering="geometricPrecision" font-family="sans-serif" stroke-linejoin="round" stroke="black" font-weight="bold" stroke-opacity="1" stroke-miterlimit="0"
     ><circle fill="none" r="9.5" clip-path="url(#clipPath5)" cx="9.5" cy="9.5"
     /></g
-    ><g font-size="11" stroke-linecap="butt" transform="translate(462,92)" fill-opacity="1" fill="black" text-rendering="geometricPrecision" font-family="sans-serif" stroke-linejoin="round" stroke-dasharray="1,5" stroke="black" stroke-opacity="1" stroke-miterlimit="0"
+    ><g font-size="11" stroke-linecap="butt" transform="translate(462,92)" fill-opacity="1" fill="black" text-rendering="geometricPrecision" font-family="sans-serif" stroke-linejoin="bevel" stroke-dasharray="1,5" stroke="black" stroke-opacity="1" stroke-miterlimit="0"
     ><line y2="0" fill="none" x1="0" clip-path="url(#clipPath7)" x2="0" y1="19"
     /></g
     ><g font-size="11" transform="translate(2,2)" fill-opacity="1" fill="rgb(224,224,224)" text-rendering="geometricPrecision" font-family="sans-serif" stroke="rgb(224,224,224)" font-weight="bold" stroke-opacity="1"
