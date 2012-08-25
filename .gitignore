@@ -28,3 +28,4 @@
 *.swp
 *.pdf
 errors.err
+.DS_Store
