@@ -1,12 +1,43 @@
 \chapter{Assembling programming environment}
 
-% SPI wire programming
+Source code editor, compiler and debugger are the fundamental development tools. 
+Hardware project also require chip programmer, which loads code and configuration from PC to microcontroller
+This tools along with other useful utilities are referred as a programming environment.
 
-\subsection{Bug and limitations}
+Although existing tools were able to provide most of the desired functionality, some of them required project specific configuration.
+Mostly, because some of the development programs has not been previously tested with eZ430.
 
-% connected to TOS build
 
-\section{Mspdebug}
+\section{MSPDebug}
+
+MSPDebug\footnote{MSPDebug: \url{http://mspdebug.sourceforge.net/} created by Daniel Beer} is a debugger and a chip programmer for MSP430 microprocessor architecture.
+It is a manufacturer-independent, open source implementation of few debugging protocols.
+It requires one of the supported hardware programmer: RF2500, FET430UIF, eZ430-Chronos, LaunchPad, Olimex MSP430-JTAG-TINY or MSP430-JTAG-ISO.
+
+% FET, SPI wire programming, JTAG
+The eZ430 programmer is called Flash Emulation Tool (FET).
+It is connected to PC through USB and to eZ430 Chronos watch through Spy-Bi-Wire (SPI). 
+SPI is a two-wire serialised variant of Join Test Action Group (JTAG) protocol.
+
+Despite MSPDebug claimed to support eZ430-FET chip programmer, the version 0.16-1 available in Ubuntu 11.04 does not work with our hardware for unknown reason.
+Luckily, the most recent version of code from project's repository does not have this flaw. 
+
+
+\subsection{Bugs}
+In addition to that, the programs on eZ430 could not be resumed correctly by the debugger.
+We fixed this bug by correcting one of the constant value.
+
+\subsection{Limitations}
+
+% Transfer speed 
+Programming the eZ430-Chronos is time consuming.
+However, It is possible to increase speed of transfer by manually setting the transfer block size.
+On the other hand, the larger blocks increase the risk of programming failure.
+
+Experimentally, we found the 256 bytes blocks as a good trade-off between stability and performance.
+
+This parameter could be modified in \texttt{~/.mspdebug} file by adding the configuration line (e.g. \texttt{opt fet\_block\_size 256})..
+
 
 \section{Printf library}
 \label{sec:printf_library}
@@ -77,9 +108,62 @@ To overcome this,  you can shorten your messages, slow down printing
 rate to ensure enough time to transmit current contents of the buffer
 or increase the size of the buffer.
 
-\subsection{Mspdebug printf}
+Unfortunately, eZ430 does not provide an easy way to implement output for printf.
+This made programming tough and cost us a few iterations, before providing the convenient library.
+
+\subsection{MSPDebug printf}
+
+Our first approach utilize MSPDebug.
+It is a debugger capable of stopping/starting a program and dumping/uploading device RAM to connected PC.
+
+The idea was to create an buffer in eZ430 RAM, where printf would store its output.
+The debugger from PC would periodically stop the code execution, fetch the buffer content and reset its size.
+
+The implementation is fully functional, but has two important limitation.
+The debugger operations are slow, which limits the feasible printf output rate.
+Moreover, stopping the code execution interferes with timers.
+This leads to errors in device drivers, if the stop occur during the driver function execution.
+
+This was our first printf library, which allowed to debug basic programs, but was not very useful in debugging more complicated code.
+Later, we discontinued this approach, because next methods are superior in all of our scenarios.
 
 \subsection{Radio printf}
+
+% just use radio and gnode
+
+At some point of the project, we had functioning radio communication between eZ430 and Gnode.
+In addition to that, the Gnode already got fully functional serial output over USB. 
+
+So the second variant of printf, transfer the messages over radio from eZ430 to Gnode and then from Gnode over USB to PC.
+
+This approach got much better maximal output rate than MSPDebug printf, but relies on a good radio connection.
+Otherwise it drops packets or requires retransmissions.
+However, this issue rarely was a significant problem.
+On the other hand, it is very convenient, because it is wireless and eZ430 could be fully assembled while using it.
+In most use cases, the method performed well and was used in final evaluations.
+
+Unfortunately, it is very hard to use this technique to debug the radio driver itself.
+
+To enable radio printf you need to perform additional
+instructions after this steps \ref{sec:printf_library}:
+
+\begin{itemize}
+  \item Instantiate these components in your application configuration:
+
+  \texttt{components RadioPrintfC, RadioStartC;}
+
+  You should omit RadioStartC, if you plan to start radio manually.
+
+  \item Programmer Gnode with BaseStation app. Ensure that all radio options (same transfer rate and group in Makefile) are compatible with eZ430.
+
+  \item Keep Gnode connected and run PrintfClient:
+
+  \texttt{java net.tinyos.tools.PrintfClient -comm serial@/dev/ttyACM0:iris}
+
+  Note that watch may have shown in \texttt{\textbackslash dev} under
+  different name, most commonly
+  \texttt{\textbackslash dev\textbackslash ttyACM1}
+\end{itemize}
 
 \subsection{Serial port printf}
 Third version of the printf library uses the serial port connection to
