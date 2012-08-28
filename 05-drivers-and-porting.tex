@@ -1,1 +1,56 @@
-\chapter{Drivers and porting}
+\chapter{Porting TinyOS for Chronos hardware}
+
+This chapter describes the work done, to make TinyOS run on Chronos
+watch. Firstly, we show how we added a minimal, yet functional,
+platform to the OS. Then we discuss the methodology used for
+introducing new code. Afterwards, we present a conceptual schema of
+the watch circuits that, most notably, shows connections between its
+elements. The remainder part of the chapter describes the hardware
+drivers we have created, starting with MCU internal systems and going
+outwards through the peripherals.
+
+\section{Adding a minimal functional platform}
+
+The goal of this phase was to learn about TinyOS build process.
+Moreover, having the ability to compile and flash code for Chronos was
+an important milestone.
+
+To compile code for MSP430 architecture, we used the
+\emph{\bf msp430-gcc}. This was an obvious choice, because NesC compiler
+has built in support for it. Its installation wasn't, however, as easy
+as one might expect. Namely packages provided in Ubuntu were too old
+and did not contain headers for \emph{CC430F6137} MCU. In the end
+we've removed all related system packages and built the \emph{msp430-gcc}
+from sources, using most recent version available at the time - 4.6.2.
+In addition to the compiler, tools like \emph{msp430-gdb} and
+\emph{mspdebug} were also installed.
+
+The \emph{\bf mspdebug} tool is particularly important for Chronos development,
+as it allows to flash software on the watch through the USB debug dongle.
+Additionally it also allows to debug code on the watch, by providing a
+primitive gdb server.
+
+Afterwards, the {\bf NesC compiler} was installed from sources, rather than
+packages, followed by the TinyOS distribution. We choose a clean upstream
+version provided on the website. It contained some tools and scripts that
+also needed to be built and installed.
+
+At this point we had a functional TinyOS installation, capable of
+targeting MSP430 based boards, like the \emph{telosb}. We choose to
+name, the new platform for our watch, \emph{chronos}. To make if fully
+functional, we had to create a few files, among which only
+\emph{.platform} was non-trivial. This configuration file, holds the
+compilation parameters. We had to specify the exact MCU used in
+chronos, so that the generated images would have correct offsets for
+the code segment (0x8000) and the interrupt vector.
+
+
+
+  minimal platform that builds and flashes
+    platform/chronos directory
+      .platform configures the mcu
+    support/make for build
+
+% Vim settings:
+% vim: set textwidth=70:
+% vim: set fo+=t:
