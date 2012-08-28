@@ -1,56 +1,47 @@
 \chapter{Porting TinyOS for Chronos hardware}
 
-This chapter describes the work done, to make TinyOS run on Chronos
-watch. Firstly, we show how we added a minimal, yet functional,
-platform to the OS. Then we discuss the methodology used for
-introducing new code. Afterwards, we present a conceptual schema of
-the watch circuits that, most notably, shows connections between its
-elements. The remainder part of the chapter describes the hardware
-drivers we have created, starting with MCU internal systems and going
-outwards through the peripherals.
+This chapter describes the work done, to make TinyOS run on Chronos watch. Firstly, we show how we added a minimal, yet functional, platform to the OS. Then we discuss the methodology used for introducing new code. Afterwards, we present a conceptual schema of the watch circuits that, most notably, shows connections between its elements. The remainder part of the chapter describes the hardware drivers we have created, starting with MCU internal systems and going outwards through the peripherals.
 
 \section{Adding a minimal functional platform}
 
-The goal of this phase was to learn about TinyOS build process.
-Moreover, having the ability to compile and flash code for Chronos was
-an important milestone.
+The first milestone of our project, was to get to the point, where we could compile the \emph{Null} application and upload its image to the watch. Although this application is of little use, it does basic system initialization, therefore allowing to verify the build configuration. The additional benefit was that we could learn much about TinyOS build process.
 
-To compile code for MSP430 architecture, we used the
-\emph{\bf msp430-gcc}. This was an obvious choice, because NesC compiler
-has built in support for it. Its installation wasn't, however, as easy
-as one might expect. Namely packages provided in Ubuntu were too old
-and did not contain headers for \emph{CC430F6137} MCU. In the end
-we've removed all related system packages and built the \emph{msp430-gcc}
-from sources, using most recent version available at the time - 4.6.2.
-In addition to the compiler, tools like \emph{msp430-gdb} and
-\emph{mspdebug} were also installed.
+To compile code for MSP430 architecture, we used the \emph{\bf msp430-gcc}. This was an obvious choice, because NesC compiler has built in support for it. Its installation wasn't, however, as easy as one might expect. Namely packages provided in Ubuntu were too old and did not contain headers for \emph{CC430F6137} MCU. In the end we've removed all related system packages and built the \emph{msp430-gcc} from sources, using most recent version available at the time - 4.6.2.  In addition to the compiler, tools like \emph{msp430-gdb} and \emph{mspdebug} were also installed.
 
-The \emph{\bf mspdebug} tool is particularly important for Chronos development,
-as it allows to flash software on the watch through the USB debug dongle.
-Additionally it also allows to debug code on the watch, by providing a
-primitive gdb server.
+The \emph{\bf mspdebug} tool is particularly important for Chronos development, as it allows to flash software on the watch through the USB debug dongle.  Additionally it also allows to debug code running on the watch, by providing a primitive gdb server, to which mentioned \emph{msp430-gdb} is able to connect\footnote{It's imperative to use the most recent version of \emph{msp430-gdb} with \emph{mspdebug}, because older versions are not compatible with it.}.
 
-Afterwards, the {\bf NesC compiler} was installed from sources, rather than
-packages, followed by the TinyOS distribution. We choose a clean upstream
-version provided on the website. It contained some tools and scripts that
-also needed to be built and installed.
+Afterwards, the {\bf NesC compiler} was installed from sources, rather than packages, followed by the TinyOS distribution. We choose a clean upstream version provided by \cite{TOSnet}. It contained some tools and scripts that also needed to be built and installed.
 
-At this point we had a functional TinyOS installation, capable of
-targeting MSP430 based boards, like the \emph{telosb}. We choose to
-name, the new platform for our watch, \emph{chronos}. To make if fully
-functional, we had to create a few files, among which only
-\emph{.platform} was non-trivial. This configuration file, holds the
-compilation parameters. We had to specify the exact MCU used in
-chronos, so that the generated images would have correct offsets for
-the code segment (0x8000) and the interrupt vector.
+At this point we had a functional TinyOS installation, capable of targeting MSP430 based boards, like the \emph{telosb}. We choose to name, the new platform for our watch, \emph{chronos}. To make if fully functional, we had to create a few files under \emph{tos/platforms/chronos} path, among which only \emph{.platform} was non-trivial. This configuration file, holds various compilation parameters. In it, we had to specify the exact MCU model used in the watch, so that the generated binary images would have correct offsets for the code segment (0x8000) and the interrupt vector (0xFF80).
+
+We also wanted the build process of an application, to be initiated with a standard TinyOS make command:
+\begin{lstlisting}[numbers=none, language=bash]
+  $ make chronos install
+\end{lstlisting}
+For this to work, we had to add a configuration file under \emph{tos/support/make} path. The \emph{chronos.target} file adds our platform to the build system, that in turn takes care of the exact NesC compiler invocations. To make the image automatically install on the device, file \emph{mspdebug.extra} was added under \emph{tos/support/make/msp} path, which invokes the commands that program Chronos.
+
+These changes may seem obvious, but it took quite some time to work them out. Eventually we've reached the point where, the \emph{Null} application was successfully installed on the watch.
+
+\section{Code creation methodology}
+
+The next step, was to add the code that would make the watch operational. Generally it's considered a good programming practice to reuse existing code rather than write it from scratch. Existing code tends to be more tested and can save considerable time, especially when it contains nontrivial constructions, that would otherwise require a test and debug cycle to discover. Moreover such situations are especially frequent when dealing with hardware. Our project was quite time constrained from the beginning and various delays were to be expected further on. In these circumstances saving time wherever possible was particularly important. We benefited greatly, from the fact that TinyOS code licensing is very liberal, allowing for free use, except few very reasonable restrictions like preserving the license headers in files.
+
+Nevertheless not all goals could be completed by adapting existing components. In such cases, where no drivers in NesC were available, we had to fall back to the hardware documentation in the form of datasheets. They describe hardware's behaviour very well, though sometimes, certain issues were only discovered and compensated for, after code was implemented and ran. As a rule, documentation very low lever, describing only control registers available on the device. All higher abstraction layers had to be devised and implemented by the developer. This is a tedious task and applying the Hardware Abstraction Architecture eases it enormously. We didn't know that from the beginning though, so some designs follow it better than others. Besides, in practice boundaries between layers aren't always clear.
+
+Few times we encountered code that was close to what we needed, but some hardware differences made it impossible to use it directly. Modifications had to be done before it could be added to Chronos platform. In these cases we had to mix above approaches, studying the datasheets to understand inner workings of the code. However, we've found that both contributed to better understanding. Code told us much about the inner workings of the hardware and datasheets helped to understand the constructions used in the code. Most notably such approach was used to port the low level radio driver, but the principle extends to other components. As a rule, it was much easier to understand operation of a hardware device if, even a crude, driver implementation was available.
+
+To implement the code, we first used traditional terminal based tools, like the \emph{vim} editor. Later on, when we've discovered the fine \emph{Yetti 2} plugin, we've started using \emph{Eclipse} with all its benefits. This increased our productivity considerably. Also there is no simulator of the watch available. Therefore all testing had to be done by uploading images to the hardware and observing its responses. At first we didn't even know if the programming was successful, but then when LCD display became available followed by the serial console and ultimately visual debugger, the process became quite seamless. See Appendix \ref{ch:prog_env} for details.
+
+Finally, in what we believe is \emph{the way} to create code for mobile platforms, we tried to use \emph{TOSMOCK} for module unit-testing. This technology, however, became available too late to be widely used in our code.
 
 
-
-  minimal platform that builds and flashes
-    platform/chronos directory
-      .platform configures the mcu
-    support/make for build
+% To enable wrapped line navigation:
+% map j gj
+% map k gk
 
 % Vim settings:
-% vim: set textwidth=70:
+% vim: set nonumber:
+% vim: set linebreak:
+% vim: set wrap:
+% vim: set textwidth=0:
 % vim: set fo+=t:
