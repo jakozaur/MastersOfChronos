@@ -86,7 +86,7 @@ Clock configuration is done by the \emph{Msp430XV2ClockC} component, which is pa
   \label{fig:Msp430XV2ClockC}
 \end{figure}
 The \emph{Msp430XV2ClockP} module configures all the clocks during its initialization. It does it through the \emph{Msp430XV2ClockControl} interface which is also made available externally, so that applications can tune the configuration if needed. Note that default MCU instruction execution speed can be modified in \emph{Msp430XV2ClockP}. This is possible, through changing the DCO frequency. \emph{Msp430XV2ClockControlP} will set MCLK to half of DCO speed, but it will always set SMCLK to 1MHz\footnote{This is one of the reasons why we drive Chronos MCU at 16MHz rather then maximum 20MHz. It is not possible to scale DCO from 40MHz to 1MHz to drive SMCLK.} and ACLK to 32kHz. Many subsystems depend on these clock sources having constant and known values. In particular, above module, also sets the Timer\_A0 to use the ACLK and Timer\_A1 to use the SMCLK. Moreover USCI uses SMCLK to drive UART, SPI and I$^2$C buses. These settings are summarised in Table \ref{fig:clock_speeds}.
-The \emph{Msp430XV2ClockControlP} needs to cooperate with \emph{McuSleepC}, because of a hardware flaw present in the CC430F6137 MCUs. The workaround code needs to be notified about MCU going to sleep and waking up to calculate the sleep period length and also control the loweset sleep state that can be used.
+The \emph{Msp430XV2ClockControlP} needs to cooperate with \emph{McuSleepC}, because of a hardware flaw present in the CC430F6137 MCUs. The workaround code needs to be notified about MCU going to sleep and waking up to calculate the sleep period length and also control the lowest sleep state that can be used.
 \begin{table}
   \centering
   \begin{tabular}{ | l | l | }
@@ -107,20 +107,75 @@ The \emph{Msp430XV2ClockControlP} needs to cooperate with \emph{McuSleepC}, beca
   \label{fig:clock_speeds}
 \end{table}
 
-The last action taken by the \emph{PlatformC} component is the configuration of \emph{Power Management Module}. This subsystem controls voltage fed to the MCU logic core and it needs to be increased if higher MCLK freequency is used. At lower frequencies, power can be conserved by reducing this voltage, however, setting it too low may cause unexpected behaviour. PMM can be set to one of four levels, starting with 0. Radio core can only operate at levels 2 and 3. 16MHz MCLK is also the highest frequency that can be used on PMM level 2. Therefore, we decided that it will be optimal to set it to 2.
+The last action taken by the \emph{PlatformC} component is the configuration of \emph{Power Management Module}. This subsystem controls voltage fed to the MCU logic core and it needs to be increased if higher MCLK frequency is used. At lower frequencies, power can be conserved by reducing this voltage, however, setting it too low may cause unexpected behaviour. PMM can be set to one of four levels, starting with 0. Radio core can only operate at levels 2 and 3. 16MHz MCLK is also the highest frequency that can be used on PMM level 2. Therefore, we decided that it will be optimal to set it to 2.
 
 It's worth noting, that we only noticed that PMM needs configuration after examining EM430 code. Their implementation however wasn't correct, because datasheet explicitly forbids changing the PMM level by more that one step at a time. We've corrected this in our implementation.
 
 \section{Overview of the watch's subsystems}
 
-Figure~\ref{fig:}
-
+In this section we present a high level schema of the Chronos systems. The Figure~\ref{fig:chronos_schema} gives a 
 \begin{figure}[h]
   \centering
   \includegraphics[width=1.05\textwidth]{diagrams/chronos_schema.eps}
   \caption{Overview of Chronos subsystems and circuit board}
   \label{fig:chronos_schema}
 \end{figure}
+practical overview of the platform structure. The central rectangle defines the boundaries of the MCU. Beyond it, lie the external components. The connections between them, roughly present the number of wires used and more importantly, what protocol does the communication conform to. We remind that UART is the Universal Asynchronous Receiver/Transmitter and is typically used to communicate with the PC, SPI is the Serial Peripheral Interface and is used to communicate with more advanced external chips, while I$^2$C (aka. I2C) is the Inter-Integrated Circuit bus used to communicate with simpler devices, like thermometers. The IO means that the interaction is done by simply setting lines to high or low states, without using any specific communication protocol. Finally, LCD segment serialization was described in Section \ref{ch:hardware_functions}. Rectangles with bold font captions name hardware subsystem, while those with regular ones denote software components.
+
+Rather than give brief descriptions, of each of the seven major component groups presented in the schema, and then repeat the same information in the discussion of driver code, we'll end here and refer to the schema from later sections. Finally, note, that though shown components preserve their relative structure, most have been omitted for clarity's sake.
+
+\section{Chronos hardware drivers}
+
+Below we describe the code that was created to make the Chronos watch operational. We go through the structure of the software of all major elements of \emph{chronos} platform, while also making notes on some of the difficulties we've encountered during our work.
+
+\subsection{The LCD display}
+Gaining access to the watch's LCD display was a vitally important step on the path of making Chronos operational.
+Before that we had no way of checking if our software is actually running. There are no LEDs on its circuit board, which could normally be used to send first bits of information from the device. We did have the \emph{mspdebug} tool and the USB debug dongle, which together are capable of controlling the code execution, but reading anything from raw debug server data, proved difficult. Fortunately, a careful study of the documentation was enough to blindly configure the LCD\_B subsystem and with a bit of luck and some hours of restudying the datasheet, we managed to activate the LCD display.
+
+Then we were gradually enhancing the driver, while progress on the rest of the project was made, until it became fully functional. In particular, it even gained the ability to display short text strings. Now we'll describe its implementation. Top level component for the LCD driver is the \emph{PlatformLCDC} shown in Figure~\ref{fig:platformc_lcd_c}.
+\begin{figure}[h]
+  \centering
+  \includegraphics{diagrams/platform_lcd_c.eps}
+  \caption{Structure of the LCD display driver.}
+  \label{fig:platformc_lcd_c}
+\end{figure}
+Low level configuration of the refresh frequency, multiplexing, IO pin special functions, voltage control pump, internal biasing, display memory and internal voltage generation all happens in the \emph{HplCC430LCDBP} module. It provides a simple \emph{StdControl} interface to turn these settings on and off. Actual display control is implemented in \emph{LCDDriverC}, which provides the \emph{LCDDriver} interface. It is the only interface that application user cares about. This is also presented in Figure~\ref{fig:chronos_schema}.
+
+On top of the LCD driver, the \emph{PlatformLedsC} component is built. Its structure is presented in Figure~\ref{fig:platform_leds_c}.
+\begin{figure}[h]
+  \centering
+  \includegraphics{diagrams/platform_leds_c.eps}
+  \caption{Structure of chronos abstract LEDs provider.}
+  \label{fig:platform_leds_c}
+\end{figure}
+TinyOS libraries expect that it will provide three \emph{GeneralIO} interfaces for the LEDs and take care of initialization. \emph{LCDIconIO} generic module, adapts a specified LCD icon to the \emph{GeneralIO} interface. This an example of TinyOS Adapter design pattern, on which more can be found at \cite[ch. 8]{TOSProg}.
+
+Finally note, that LCD driver is a poor example of HAA application, however due to its simplicity we decided that it's acceptable.
+
+\subsection{Button support}
+
+Buttons allow for user input during watch operation. They are, however one of these things that sound simple to implement, but are not. Problem lies in a phenomenon called bouncing, that happens when button is pressed. The metal contact isn't immediate, causing signal fluctuations preceding the state transition. Figure~\ref{fig:bouncing} illustrates this.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.6\textwidth]{img/Bounce.eps}
+  \caption{Bounce effect in buttons.}
+  \label{fig:bouncing}
+\end{figure}
+The fluctuations may cause several false press and release events. To solve this problem, so called de-bouncing is applied. This technique, measures the state of the signal several times, with each measurement separated by a short delay. Button press event is only generated if all measurements confirm that the button is pressed.
+
+Algorithm implemented in generic component \emph{DebouncedButtonC} waits for an interrupt, notifying about button state change and then probes 3 more times during a 60ms interval. All edge cases have also been taken care of. This includes false alarms, when after the interrupt, the state doesn't seem to be changed or when the state changes just before we rearm the interrupt.
+
+This component was made generic, because Chronos has five buttons. In Figure~\ref{fig:UpButtonC} we present the structure of one of them. All others are supported in the same way.
+\begin{figure}[h]
+  \centering
+  \includegraphics{diagrams/UpButtonC.eps}
+  \caption{The \emph{UpButtonC} abstraction.}
+  \label{fig:UpButtonC}
+\end{figure}
+The \emph{HplMsp430GeneralIOC} and the \emph{HplMsp430InterruptC} are TinyOS library components that give access to GIO pins for MSP430 MCUs. The first provides access to pin state control, for each pin allowing to set or probe its value. The second allows to arm interrupts that fire when state of a pin changes. This is used to discover when a button is pressed.
+
+Application using a button, can either check its state with the \emph{Get} interface or be notified about a change through the \emph{Notify} interface. Finally note, that thanks to the button independent implementations, it is possible to recognize press combinations.
+
 \begin{lstlisting}
 \end{lstlisting}
 
