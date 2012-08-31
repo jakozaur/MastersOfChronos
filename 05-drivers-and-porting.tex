@@ -39,7 +39,7 @@ Finally, in what we believe is \emph{the way} to create code for mobile platform
 The MCU configuration was made much easier, thanks to the existence of a partial port of TinyOS to a similar hardware platform. The Texas Instruments \cite{EM430}, shown in Figure~\ref{fig:em430_board}, is a development board which uses the exact same \emph{CC430F6137} MCU chip as Chronos does. Work on the port was done as a part of the \cite{OSIAN} project. Though the Chronos and the EM430 differ in peripherals, much of the internal MCU configuration code was compatible and we've decided to reuse it.  Minor modification was required, to meet our coding standards and fix a few issues.
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.8\textwidth]{img/em430_board.jpg}
+  \includegraphics[width=0.7\textwidth]{img/em430_board.jpg}
   \caption{The Texas Instruments EM430F6137RF900.}
   \label{fig:em430_board}
 \end{figure}
@@ -47,7 +47,7 @@ The MCU configuration was made much easier, thanks to the existence of a partial
 All the MCU configuration is done in the \emph{PlatformC} and the \emph{PlatformP} components, shown in Figure~\ref{fig:platformc}.
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.9\textwidth]{diagrams/platformc.eps}
+  \includegraphics[width=1.0\textwidth]{diagrams/platformc.eps}
   \caption{\emph{PlatformC} performs MCU initialization.}
   \label{fig:platformc}
 \end{figure}
@@ -56,7 +56,7 @@ The first step that \emph{PlatformP} takes is disabling the watchdog. Otherwise 
 One of the primary MCU responsibilities is to provide clocks and timing for other subsystems. First, let's look at the timers. In Section \ref{ch:timer_subsystem} we finished introducing TinyOS timer library, saying that the \emph{HilTimerMilliC} is provided by each platform. Continuing that discussion, Figure~\ref{fig:hil_timer_milli_c} shows a simplified structure of this component, as it is provided by the \emph{chronos} platform.
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.9\textwidth]{diagrams/hil_timer_milli_c.eps}
+  \includegraphics[width=0.6\textwidth]{diagrams/hil_timer_milli_c.eps}
   \caption{Structure of Chronos's \emph{HilTimerMilliC}.}
   \label{fig:hil_timer_milli_c}
 \end{figure}
@@ -65,7 +65,7 @@ We'll explain it's operation in bottom up order. The \emph{Msp430Timer32khzC} gi
 Millisecond granularity isn't, however, sufficient for some of Chronos peripheral drivers. Delays on the order of microseconds are needed, but we didn't want to resort to active waiting. Having latency and memory footprint in mind, we decided to implement virtualized 16 bit microsecond alarms\footnote{Note, that microsecond timing is quite imprecise. Firstly it's difficult to get an event fired after less than 10$\upmu$s and the exact firing time can vary by as much as 25$\upmu$s. Still, if you need to wait 37$\upmu$s, a microsecond alarm is the best choice.} in addition to millisecond timers. They are more light-weight than timers would have been, therefore we can use them more liberally. Alarm structure is shown in Figure~\ref{fig:virutal_alarm_micro_16_c} and it's operation is similar to the timers described above.
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.9\textwidth]{diagrams/virutal_alarm_micro_16_c.eps}
+  \includegraphics[width=0.65\textwidth]{diagrams/virutal_alarm_micro_16_c.eps}
   \caption{Structure of \emph{VirtualAlarmMicro16C} generic component.}
   \label{fig:virutal_alarm_micro_16_c}
 \end{figure}
@@ -86,6 +86,7 @@ Clock configuration is done by the \emph{Msp430XV2ClockC} component, which is pa
   \label{fig:Msp430XV2ClockC}
 \end{figure}
 The \emph{Msp430XV2ClockP} module configures all the clocks during its initialization. It does it through the \emph{Msp430XV2ClockControl} interface which is also made available externally, so that applications can tune the configuration if needed. Note that default MCU instruction execution speed can be modified in \emph{Msp430XV2ClockP}. This is possible, through changing the DCO frequency. \emph{Msp430XV2ClockControlP} will set MCLK to half of DCO speed, but it will always set SMCLK to 1MHz\footnote{This is one of the reasons why we drive Chronos MCU at 16MHz rather then maximum 20MHz. It is not possible to scale DCO from 40MHz to 1MHz to drive SMCLK.} and ACLK to 32kHz. Many subsystems depend on these clock sources having constant and known values. In particular, above module, also sets the Timer\_A0 to use the ACLK and Timer\_A1 to use the SMCLK. Moreover USCI uses SMCLK to drive UART, SPI and I$^2$C buses. These settings are summarised in Table \ref{fig:clock_speeds}.
+The \emph{Msp430XV2ClockControlP} needs to cooperate with \emph{McuSleepC}, because of a hardware flaw present in the CC430F6137 MCUs. The workaround code needs to be notified about MCU going to sleep and waking up to calculate the sleep period length and also control the loweset sleep state that can be used.
 \begin{table}
   \centering
   \begin{tabular}{ | l | l | }
@@ -106,12 +107,9 @@ The \emph{Msp430XV2ClockP} module configures all the clocks during its initializ
   \label{fig:clock_speeds}
 \end{table}
 
-\begin{lstlisting}
-  pmm
-    noticed that pmm configuration is necessary after reviewing em430 code
-    implementation is custom however and in particular correct
-\end{lstlisting}
+The last action taken by the \emph{PlatformC} component is the configuration of \emph{Power Management Module}. This subsystem controls voltage fed to the MCU logic core and it needs to be increased if higher MCLK freequency is used. At lower frequencies, power can be conserved by reducing this voltage, however, setting it too low may cause unexpected behaviour. PMM can be set to one of four levels, starting with 0. Radio core can only operate at levels 2 and 3. 16MHz MCLK is also the highest frequency that can be used on PMM level 2. Therefore, we decided that it will be optimal to set it to 2.
 
+It's worth noting, that we only noticed that PMM needs configuration after examining EM430 code. Their implementation however wasn't correct, because datasheet explicitly forbids changing the PMM level by more that one step at a time. We've corrected this in our implementation.
 
 \section{Overview of the watch's subsystems}
 
@@ -123,6 +121,8 @@ Figure~\ref{fig:}
   \caption{Overview of Chronos subsystems and circuit board}
   \label{fig:chronos_schema}
 \end{figure}
+\begin{lstlisting}
+\end{lstlisting}
 
 
 % To enable wrapped line navigation:
