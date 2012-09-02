@@ -152,7 +152,7 @@ TinyOS libraries expect that it will provide three \emph{GeneralIO} interfaces f
 
 Finally note, that LCD driver is a poor example of HAA application, however due to its simplicity we decided that it's acceptable.
 
-\subsection{Button support}
+\subsection{The button support}
 
 Buttons allow for user input during watch operation. They are, however one of these things that sound simple to implement, but are not. Problem lies in a phenomenon called bouncing, that happens when button is pressed. The metal contact isn't immediate, causing signal fluctuations preceding the state transition. Figure~\ref{fig:bouncing} illustrates this.
 \begin{figure}[h]
@@ -176,9 +176,84 @@ The \emph{HplMsp430GeneralIOC} and the \emph{HplMsp430InterruptC} are TinyOS lib
 
 Application using a button, can either check its state with the \emph{Get} interface or be notified about a change through the \emph{Notify} interface. Finally note, that thanks to the button independent implementations, it is possible to recognize press combinations.
 
-\begin{lstlisting}
-\end{lstlisting}
+\subsection{The buzzer}
 
+Chronos has a built-in sound emitting device, called the buzzer. It can emit beeps typical to alarm clocks. The circuit that drives it is shown in Figure~\ref{fig:buzzer_circuit}.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.30\textwidth]{img/buzzer_circuit.png}
+  \caption{The buzzer circuit schema.}
+  \label{fig:buzzer_circuit}
+\end{figure}
+The buzzer isn't connected directly to an IO pin, as Figure~\ref{fig:chronos_schema} would suggest. Instead, the IO pin triggers a transistor that really closes the buzzer circuit. 47k$\Omega$ resistor ensures that only a minimal current is drawn from the MCU. Drawing large currents from IO pins is not recommended and can be harmful. The IO pin needs to be set high, to close buzzer circuit, but this only moves its membrane one way. The L5 inductor, reverses the current running through the buzzer for a short moment after the transistor cuts the circuit, thus moving the membrane back. This way, a rectangular signal from the IO pin is transformed into sonic waves. Frequency of the waves is the same as the frequency of the signal.
+
+We started the driver implementation by trying to actively generate this rectangular wave. Interestingly, we've found that the resulting beeps had artifacts. The tone wasn't clear. As it turned out, after disabling the interrupts the artifacts have disappeared. What we've heard, were interrupts firing and interleaving with the signal. This is the first time that we've been able to observe interrupts using human senses!
+
+Though active signal generation, with interrupts disabled is hardly a good solution, we had neither need nor time to investigate other options. Therefore, we left the improvement of the implementation for future work. The root component of the buzzer driver is the \emph{BeeperC}, depicted in Figure~\ref{fig:buzzer_c}.
+\begin{figure}[h]
+  \centering
+  \includegraphics{diagrams/buzzer_c.eps}
+  \caption{The buzzer driver structure.}
+  \label{fig:buzzer_c}
+\end{figure}
+It uses the \emph{BusyMicroWaitC} to generate the wave form. This is more wasteful than setting an alarm would be, but also much more precise and precision is necessary to generate a clear tone. The \emph{BeeperC} provides a simple interface, allowing to sound a single beep or a whole \emph{Power Rangers} style hail signal\footnote{It is used in the Zordon demo application.}. Though this hail is long, interrupts are only disabled while each distinct sound is emitted. This allows to process all the pending interrupts between the sounds.
+
+Support for the Buzzer, the LCD display and the buttons allow Chronos to be a standard hand watch. Now we'll talk about more advanced features that distinguish it form such devices.
+
+
+\subsection{The CC1101-based radio module}
+
+The CC1101 is a radio transceiver chip, made by Texas Instruments. Among others, it is used in the SOWNet's \cite{G-Node} wireless sensor node, depicted in Figure~\ref{fig:gnode}. This platform is important to us, for two reasons. Firstly, a large testbed of G-Nodes has been deployed in our faculty (see \cite{MM}). Secondly, the TinyOS was ported to it by SOWNet's developers. This ensures production quality of the code and an ongoing support. Moreover, it was released on a license similar to those used in the rest of TinyOS, allowing for royalty-free use and even modification.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.5\textwidth]{img/gnode.jpg}
+  \caption{The SOWNet's G-Node.}
+  \label{fig:gnode}
+\end{figure}
+We are sure that, further research would be enhanced, if communication was possible between the watches and the G-Nodes\footnote{This way our testbed would become the largest academic deployment of wireless sensor nodes in the world, consisting of over 220 devices.}. There was no reason why it shouldn't be, because though the CC1101 radio core used to be a stand alone product, recently it was also built into the members of the CC430 family of MCUs\footnote{Credits for this are due to our project leader Konrad Iwanicki, who made the choice of hardware platforms.}. Adding this to the fact that we felt very time constrained, we've decided to adapt the G-Node's radio stack implementation, so that it could run on the Chronos. Having the same code on both types of devices, provides maximum compatibility. We also made sure that this step was legitimate by complying with the license restrictions.
+
+We will not present the detailed structure of the radio stack, because due to its complexity, it would lie beyond the scope of this document. Besides, we were are not the authors of this code and we left most of it unchanged. We will instead focus on our porting efforts. For details on the design of the \emph{ActiveMessage} communication model please refer to \cite{BHC}, \cite{TEP116} and \cite{TEP126}.
+
+The fundamental difference between the external CC1101 core and the built-in one lies in the way they communicate with the MCU. External chip uses the SPI bus and some additional signal lines, while the internal core accepts commands through a register based interface. As we expected, almost everything else remains the same. It seems that TI has embedded the radio core into an MCU design and changed only the command interface. Our modifications follow the same pattern. We've removed all SPI related code, by deleting the whole \emph{ccpacket/spi} path and disconnecting components it contained, from the HAL layer. Then we've changed the HAL code, to send all commands through the appropriate registers. At this point, we were only missing the interrupts and the status signals that were previously generated from signal lines coming from the radio chip. Interrupts were, however, easy to replace with native ones sourced directly from the built-in core and status signals could be read from registers via query commands (or in some cases, even directly). In the end we've cleaned up the code, by removing some redundant definitions and adding comments documenting each command. Our final impression is that built-in core is easier to manage than the external one.
+
+The bulk of these changes, was applied to \emph{HalChipconControlP} module which drives the radio core. It provides the \emph{HalChipconControl} interface, that can be used for very low level radio operation. It gives the user precise control over the transmission and reception, which might be necessary in some more sophisticated communication protocols.
+
+During the development we've encountered some serious difficulties. The biggest delay was caused by an elusive bug, we've introduced in the code. Namely, we called an interface function, rather than a local one, that wrapped it. They had very similar names, which made the difference difficult to notice. The functions purpose was to read radio core's inner registers. However, without the use of the wrapper, few of them were read incorrectly. This caused the radio to fail in some conditions, while working normally most of the time. We spent literally weeks, trying to find the source of the instability. At this point we only had the LCD display to view state of the watch and it only supported displaying numbers. Seeing that this was getting us nowhere, we've started working on enabling the TinyOS \emph{printf} library. It helped very much, allowing us to ascertain the exact condition at which the radio failed. After some investigation, we've found that it happened during, seemingly harmless radio core register read. Finally, we've noticed the misuse. This error was very simple, but also very difficult to track down.
+
+Another issue we've had, concerned G-Node interoperability. After porting its own radio stack to Chronos, we've expected that both will be able to communicate with each other. This wasn't the case though. We made sure that the transmission speeds matched, checked that G-Nodes are able to communicate among themselves and that Chronoses could do the same, but still they couldn't be mixed together. Finally, we've found that the problem was rooted in the \emph{support/make/chronos.target} file. Namely, it didn't contain any definition of the \emph{DEFAULT\_LOCAL\_GROUP} constant. This caused the build system to impose a default value, different from the TinyOS's default. So, both G-Node and Chronos used default value for the \emph{DEFAULT\_LOCAL\_GROUP}, but these defaults differed and nodes from different local groups ignore each others messages. We've fixed it by defining the \emph{DEFAULT\_LOCAL\_GROUP} as empty, in the mentioned file. Interestingly, an empty environment variable is treated very differently than an undefined variable. Some may view this as obvious, yet it caused us problems all the same.
+
+Afters solving all problems, we've investigated the maximum length of the data that can be sent in one packet. In TinyOS this value is configured with the \emph{TOSH\_DATA\_LENGTH} constant. The size of the radio internal transmission/reception queue is 64 bytes. 11 are used for TinyOS packet header and 3 for the footer. This leaves safe 50 bytes for the payload. Interestingly, the radio seems to work even with this value set to 52. However we strongly recommend, never to exceed 50.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=1.0\textwidth]{diagrams/am_sender_c.eps}
+  \caption{Overview of the \emph{AMSenderC} abstraction.}
+  \label{fig:am_sender_c}
+\end{figure}
+
+Finally, note that the radio stack can be used, through the interfaces provided by the \emph{ActiveMessageC}\footnote{This is an example of the Placeholder design pattern.} configuration. This however becomes less convenient if multiple message types are to be be sent and received. In such cases it is better to use the \emph{AMSenderC} generic component, shown in Figure~\ref{fig:am_sender_c}, that can be parametrized with the message type. It sends and receives only the messages that have a particular id. At most one instance of this component in the system can use a given id, removing the risk of collisions. Moreover it provides one-deep message queue, which helps in arbitration between users of different message types, allowing them to forget about each others existence. For an excellent tutorial, on how to use the radio stack in an application, see \cite{MoteToMote}. Also note that using the \emph{Low Power Listening} technique, supported by the radio stack, dramatically reduces power consumption. More on that can be found in \cite{LowPowerApps}.
+
+
+\subsection{The centralized port management}
+
+We've noticed a bad practice in TinyOS development. Too often, various configurations, directly connect enumerated ports to components, like for example \emph{IO.Port31 -> SPI.ChipEnable}. This hides dependencies, making code much more difficult to understand and reuse. Moreover, experiments and modifications require detailed review of schematics and datasheets to track the connections. Pin numbers neither indicate the MCU side special function, nor the function of the pin on the other end. Continuing the above example, we don't know which chip Port31 enables and if this port can even support acting as chip-enable on the MCU side. It is difficult to ensure that one got the connections right, especially when they need to run crossover.
+
+This matter becomes even more problematic in case of CC430 MCUs, because they can dynamically reassign pin special functions. Moreover, doing this incorrectly blocks the ability of further port-mapping changes until the device is restarted. Thus, one faulty piece of code can brake other completely correct code. Source of such an error is very difficult to track.
+
+These issues lead to two conclusions. Firstly, it would be better to give ports mnemonics, describing their real purpose and use these abstract names in configurations. Secondly, all port mapping should be done in one place. As both solutions need to be kept in sync, we believe that the best option is to join them, forming the centralized port management abstraction.
+
+Our implementation of this abstraction in Chronos took shape of the \emph{PlatformPortmapC} component. It provides IO pin interfaces named with the MCU pin special functions and ones representing the remote sides of the connections. Figure~\ref{fig:platform_portmap_c} shows the simplified structure of this component. Here it only provides access to two ports. \emph{CMA3000CSB} represents the accelerometer's chip-enable and \emph{CMA300MOSI} is its master-out slave-in SPI line. The \emph{UCB0SIMO} is a name of the special function assigned to the pin. It means that it acts as the slave-in master-out line, when USCI\_B0 submodule is configured to be an SPI interface. This function is assigned to Port16 by the \emph{PlatformPortmapP} module. PortJ is somewhat special. We had to add support for it to the  \emph{HplMsp430GeneralIOC} and its pins cannot have special functions assigned.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics{diagrams/platform_portmap_c.eps}
+  \caption{The centralized port management in Chronos. (simplified)}
+  \label{fig:platform_portmap_c}
+\end{figure}
+
+Now the accelerometer driver can use the \emph{CMA3000CSB} outlet to control chip-enable, while the USCI\_B0 driver connects to the \emph{UCB0SIMO}. All information about the actual circuit board connections is hidden in \emph{PlatformPortmapC}. This even gives potential for code portability. Another MCU from the CC430 family would only need an updated \emph{PlatformPortmapC} file to support the accelerometer\footnote{However, rarely it is that simple.}. Writing code for \emph{PlatformPortmapP} is also simplified because it only needs to realize mappings described in its parent configuration.
+
+Solution described above is very important for Chronos. Look again at figure Figure~\ref{fig:chronos_schema}. All external connections use different hardware subsystems. This would not be possible without port management, because CMA3000-D01 and the USB debug dongle would have to share USCI\_A0.
 
 % To enable wrapped line navigation:
 % map j gj
@@ -186,6 +261,7 @@ Application using a button, can either check its state with the \emph{Get} inter
 
 % Vim settings:
 % vim: set nonumber:
+% vim: set spell:
 % vim: set linebreak:
 % vim: set wrap:
 % vim: set textwidth=0:
