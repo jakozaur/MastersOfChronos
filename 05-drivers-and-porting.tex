@@ -284,7 +284,7 @@ After some investigation, we've found the \emph{tos/chips/msp430/x2xxx/usci} lib
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.55\textwidth]{diagrams/platform_serial_c.eps}
+  \includegraphics[width=0.52\textwidth]{diagrams/platform_serial_c.eps}
   \caption{The \emph{PlatformSerialC} component.}
   \label{fig:platform_serial_c}
 \end{figure}
@@ -322,7 +322,7 @@ The main responsibility of the HPL is to abstract this mechanism, to allow for s
 Another HAL responsibility is the concurrency. Typically there will be more than one entity wanting to use the accelerometer. Also, one entity may with to use two of its functions consecutively. It could, for example, first wait for a motion and after it is detected, activate the more costly measurement mode. The drivers HPL doesn't have any notion of concurrency, though. Trying to make a second register access before the first one finises, will yield unpredictable results. Therefore, we've introduced the \emph{HalCMA3kD0OwnershipC} component, depicted in Figure~\ref{fig:hal_cma3kd0_ownership_c}.
 \begin{figure}[h]
   \centering
-  \includegraphics{diagrams/hal_cma3kd0_ownership_c.eps}
+  \includegraphics[width=0.85\textwidth]{diagrams/hal_cma3kd0_ownership_c.eps}
   \caption{The integrated concurrency and power management for the accelerometer.}
   \label{fig:hal_cma3kd0_ownership_c}
 \end{figure}
@@ -333,7 +333,7 @@ This concurrency control and HPL form the foundation for higher level accelerome
 Samples are always read by accessing three registers, containing components of the acceleration vector. In the measurement mode, however, the accelerometer not only tries to produce readings at a constant rate, but also notifies the MCU about readiness of a new sample, by changing the signal on the interrupt line. The MCU configures its GIO to monitor this line and fire an interrupt when the change is detected. This allows to read the sample as soon as it's ready, without wasteful pooling. Figure~\ref{fig:hil_accel_stream_c} shows the components supporting the measurement mode.
 \begin{figure}[h]
   \centering
-  \includegraphics{diagrams/hil_accel_stream_c.eps}
+  \includegraphics[width=0.8\textwidth]{diagrams/hil_accel_stream_c.eps}
   \caption{The support for continuous acceleration measurements.}
   \label{fig:hil_accel_stream_c}
 \end{figure}
@@ -344,47 +344,34 @@ The bulk of the logic is implemented in the \emph{HalCMA3kD0ContinousReadsP} mod
 
 All applications, except the most basic ones, need non-volatile memory to perform their functions. Understanding this, we've decided that Chronos platform must provide some form of persistent storage. We tried to add support for it, however this proved more difficult than anticipated and we haven't succeed yet. This section describes how persistence is supported in the TinyOS and Chronos. We also draw lessons from our flawed design and ley plans for future work.
 
-There is a well defined set of HIL interfaces meant to support non-volatile memory. Authors of \cite{TEP103} selected the three most common use cases and for each designed a custom abstraction. We will not repeat their analysis here, but only 
-  on tinyos
-    described in tep
-    not repeat its description but summarize
-      log storage
-      block storage
-      info storage
-  varaity of possible storage chips causes that there is no sens for library support and authors simply recommend to always implement it from scratch
-  Now chronos has no storage chip at all.
-  Nevertheless we've decided that persistant storage is necessary
-  possible to write to the program memory
-  organization
-    32kb of main program memory
-    4 info segments 4x128B
-    4 bootstarp loader segments 4x512B
-  segmentation
-    minimal erase unit
-    info and bsl erase at once
-    main memory in 512 byte blocks
-  erase writes ones
-    can clear 1 -> 0 multiple times, but never 0 -> 1
-  additional difficulty, that the mcu blocks completely during a write, so large writes should be split in smaller portions
-  why first attempt failed
-    internal flash
-      figure
-      builds around segments, whitch isn't so bad
-      but makes no distinction between them, not allowing to manage larger and smaller segments separately
-      writebuffer is synch which makes lengthy writes block for too long
-      hpl has too much logic effectively mixes hal and hpl creating illegible register accessing code
-      overally internal flash creates a clumsy abstraction hidding too much, and making subsequent use difficult
-      no access to small writes - only buffers
-    hil
-      too bulky components
-      circular buffer tightly and again clumsilty coupled with RWhil
-      lacking lower layers overly complicate it
-    decided that it is impossible to repair and we've abandoned it
-  second attempt with TDD
-    tosmock
-    paper
+There is a well defined set of HIL interfaces meant to support non-volatile memory in TinyOS. Authors of \cite{TEP103} selected the three most common use cases and for each designed a custom abstraction. The first is represented by the \emph{ConfigStorageC} component and is used to store application's configuration, which usually is a set of small numeric values. The second, allows for the storage of large binary objects, through the \emph{BlockStorageC} configuration, which provides interfaces for efficient block reads and writes. The third is used to store logs. The \emph{LogStorageC} component ensures consistency of the records and supports circular logging.
 
+However, the implementation of these interfaces was left fully in the discretion of the programmer, due to large variety of used flash chips and performance considerations. Authors recommend that each chip should have its own customized driver implementation and they do have a point, because Chronos has no flash chip at all. Nevertheless, we've decided that persistent storage is very important and must be supported somehow. Fortunately, it is possible to write to the MCU's internal flash memory in run time and therefore we can use a part of the program memory for application storage needs.
 
+The flash memory of the watch is organized into three categories. The main program memory has 32KB and is divided into 512 bytes long segments. There is also the so called info memory, that has 4 segments, each 128 bytes long, and is meant specifically for configuration data. The last type of memory is used by the bootstrap loader and consists of 4 segments, each 512 bytes long. Now memory segmentation is very important, because segment is the minimal unit that can be erased. An erase sets all bits in a segment to 1. Writes can clear these bits to 0, but can never set a 0 to 1. This is the most important design consideration when dealing with flash memory.
+
+An additional difficulty in Chronos, is the fact that any write to the flash memory, completely halts the MCU. This means that writes should be done in short bursts, to avoid delaying any pending tasks. Finally note, that as far as we know, the mass erase done during reprogramming, clears the main memory, but leaves the info and bootstrap loader segments intact. A subtlety that we've completely disregarded in our first approach to the driver implementation.
+
+We've started by working out the low level details of the memory writing and erasing. The resulting component structure is shown in Figure~\ref{fig:hal_cc430_internal_flash_c}.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{diagrams/hal_cc430_internal_flash_c.eps}
+  \caption{The flash segment abstraction.}
+  \label{fig:hal_cc430_internal_flash_c}
+\end{figure}
+It is organized around the concept of segments, being independent portions of the memory. This idea isn't bad, because it's convenient to assume that the whole segment can always be erased. The problem, however, is that it makes no distinction between them. Segments vary in size and the mass erase prevalence, but higher layers can not rely on these properties. Another issue is that, the \emph{writeBuffer} operation was made synchronous, which introduces lengthy tasks. Finally, the HPL has too much logic in it, making it effectively a HAL component. The code accesses registers directly, creating the exact clutter that HPL and HAL separation was supposed to avid. Overall, the internal flash HAL creates a leaky abstraction that tries to hide too many details, making subsequent use more difficult.
+
+The HIL layer, in turn, is presented in Figure~\ref{fig:log_storage_c}.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{diagrams/log_storage_c.eps}
+  \caption{The HIL components of the driver.}
+  \label{fig:log_storage_c}
+\end{figure}
+It consists of two very bulky components. The \emph{HilCC430LogReadWriteP} and the \emph{HalCC430CircularStorageC}, which are very tightly coupled together.
+Multiple times we had to adjust the interface connecting them to implement their logic. The lacking lower layer, overly complicates the circular storage component. Moreover, note that there is no trace of any concurrency management, which is required by the specification. At that time, we understood very little of how TinyOS handles these issues. In practice the implementation worked poorly and eventually we've decided to abandon it.
+
+To avoid all the above mistakes, we plan to employ test driven development during our second approach. Very recently this was made possible by \cite{TOSMock} and <tutaj nowy artykol Konrada>. This technique tends to produce smaller, more loosely coupled components with better interfaces and helps to find programming errors early in the development cycle. These are the virtues that the current implementation lacks.
 
 % To enable wrapped line navigation:
 % map j gj
