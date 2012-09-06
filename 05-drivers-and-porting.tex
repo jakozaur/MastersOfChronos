@@ -212,7 +212,7 @@ The CC1101 is a radio transceiver chip, made by Texas Instruments. Among others,
 \end{figure}
 We are sure that, further research would be enhanced, if communication was possible between the watches and the G-Nodes\footnote{This way our testbed would become the largest academic deployment of wireless sensor nodes in the world, consisting of over 220 devices.}. There was no reason why it shouldn't be, because though the CC1101 radio core used to be a stand alone product, recently it was also built into the members of the CC430 family of MCUs\footnote{Credits for this are due to our project leader Konrad Iwanicki, who made the choice of hardware platforms.}. Adding this to the fact that we felt very time constrained, we've decided to adapt the G-Node's radio stack implementation, so that it could run on the Chronos. Having the same code on both types of devices, provides maximum compatibility. We also made sure that this step was legitimate by complying with the license restrictions.
 
-We will not present the detailed structure of the radio stack, because due to its complexity, it would lie beyond the scope of this document. Besides, we were are not the authors of this code and we left most of it unchanged. We will instead focus on our porting efforts. For details on the design of the \emph{ActiveMessage} communication model please refer to \cite{BHC}, \cite{TEP116} and \cite{TEP126}.
+We will not present the detailed structure of the radio stack, because due to its complexity, it would lie beyond the scope of this document. Besides, we were are not the authors of this code and we left most of it unchanged. We will instead focus on our porting efforts. For details on the design of the ActiveMessage communication model please refer to \cite{BHC}, \cite{TEP116} and \cite{TEP126}.
 
 The fundamental difference between the external CC1101 core and the built-in one lies in the way they communicate with the MCU. External chip uses the SPI bus and some additional signal lines, while the internal core accepts commands through a register based interface. As we expected, almost everything else remains the same. It seems that TI has embedded the radio core into an MCU design and changed only the command interface. Our modifications follow the same pattern. We've removed all SPI related code, by deleting the whole \emph{ccpacket/spi} path and disconnecting components it contained, from the HAL layer. Then we've changed the HAL code, to send all commands through the appropriate registers. At this point, we were only missing the interrupts and the status signals that were previously generated from signal lines coming from the radio chip. Interrupts were, however, easy to replace with native ones sourced directly from the built-in core and status signals could be read from registers via query commands (or in some cases, even directly). In the end we've cleaned up the code, by removing some redundant definitions and adding comments documenting each command. Our final impression is that built-in core is easier to manage than the external one.
 
@@ -254,6 +254,137 @@ Our implementation of this abstraction in Chronos took shape of the \emph{Platfo
 Now the accelerometer driver can use the \emph{CMA3000CSB} outlet to control chip-enable, while the USCI\_B0 driver connects to the \emph{UCB0SIMO}. All information about the actual circuit board connections is hidden in \emph{PlatformPortmapC}. This even gives potential for code portability. Another MCU from the CC430 family would only need an updated \emph{PlatformPortmapC} file to support the accelerometer\footnote{However, rarely it is that simple.}. Writing code for \emph{PlatformPortmapP} is also simplified because it only needs to realize mappings described in its parent configuration.
 
 Solution described above is very important for Chronos. Look again at figure Figure~\ref{fig:chronos_schema}. All external connections use different hardware subsystems. This would not be possible without port management, because CMA3000-D01 and the USB debug dongle would have to share USCI\_A0.
+
+\subsection{The serial connection support}
+
+% through mspdebug bi-wire ?
+% through radio packets ?
+
+The serial port connection is the most reliable way for the MCU to communicate with the PC. It allows to relay packets between the tools on the PC and the radio mesh network. It also allows to receive network activity logs, to view its operation. And during the code development cycle, it allows to print messages from the MCU to a PC console, greatly reducing the debugging effort.
+
+For Chronos, the best way to connect to a PC is to use the UART protocol in conjunction with the USB debug dongle. This protocol uses only two wires and is natively supported by the MCU hardware. There is however a small modification that needs to be done to the watch, to make it operational. The procedure is described, in detail, in Appendix \ref{appendix:uart_pins}.
+
+Now we'll analyze how the serial stack is organized in TinyOS. Let's have a look at the main component of the \emph{tos/lib/serial} library. The \emph{SerialActiveMessageC}, depicted in Figure~\ref{fig:serial_active_message_c}, provides interfaces very similar to those of the radio stack.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.6\textwidth]{diagrams/serial_active_message_c.eps}
+  \caption{The \emph{SerialActiveMessageC} component. (simplified)}
+  \label{fig:serial_active_message_c}
+\end{figure}
+We will not delve into them and refer the reader to \cite{TEP113} for details. This configuration relies on the \emph{SerialDispatcherC}, depicted in Figure~\ref{fig:serial_dispatcher_c}, to provide the \emph{SubSend} and the \emph{SubReceive} functionality.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.75\textwidth]{diagrams/serial_dispatcher_c.eps}
+  \caption{The \emph{SerialDispatcherC} component. (simplified)}
+  \label{fig:serial_dispatcher_c}
+\end{figure}
+In \emph{SerialDispatcherC} there are three components engaged in the packet formation and transmission over a byte stream medium, but at the bottom lies the one most important to us - the \emph{PlatformSerialC}. It provides the \emph{UartStream} for byte transmission and the \emph{StdControl} for turning the connection on and off. Having this component is the key for a platform to support the serial communication. As the ports were already configured to the state shown in Figure~\ref{fig:chronos_schema}, by the \emph{PlatformPortmapC}, we only needed to get the USCI\_A0 module to act as an UART driver and provide an interface to it.
+
+After some investigation, we've found the \emph{tos/chips/msp430/x2xxx/usci} library that supports USCI modules of some MSP430 MCUs. Most importantly, it configures the USCI and provides the \emph{UartStream} interface that we need. It isn't, however, directly compatible with the Chronos. There are some differences in register naming and interrupt sources, but not too big and we've managed to adapt it for our purposes. We didn't found a way to modify the library it self, without breaking other platforms, because the modifications were needed deep inside it and there was no way make the incompatible modules injectable. Instead we've copied it locally to the platform and changed what we needed. A crude solution but effective.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.55\textwidth]{diagrams/platform_serial_c.eps}
+  \caption{The \emph{PlatformSerialC} component.}
+  \label{fig:platform_serial_c}
+\end{figure}
+
+The Figure~\ref{fig:platform_serial_c} presents the \emph{PlatformSerialC} component, that was the result of our work. The \emph{Msp430Uart0C} is the root component of the USCI library. It uses the \emph{Msp430UartConfigure} interface to retrieve the UART configuration parameters and in turn, it provides the \emph{Resource} interface, which is a part of the integrated concurrency and power management control mechanism and is used to gain access to the serial line. The \emph{ChronosSerialP} only stores the mentioned configuration parameters. All rest is done behind the scenes and as a result the \emph{SerialActiveMessageC} component is available. The \emph{tos/lib/printf} library uses it directly and therefore, we've also gained the ability to print messages on PC console. Details on how to use this library are described in Appendix \ref{ch:prog_env}.
+
+Finally, note that, just as was the case with the radio stack, the recommended way of using the SerialActiveMessage communication is to instantiate a \emph{SerialAMSenderC} component for each message type.
+
+
+\subsection{The accelerometer}
+
+The CMA3000-D01 is an accelerometer chip, installed in Chronos. It allows to measure the acceleration, that the watch is subject to, at any given moment. This includes the Earth's gravity, which allows to estimate device's orientation in space. Also many modern smart-phone games are controlled, using accelerometer readings and some human activities can be recognized, solely based on its data. The CMA3000-D01 chip has three modes of operation. In the measurement mode, it sends a continuous stream of samples at a preconfigured rate. In the motion detection mode, the chip uses very little energy, while readily detecting any motions exceeding preconfigured thresholds. Similarly, in the free fall detection mode, it notifies the MCU whenever the acceleration readings falls below given thresholds. Overall, such sensor allows to create some very interesting applications.
+
+However, this particular chips wasn't supported in TinyOS yet. This created an opportunity for us, to finally design some device drivers from scratch. During our work, we closely abided the recommendations of the Hardware Abstraction Architecture, therefore this code is our best example of its use. Also we've made the driver platform independent in the same way that the \emph{SerialActiveMessageC} is. The platform only needs to provide a proxy component bridging its SPI and GIO with the driver code.  This connection is realized by the \emph{PlatformCMA3kD0C} configuration, shown in Figure~\ref{fig:platform_cma3kd0_c}.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=1.0\textwidth]{diagrams/platform_cma3kd0_c.eps}
+  \caption{The bridge between the platform and the accelerometer driver.}
+  \label{fig:platform_cma3kd0_c}
+\end{figure}
+Most importantly, it must provide the \emph{SpiPacket} interface that will allow to communicate with the CMA3000-D01 chip, along with the \emph{Resource} interface used to secure exclusive access to the bus. In addition it should also provide interfaces that give control over the IO lines that connect the MCU and the chip. These include the chip-select line, chip-power line and the chip-to-MCU interrupt line. While it is possible to use the accelerometer without control over their signals, doing so would reduce its functionality. In Chronos, this component instantiates the \emph{Msp430SpiB0C} to obtain the \emph{SpiPacket} interface. It originates from the same library that is used to support the serial connection. As shown in Figure~\ref{fig:chronos_schema}, the \emph{PlatformPortmapC} connects the USCI\_B0 subsystem to the accelerometer, therefore \emph{Msp430SpiB0C} indeed realizes the desired connection. The IO pin interfaces are sourced from the \emph{PlatformPortmapC} directly\footnote{Well almost, because the \emph{Msp430GpioC} adapter is used to convert the \emph{HplMsp430GeneralIO} interface to a platform independent \emph{GeneralIO}.}.
+
+The interfaces provided by the proxy component are used in the Hardware Presentation Layer of our driver. Its members can freely instantiate and internally depend on the \emph{PlatformCMA3kD0C} component, because from the outside it is completely platform independent.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=1.0\textwidth]{diagrams/hpl_cma3kd0_c.eps}
+  \caption{The HPL of the accelerometer driver.}
+  \label{fig:hpl_cma3kd0_c}
+\end{figure}
+Figure~\ref{fig:hpl_cma3kd0_c} shows all the components comprising the HPL. The most important abstraction, that is here created, is the accelerometer register access. It originates from the way that the accelerometer is controlled. There is only one frame, that can sent to it through the SPI. This frame contains a register address, a read-write bit and a data byte. If the bit indicates a write, than the accelerometer sets the specified register to the specified value and sends an answer frame, though it's not relevant in this case. It becomes relevant, however, if the bit was set to read, in which case, the answer caries the register value.
+
+The main responsibility of the HPL is to abstract this mechanism, to allow for simple register modifications. We achieve this by splitting each register into the smallest meaningful portions, that we call subregisters, like the interrupt-enable bit or the 3 bits that configure the currently set accelerometer mode. HPL provides a simple interface that allows to set the value of a specific subregister, without changing the value of the whole register. Technically this violates the HPL contract because we must store some state in the components, but that's only necessary due to the split-phase nature of SPI communication. Had it been synchronous, than stack variables would suffice. More important than the lack of state is the primary purpose of the HPL, which is to provide clean interface to the hardware and we've definitely succeeded in that.  The second thing, that the HPL does, is the one time configuration of the interrupt line, because it's better to make it an input. Further responsibility for interrupt processing is left for the HAL, however.
+
+Another HAL responsibility is the concurrency. Typically there will be more than one entity wanting to use the accelerometer. Also, one entity may with to use two of its functions consecutively. It could, for example, first wait for a motion and after it is detected, activate the more costly measurement mode. The drivers HPL doesn't have any notion of concurrency, though. Trying to make a second register access before the first one finises, will yield unpredictable results. Therefore, we've introduced the \emph{HalCMA3kD0OwnershipC} component, depicted in Figure~\ref{fig:hal_cma3kd0_ownership_c}.
+\begin{figure}[h]
+  \centering
+  \includegraphics{diagrams/hal_cma3kd0_ownership_c.eps}
+  \caption{The integrated concurrency and power management for the accelerometer.}
+  \label{fig:hal_cma3kd0_ownership_c}
+\end{figure}
+It uses the mechanism demonstrated in Section \ref{ch:concurrency_and_power} to arbitrate the access to the HPL and the CMA3000-D01 chip it self. This is done via the \emph{Resource} interfaces it provides. Each user of the HPL must first request and be granted access to it. When the device isn't used, it is left under the control of the default owner, which is the \emph{HalCMA3kD0PowerManagerP} component. It is responsible for powering down the device, but it does so in an optimized manner. Instead of immediately cutting the power, it delays, waiting for a next user. This prevents an inefficient flickering behaviour when the accelerometer would have been turn on and off with high frequency. Now this frequency is bound by the inverse of the delay period. Note, however, that the default owner also requests and holds access to the SPI bus, so the delay shouldn't be too long.
+
+This concurrency control and HPL form the foundation for higher level accelerometer abstraction implemented in the Hardware Abstraction Layer. It strives to expose most of the device capabilities to ensure maximal efficiency and performance. The design is organized around the three accelerometer operation modes. Each is supported by a separate HAL component that provides an interface specific to it. However, the broad configuration possibilities can be a flaw in more casual use or when platform independence is more important. Therefore, the Hardware Independence Layer provides components that wrap the HAL, configure the accelerometer to safe default values and provide easy to use and portable interfaces. The code supporting each accelerometer modes is very similar. Therefore we will only focus on how the measurement mode is implemented, because it will sufficiently cover the most important concepts.
+
+Samples are always read by accessing three registers, containing components of the acceleration vector. In the measurement mode, however, the accelerometer not only tries to produce readings at a constant rate, but also notifies the MCU about readiness of a new sample, by changing the signal on the interrupt line. The MCU configures its GIO to monitor this line and fire an interrupt when the change is detected. This allows to read the sample as soon as it's ready, without wasteful pooling. Figure~\ref{fig:hil_accel_stream_c} shows the components supporting the measurement mode.
+\begin{figure}[h]
+  \centering
+  \includegraphics{diagrams/hil_accel_stream_c.eps}
+  \caption{The support for continuous acceleration measurements.}
+  \label{fig:hil_accel_stream_c}
+\end{figure}
+
+The bulk of the logic is implemented in the \emph{HalCMA3kD0ContinousReadsP} module. It takes care of accelerometer configuration, handling the interrupts and reading the samples. The \emph{HalCMA3kD0ContinousReadsC} makes the necessary connections and hides unnecessary details. On top of it, the component of the HIL is built. The \emph{HalCMA3kD0ContinousReads} interface allows to configure both the rate at which samples will be taken and the precision scale.The \emph{HilAccelStreamP} hides these details, by setting the frequency to 40Hz and scale to maximum of 8g. It also requests the resource behind the scenes, so that the user can receive samples purely by the means of the simple \emph{Notify} interface.
+
+\subsection{Persistent storage}
+
+All applications, except the most basic ones, need non-volatile memory to perform their functions. Understanding this, we've decided that Chronos platform must provide some form of persistent storage. We tried to add support for it, however this proved more difficult than anticipated and we haven't succeed yet. This section describes how persistence is supported in the TinyOS and Chronos. We also draw lessons from our flawed design and ley plans for future work.
+
+There is a well defined set of HIL interfaces meant to support non-volatile memory. Authors of \cite{TEP103} selected the three most common use cases and for each designed a custom abstraction. We will not repeat their analysis here, but only 
+  on tinyos
+    described in tep
+    not repeat its description but summarize
+      log storage
+      block storage
+      info storage
+  varaity of possible storage chips causes that there is no sens for library support and authors simply recommend to always implement it from scratch
+  Now chronos has no storage chip at all.
+  Nevertheless we've decided that persistant storage is necessary
+  possible to write to the program memory
+  organization
+    32kb of main program memory
+    4 info segments 4x128B
+    4 bootstarp loader segments 4x512B
+  segmentation
+    minimal erase unit
+    info and bsl erase at once
+    main memory in 512 byte blocks
+  erase writes ones
+    can clear 1 -> 0 multiple times, but never 0 -> 1
+  additional difficulty, that the mcu blocks completely during a write, so large writes should be split in smaller portions
+  why first attempt failed
+    internal flash
+      figure
+      builds around segments, whitch isn't so bad
+      but makes no distinction between them, not allowing to manage larger and smaller segments separately
+      writebuffer is synch which makes lengthy writes block for too long
+      hpl has too much logic effectively mixes hal and hpl creating illegible register accessing code
+      overally internal flash creates a clumsy abstraction hidding too much, and making subsequent use difficult
+      no access to small writes - only buffers
+    hil
+      too bulky components
+      circular buffer tightly and again clumsilty coupled with RWhil
+      lacking lower layers overly complicate it
+    decided that it is impossible to repair and we've abandoned it
+  second attempt with TDD
+    tosmock
+    paper
+
+
 
 % To enable wrapped line navigation:
 % map j gj
