@@ -47,8 +47,8 @@
     ><g font-size="11" transform="translate(12,72)" fill-opacity="1" fill="black" text-rendering="geometricPrecision" font-family="sans-serif" stroke="black" stroke-opacity="1"
     ><text x="19" xml:space="preserve" y="14" clip-path="url(#clipPath2)" stroke="none"
       >&lt;&lt;component&gt;&gt;</text
-      ><text x="11" xml:space="preserve" y="28" font-weight="bold" clip-path="url(#clipPath2)" stroke="none"
-      >ExampleComponent</text
+      ><text x="15" xml:space="preserve" y="28" font-weight="bold" clip-path="url(#clipPath2)" stroke="none"
+      >SampleComponent</text
     ></g
     ><g font-size="11" transform="translate(122,22)" fill-opacity="1" fill="rgb(224,224,224)" text-rendering="geometricPrecision" font-family="sans-serif" stroke="rgb(224,224,224)" font-weight="bold" stroke-opacity="1"
     ><circle r="9.5" clip-path="url(#clipPath3)" cx="9.5" cy="9.5" stroke="none"
