@@ -1,47 +1,46 @@
-\chapter{Conclusions and further work}
+\chapter{Conclusions and future work}
 
 \section{Conclusions}
 
 % Complete environment
 
-The aim of this project was to provide infrastructure to evaluate routing algorithms in mobile sensor networks.
-It was accomplished by porting TinyOS to eZ430 Chronos, which is the first mobile node supported by this operating system.
+The aim of this project was to provide an infrastructure for evaluating routing algorithms in mobile sensor networks.
+It was accomplished by porting TinyOS to eZ430 Chronos, which is, to the best of our knowledge, the first mobile watch supported by this operating system.
 
-Our work start from scratch, without essential programming tools.
-Reusing existing software, we assembled convenient development environment, which consist of compiler, debugger, chip programmer, printf library, build system, IDE and virtual machine.
-The core part of our work was implementation of TinyOS device drivers for eZ430 in nesC programming language.
-We also performed several evaluation in order to test radio power consumption, range and throughput.
-At last, but not at least, we provided example application --- Zordon for Chronos, which demonstrate its hardware features..
+Our work started from scratch, without essential programming tools.
+Reusing existing software, we assembled a convenient development environment, which consist of a compiler, debugger, chip programmer, printf library, build system, IDE and virtual machine.
+However, The core part of our work was the implementation of TinyOS device drivers for eZ430.
+We also performed a preliminary evaluation in order to test the radio power consumption, range and throughput.
+Last, but not least, we provided a sample application, Zordon, which demonstrates eZ430 hardware features.
 
-Although the project may seem to be limited to low-level programming, it delivered a robust, well-designed abstraction, which encapsulate eZ430 technical details.
-It is a radical improvement over manufacturer's tools, which require handling manually hardware issues and are suitable only for simple applications.
+Although the project may seem limited to low-level programming, it delivered a robust, well-designed abstractions, which encapsulate eZ430 technical details.
+It is a radical improvement over the manufacturer's tools, which require manually handling hardware issues and are suitable only for simple applications.
 Our programming environment supports modular, object-oriented, cross-platform applications.
-In addition to that, it is possible to take advantage of TineOS ecosystem:
-ready to use applications as well as tools and libraries (e.g. unit-test framework \cite{TOSMOCK}).
+In addition to that, it is possible to take advantage of the TineOS ecosystem:
+ready to use applications as well as tools and libraries (e.g. an unit-test framework \cite{TOSMock}).
 
-We believe it is the great leap forward in development of applications for mobile sensor networks.
+We believe it is a great leap forward in development of applications for mobile sensor networks.
 
 % complete programming environment
 
-\section{Further work}
+\section{Future work}
 There are a lot of research projects which could take advantage of our TinyOS port to eZ430.
-Especially two of them seems to be a next step.
+Especially two of them seem to be ideal as a next step.
 
 \subsection{Evaluations of existing routing protocols}
 There are many published articles about sensor network protocols which were implemented in TinyOS.
-However, there was no mobile hardware nodes to evaluate them in non-static environment.
+However, there were few mobile hardware nodes to evaluate them in non-static environment.
 Using our TinyOS port to eZ430 it is much easier to perform that kind of experiments and provide valuable results for the research community.
 
 \subsection{Better low-power listening}
-Low-power consumption is one of the key requirements for sensor nodes.
-Radio communication usually use most of the energy, so it is the best candidate for further optimizations.
-The savings are achieved by turning off radio module whenever it is possible.
+Low power consumption is one of the key requirements for sensor nodes.
+Radio communication usually uses most energy, so it is the best candidate for further optimizations.
+The savings are achieved by turning off the radio module whenever it is possible.
 However, deciding when radio listening is needed is a hard problem.
-The eZ430 Chronos has implementation of low-power listening, but it is based on simple algorithm.
+Our eZ430 Chronos port has an implementation of low-power listening, but it is based on a simple algorithm.
 
-Various scientific papers presents more sophisticated solutions \cite{BMAC} and \cite{DCCLPL}.
-Their power performance is claim hardware and application specific.
-Although, implementation and evaluation of those algorithms would require significant amount of work, it is likely that they would be substantial better implementation of low-power listening.
+Various scientific papers presents more sophisticated solutions (e.g. \cite{DCCLPL}).
+Although implementation and evaluation of those algorithms would require a significant amount of work, it is likely that these solutions would be substantially better than current low-power listening.
 
 
 % we need a better MAC layer
