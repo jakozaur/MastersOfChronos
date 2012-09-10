@@ -39,7 +39,7 @@ Finally, in what we believe is \emph{the way} to create code for mobile platform
 The MCU configuration was made much easier, thanks to the existence of a partial port of TinyOS to a similar hardware platform. The Texas Instruments \cite{EM430}, shown in Figure~\ref{fig:em430_board}, is a development board which uses the exact same \emph{CC430F6137} MCU chip as Chronos does. Work on the port was done as a part of the \cite{OSIAN} project. Even though Chronos and EM430 differ in peripherals, much of the internal MCU configuration code was compatible and we decided to reuse it.  Minor modifications were required to meet our coding standards and, to fix a few issues.
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.7\textwidth]{img/em430_board.jpg}
+  \includegraphics[width=0.65\textwidth]{img/em430_board.jpg}
   \caption{The Texas Instruments EM430F6137RF900.}
   \label{fig:em430_board}
 \end{figure}
@@ -192,7 +192,7 @@ We started the driver implementation by trying to actively generate this rectang
 Even though active signal generation with interrupts disabled is hardly a good solution, we had neither need nor time to investigate other options. Therefore, we left the improvement of the implementation for future work. The root component of the buzzer driver is \emph{BeeperC}, depicted in Figure~\ref{fig:buzzer_c}.
 \begin{figure}[h]
   \centering
-  \includegraphics{diagrams/buzzer_c.eps}
+  \includegraphics[width=0.9\textwidth]{diagrams/buzzer_c.eps}
   \caption{The buzzer driver structure.}
   \label{fig:buzzer_c}
 \end{figure}
@@ -206,7 +206,7 @@ The CC1101 is a radio transceiver chip made by Texas Instruments. Among others, 
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.5\textwidth]{img/gnode.jpg}
+  \includegraphics[width=0.4\textwidth]{img/gnode.jpg}
   \caption{The SOWNet's G-Node.}
   \label{fig:gnode}
 \end{figure}
@@ -242,16 +242,24 @@ We noticed a bad practice TinyOS developers. Too often, various configurations, 
 
 This matter becomes even more problematic in the case of CC430 MCUs, because they can dynamically reassign pin special functions. Moreover, doing this incorrectly blocks the ability of further port-mapping changes until the device is restarted. Thus, one faulty piece of code can break completely correct code. A source of such an error is difficult to track.
 
-These issues lead to two conclusions. Firstly, it would be better to give ports mnemonics, describing their real purpose and use these abstract names in configurations. Secondly, port mapping should be done in one place. As both solutions need to be kept in sync, we believe that the best option is to join them, forming a centralized port management abstraction. Our implementation of this abstraction in Chronos took shape of the \emph{PlatformPortmapC} component. It provides IO pin interfaces named with the MCU pin special functions and ones representing the remote sides of the connections. Figure~\ref{fig:platform_portmap_c} shows the simplified structure of this component. Here it only provides access to two ports. \emph{CMA3000CSB} represents the accelerometer's chip-enable and \emph{CMA300MOSI} is its master-out slave-in SPI line. The \emph{UCB0SIMO} is a name of the special function assigned to the pin. It means that it acts as the slave-in master-out line, when USCI\_B0 submodule is configured to be an SPI interface. This function is assigned to Port16 by the \emph{PlatformPortmapP} module. PortJ is somewhat special. We had to add support for it to the  \emph{HplMsp430GeneralIOC} and its pins cannot have special functions assigned.
+These issues lead to two conclusions. Firstly, it would be better to give ports mnemonics, describing their real purpose and use these abstract names in configurations. Secondly, port mapping should be done in one place. As both solutions need to be kept in sync, we believe that the best option is to join them, forming a centralized port management abstraction. Our implementation of this abstraction in Chronos took shape of the \emph{PlatformPortmapC} component. It provides IO pin interfaces named with the MCU pin special functions and ones representing the remote sides of the connections. Figure~\ref{fig:platform_portmap_c} shows the simplified structure of this component. Here it only provides access to two ports. \emph{CMA3000CSB} represents the accelerometer's chip-enable and \emph{CMA300MOSI} is its master-out slave-in SPI line. The \emph{UCB0SIMO} is a name of the special function assigned to the pin. It means that it acts as the slave-in master-out line, when USCI\_B0 submodule is configured to be an SPI interface. This function is assigned to Port16 by the \emph{PlatformPortmapP} module, which is responsible for the special function remapping. PortJ is somewhat special. We had to add support for it to the  \emph{HplMsp430GeneralIOC} and its pins cannot have special functions assigned.
 
 \begin{figure}[h]
   \centering
-  \includegraphics{diagrams/platform_portmap_c.eps}
+  \includegraphics[width=0.9\textwidth]{diagrams/platform_portmap_c.eps}
   \caption{The centralized port management in Chronos. (simplified)}
   \label{fig:platform_portmap_c}
 \end{figure}
 
-Now the accelerometer driver can use the \emph{CMA3000CSB} outlet to control chip-enable, while the USCI\_B0 driver connects to the \emph{UCB0SIMO}. All information about the actual circuit board connections is hidden in \emph{PlatformPortmapC}. This even gives potential for code portability. Another MCU from the CC430 family would only need an updated \emph{PlatformPortmapC} file to support the accelerometer\footnote{However, rarely is it that simple.}. Writing code for \emph{PlatformPortmapP} is also simplified because it only needs to realize mappings described in its parent configuration.
+Figure~\ref{fig:} show how the accelerometer driver can use the \emph{CMA3000CSB} and the USCI\_B0 driver can use \emph{UCB0SIMO}, rather than concrete numbered pins.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.9\textwidth]{diagrams/portmap_clairty.eps}
+  \caption{Advantage of using the centralized port management.}
+  \label{fig:}
+\end{figure}
+Notice that each component connects to a pin with a name, characteristic to this component. The USCI\_B0 driver, doesn't have to know that the line leads to the accelerometer. And similarly, the accelerometer driver doesn't have to know the exact number of the pin connected to the chip-enable line. All information about the actual circuit board connections is hidden in \emph{PlatformPortmapC}. This gives potential for code portability. Another MCU from the CC430 family would only need an updated \emph{PlatformPortmapC} file to support the accelerometer\footnote{However, rarely is it that simple. Often one more level of indirection is needed to achieve portability. See \emph{PlatformCMA3kD0C} component in Section \ref{ch:accelerometer}.}. Writing code for \emph{PlatformPortmapP} is also simplified because it only needs to realize mappings described in its parent configuration.
 
 The solution described above is important for Chronos. All external connections, such as those in Figure~\ref{fig:chronos_schema}, use different hardware subsystems. This would not be possible without port management, because CMA3000-D01 and the USB debug dongle would have to share USCI\_A0.
 
@@ -295,6 +303,7 @@ Finally, note that, just as was the case with the radio stack, the recommended w
 
 
 \subsection{The accelerometer}
+\label{ch:accelerometer}
 
 The CMA3000-D01 is an accelerometer chip, installed in Chronos. It allows to measure the acceleration, that the watch is subject to, at any given moment. This includes the Earth's gravity, which allows to estimate device's orientation in space. Also many modern smart-phone games are controlled, using accelerometer readings and some human activities can be recognized, solely based on its data. The CMA3000-D01 chip has three modes of operation. In the measurement mode, it sends a continuous stream of samples at a preconfigured rate. In the motion detection mode, the chip uses very little energy, while readily detecting any motions exceeding preconfigured thresholds. Similarly, in the free fall detection mode, it notifies the MCU whenever the acceleration readings falls below given thresholds. Overall, such sensor allows to create some very interesting applications.
 
