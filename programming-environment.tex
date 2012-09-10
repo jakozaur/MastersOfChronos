@@ -1,28 +1,24 @@
 \chapter{Assembling programming environment}
 \label{ch:prog_env}
 
-Source code editor, compiler and debugger are the fundamental development tools. 
-Hardware project also require chip programmer, which loads code and configuration from PC to microcontroller
-This tools along with other useful utilities are referred as a programming environment.
+Source code editor, compiler and debugger are the fundamental development tools.  Hardware project also require a chip programmer, which loads code and configuration from PC to a microcontroller. These tools, along with other useful utilities are referred as a programming environment. They allow to create and build code for a device.
 
-Although existing tools were able to provide most of the desired functionality, some of them required project specific configuration.
-Mostly, because some of the development programs has not been previously tested with eZ430.
+However, when a code is first written, more often than not, it does not work as expected. Unit testing helps, but often errors arise from making false assumptions and these may be reflected in tests as well. In such case, only observing the actual behaviour during execution will lead to fixing the issue. But how to observe the behaviour of a wireless sensor node after it has been flashed with a new executable image? One way is to observe LEDs or an LCD of the device, but only a small amount of information can be retrieved through through such a channel. The debugger is an another option, but by far the most convenient way is to send messages from the MCU to the PC's console.
 
+Existing tools were able to provide most of the needed functionality, however, some of them required project specific configuration, because none of the tools were previously tested with Chronos.
 
 \section{MSPDebug}
 
 MSPDebug\footnote{MSPDebug: \url{http://mspdebug.sourceforge.net/} created by Daniel Beer} is a debugger and a chip programmer for MSP430 microprocessor architecture.
 It is a manufacturer-independent, open source implementation of few debugging protocols.
-It requires one of the supported hardware programmer: RF2500, FET430UIF, eZ430-Chronos, LaunchPad, Olimex MSP430-JTAG-TINY or MSP430-JTAG-ISO.
+It requires one of the supported hardware programmers: RF2500, FET430UIF, LaunchPad, Olimex MSP430-JTAG-TINY or MSP430-JTAG-ISO.
 
 % FET, SPI wire programming, JTAG
 The eZ430 programmer is called Flash Emulation Tool (FET).
 It is connected to PC through USB and to eZ430 Chronos watch through Spy-Bi-Wire (SPI). 
 SPI is a two-wire serialised variant of Join Test Action Group (JTAG) protocol.
 
-Despite MSPDebug claimed to support eZ430-FET chip programmer, the version 0.16-1 available in Ubuntu 11.04 does not work with our hardware for unknown reason.
-Luckily, the most recent version of code from project's repository does not have this flaw. 
-
+Despite MSPDebug claimed to support eZ430-FET chip programmer, the version 0.16-1 available in Ubuntu 11.04 does not work with our hardware Luckily, the most recent version of code from project's repository does not have this flaw.
 
 \subsection{Bugs}
 In addition to that, the programs on eZ430 could not be resumed correctly by the debugger.
@@ -30,87 +26,47 @@ We fixed this bug by correcting one of the constant value.
 
 \subsection{Limitations}
 
-% Transfer speed 
-Programming the eZ430-Chronos is time consuming.
-However, It is possible to increase speed of transfer by manually setting the transfer block size.
-On the other hand, the larger blocks increase the risk of programming failure.
+% Transfer speed
+Programming the Chronos is rather slow. While it is possible to increase the speed by manually setting the transfer block size, this also increases the risk of programming failure.
 
 Experimentally, we found the 256 bytes blocks as a good trade-off between stability and performance.
 
-This parameter could be modified in \texttt{~/.mspdebug} file by adding the configuration line (e.g. \texttt{opt fet\_block\_size 256})..
+This parameter can be modified in \texttt{~/.mspdebug} file by adding the following configuration line:
+
+\texttt{opt fet\_block\_size 256}
 
 
 \section{Printf library}
 \label{sec:printf_library}
 
-When a code is first written, more often than not, it does not work as
-expected. Unit testing helps, but often errors arise from making false
-assumptions and these may be reflected in tests as well. In such case,
-only observing the actual behaviour during execution will lead to
-fixing the issue.
-
-But how to observe the behaviour of a wireless sensor node after it
-has been flashed with a new executable image?
-
-One way is to observe LEDs on the circuit board.  In case of the
-chronos watch, which has no LEDs, LCD display can be used instead, to
-even better results. But only small amount of information can be
-retrieved through through such a channel. Another possibility is to
-use mspdebug tool mentioned before.  However if you ask a computer
-programmer which tool he most commonly uses to find out what's
-happening in his program, \emph{the debugger} will be his second
-answer. The first would be \emph{printf}.
-
-TinyOS has a convenient printf library that allows sending text
-messages from running device to the PC and display them in a console.
-Its use is simple and comprises of following steps:
+TinyOS has a convenient printf library that allows a sensor node to send text messages to the PC, to which the node is connected. The messages are then received by a client application running on the PI, which subsequently displays them on a console. To use the library the following steps are necessary:
 
 \begin{itemize}
-  \item Include the printf library files to the build, by adding
-    following line to your Makefile:
+  \item Including the printf library files to the sensor node  build, by adding the following line to a Makefile:
 
     \texttt{CFLAGS += -I\$(TOSDIR)/lib/printf}
 
-  \item Optionally, increase the printf buffer size (250 bytes by
-    default), by adding following line to your Makefile:
+  \item Optionally, increasing the printf buffer size (250 bytes by default), by adding the following line to the Makefile:
 
     \texttt{CFLAGS += -DPRINTF\_BUFFER\_SIZE=<NEW\_SIZE>}
 
-  \item Instantiate printf components in your application
-    configuration. This step depends on which implementation of
-    printf you use. See following sections for details.
+  \item Instantiating printf components in the debugged application configuration. This step depends on which implementation of printf is used. See the following sections for details.
 
-  \item Add following include in the file you wish to use printf in:
+  \item Adding the following include directive in the file from which printf is used:
 
     \texttt{\#include ``printf.h''}
 
-  \item Use \texttt{printf} statement to display messages and
-    occasionally \texttt{printfflush} to ensure that they are not stuck
-    in a buffer.
+  \item Using \texttt{printf} statement in the file to display messages and occasionally \texttt{printfflush} to ensure that they are not stuck in a buffer.
 
     \texttt{printf(``Value is \%d\textbackslash n'', value);} \\
     \texttt{printfflush();}
 
-  \item To receive the messages you will need to run the printf
-    client. How this is done also depends on which implementation of
-    print you use.
+  \item To receive the messages, the aforementioned printf client, has to be run on the PC. How this is done also depends on the implementation of printf.
 \end{itemize}
 
-Now before we delve in to the specific implementations there's a warning
-regarding printf buffering. Only after the buffer is filled or when
-you call \texttt{printfflush} does the data get actually sent to the
-PC. This isn't however immediate. If you very quickly print more text
-than the capacity of the buffer, some of the messages will be lost!
-Also note that \texttt{printfflush} is non-blocking and after calling
-it, the buffer may still be full for a while, and thus messages
-may still get lost.
+Before we delve in to the specific implementations of printf, note the following limitation of the mechanism. Only after the buffer is halfway filled or when \texttt{printfflush} is called, does the data get actually sent to the PC. This, however, doesn't happen immediately. If quickly afterwards more text than the capacity of the buffer is printed, some of the text will be lost. Moreover, \texttt{printfflush} is non-blocking, and after returning, the buffer can still be full, and text may get lost. Such a limitation is a consequence of the TinyOS concurrency model, which we discuss in detail in Section \ref{sec:interrupts_and_async}.
 
-To overcome this,  you can shorten your messages, slow down printing
-rate to ensure enough time to transmit current contents of the buffer
-or increase the size of the buffer.
-
-Unfortunately, eZ430 does not provide an easy way to implement output for printf.
-This made programming tough and cost us a few iterations, before providing the convenient library.
+To overcome this, a single task should not print more text then the buffer space.
 
 \subsection{MSPDebug printf}
 
@@ -167,111 +123,75 @@ instructions after this steps \ref{sec:printf_library}:
 \end{itemize}
 
 \subsection{Serial port printf}
-Third version of the printf library uses the serial port connection to
-communicate with the PC. On the watch end it uses the UART (Universal
-Asynchronous Receiver/Transmitter) hardware driver. This has both
-serious advantages and a disadvantage.
+The third version of the printf library uses the serial port connection for communication between the watch and the PC. On the watch end it uses the UART  hardware driver. This has both advantages and disadvantages.
 
-Main advantage is, that serial communication is most reliable and best
-supported way of sending printf messages in TinyOS. For example the
-PrintfClient tool that comes with vanilla TinyOS, handles receiving
-the packets and displaying them in the console. Also it is the least
-intrusive one, since it neither requires halting the MCU nor sending
-packets through the radio transceiver.
+The main advantage is that serial communication is the most reliable and well supported way of sending printf messages in TinyOS. For example, the PrintfClient tool that comes with vanilla TinyOS, handles receiving the packets and displaying them in the console. Moreover, it is the least intrusive approach, since it neither requires halting the MCU nor sending packets through the radio transceiver.
 
-Main drawback however is that Texas Instruments did not make the UART
-pins easily accessible on the chronos circuit board and certain
-hardware modification is necessary to reach them. How to perform it,
-is described in Appendix \ref{appendix:uart_pins}. Fortunately, no
-additional hardware besides the USB debug interface is necessary after
-the modification is done.
+The main drawback, however, is that Texas Instruments did not make the UART pins easily accessible on the Chronos circuit board, and a certain hardware modification is necessary to reach them. The way we modified the board to make use of the UART is described in Appendix \ref{appendix:uart_pins}. After the modification is done, no additional hardware besides the USB debug interface is necessary.
 
-To enable this version of printf library you need to augment
-instructions given in section \ref{sec:printf_library} with following
-steps:
+To enable the serial version of the printf library, the steps given in Section \ref{sec:printf_library} have to be augmented as follows:
 
 \begin{itemize}
-  \item Instantiate these components in your application configuration:
+  \item Instantiate the following components in the main application configuration:
 
   \texttt{components PrintfC, SerialStartC;}
 
-  \item Connect the watch with hardware modification described in
-    Appendix \ref{appendix:uart_pins} to the USB debug dongle and
-    connect the dongle to the PC.
+  \item Connect the watch with the hardware modification described in Appendix \ref{appendix:uart_pins} to the USB debug dongle, and connect the dongle to the PC.
 
-  \item To receive messages run PrintfClient:
+  \item To receive, messages run PrintfClient:
 
   \texttt{java net.tinyos.tools.PrintfClient -comm serial@/dev/ttyACM0:chronos}
 
-  Note that watch may have shown in \texttt{\textbackslash dev} under
-  different name, most commonly
-  \texttt{\textbackslash dev\textbackslash ttyACM1}
+  Note that the watch may be shown in \texttt{/dev} a under different name, most commonly \texttt{/dev/ttyACM1}, \texttt{/dev/ttyACM2}, and so on.
+
 \end{itemize}
 
 \section{Eclipse integrated development environment}
 
-The most practical way to work with TinyOS code is using the Eclipse
-IDE. Some great work has been done on that field, resulting in the Yeti 2
-plugin. It supports TinyOS application and platform development,
-providing many features. Below we'll describe the most important ones.
-
-Firstly, in editor, there is some very good {\bf code completion} available
-which eases writing both module and configuration files. It completes
-component instantiations and connections. Also it completes interface
-calls, function calls and variable names, and after adding a
-\texttt{uses} or \texttt{provides} declaration, it offers to create
-command and event stubs. These features are best shown on the
-following series of Figures, \ref{fig:first_compl} through
-\ref{fig:last_compl}.
+The most practical way to work with TinyOS code is by using the Eclipse IDE. Some great work has been done in that field, resulting in the Yeti 2 plugin \cite{Yeti2}. The plugin supports TinyOS application and platform development and provides many features. Below we describe the most important ones.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.85\textwidth]{img/eclipse_compl1.png}
+  \includegraphics[width=0.5\textwidth]{img/eclipse_compl1.png}
   \caption{Component instantiation completion.}
   \label{fig:first_compl}
 \end{figure}
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.8\textwidth]{img/eclipse_compl2.png}
+  \includegraphics[width=0.55\textwidth]{img/eclipse_compl2.png}
   \caption{User connection completion.}
 \end{figure}
 
+Firstly, in the Eclipse editor, the plugin adds {\bf code completion}, which eases writing both module and configuration files. The plugin completes component instantiations and connections. Likewise, it completes interface calls, function calls and variable names, and after adding a \texttt{uses} or \texttt{provides} declaration, it offers to create command and event stubs. These features are best shown in Figures \ref{fig:first_compl} through
+\ref{fig:last_compl}.
+
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.9\textwidth]{img/eclipse_compl3.png}
+  \includegraphics[width=0.45\textwidth]{img/eclipse_compl3.png}
   \caption{Provider connection completion.}
 \end{figure}
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.9\textwidth]{img/eclipse_compl4.png}
+  \includegraphics[width=0.6\textwidth]{img/eclipse_compl4.png}
   \caption{Interface completion.}
 \end{figure}
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.9\textwidth]{img/eclipse_compl5.png}
+  \includegraphics[width=0.64\textwidth]{img/eclipse_compl5.png}
   \caption{Command completion.}
 \end{figure}
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.9\textwidth]{img/eclipse_compl6.png}
+  \includegraphics[width=0.72\textwidth]{img/eclipse_compl6.png}
   \caption{Command stubs generation.}
   \label{fig:last_compl}
 \end{figure}
 
-Another very useful feature, especially for a new developer wishing to
-familiarize himself with TinyOS structure is the {\bf component
-explorer}. It graphically displays components instantiated and
-interconnected in configurations. Interfaces can be viewed as well.
-Starting at the top level application configuration, every part of
-it's code can be reached. This is by far the most efficient way to
-explore the call hierarchy and find where particular functions are
-implemented. Example of the PrintfC configuration, viewed through
-the component explorer is shown in figure
-\ref{fig:eclipse_compexp}.
+Another useful feature, especially for a new developer wishing to familiarize himself with TinyOS, is the {\bf component explorer}. It graphically displays components instantiated and interconnected in configurations. Interfaces can be viewed as well.  Starting at the top-level application configuration, every part of the applications and underlying systems code can be reached. This is by far the most efficient way to explore the call hierarchy and find where particular functions are implemented. The example of the PrintfC configuration, viewed through the component explorer is shown in Figure \ref{fig:eclipse_compexp}.
 
 \begin{figure}[h]
   \centering
@@ -280,66 +200,40 @@ the component explorer is shown in figure
   \label{fig:eclipse_compexp}
 \end{figure}
 
-The eclipse editor also gives many warnings about the code without
-triggering compilation. Moreover many of these useful warnings are not
-raised by NesC compiler, which is an added value. 
+The Eclipse editor also gives many warnings about the code without triggering compilation. Moreover, many of these warnings are not raised by the NesC compiler, the \emph{cast to a shorter type} warning.
 
-Finally, one of the most useful parts of Yeti 2 is {\bf the debugger}.
-The chain of tool invocations, needed to debug an application on the
-chronos watch is long, but running them is as easy as pressing a
-button in the IDE. At the lowest level, the \emph{mspdebug}
-communicates with the watch through the USB debugging dongle. It runs
-a GDB Server to which newer versions of \emph{msp430-gdb} are able to
-connect. Eclipse runs this last executable and forms practical data
-views, reading crude data from GDB. Here is a list of most useful
-views and features:
+Finally, one of the most useful parts of Yeti 2 is {\bf the debugger}.  The chain of tool invocations, needed to debug an application on the Chronos watch is long, but running them is as easy as pressing a button in the IDE. At the lowest level, the \emph{mspdebug} communicates with the watch through the USB debugging dongle. It runs a GDB Server to which newer versions of \emph{msp430-gdb} are able to connect. Eclipse runs this last executable and forms practical data views, reading crude data from GDB. The following features seem most useful in practice
 \begin{itemize}
-  \item Single stepping through code in NesC editor.
+  \item Single stepping through code in the NesC editor.
   \item Call stack view.
-  \item Breakpoints list (though limited to 3 active at any moment).
+  \item Breakpoint list (though limited to 3 active at any moment).
   \item Disassembly view.
   \item Raw memory view.
-  \item Registers view.
-  \item Local variables view.
-  \item Module variables view.
+  \item Register view.
+  \item Local variable view.
+  \item Module variable view.
 \end{itemize}
 
-Yetti 2 provides many more functions not mentioned here, most of which
-are standard to Eclipse IDE and expected to be available for any
-supported programming language. Developer naturally explores them
-while using the IDE.
+Yeti 2 provides many more functions not mentioned here, most of which are standard for Eclipse IDE and are expected to be available for any supported programming language. A developer can naturally explore them while using the IDE.
 
-The installation is described in Appendix \ref{appendix:env_install}
-and a preconfigured setup is available in the virtual machine
-distributed with this work.
+A preconfigured setup of the plugin is available in the virtual machine distributed with this work.
 
 \section{Console centric development}
 
-It is also possible to develop TinyOS code without using any
-IDE\footnote{In fact, this is exactly how TinyOS was first written.}.
-To support such style of development two changes were necessary.
-Firstly, the environment variables were configured to point to the
-TinyOS source code locations and Makefile rules. This makes it
-possible to use make command to build applications. Secondly, syntax
-and indentation configurations files for vim were added to ensure
-convenient and practical code editing.  Having both working make and
-good text editor allows for development almost as efficient as with
-the Eclipse IDE. The only setback is that if the developer is not
-familiar with TinyOS naming, he will not receive aid from code
-completion.
+It is also possible to develop TinyOS code without using any IDE.  To support such a style of development, two changes are necessary.  Firstly, the environment variables have to be configured to point to the TinyOS source code locations and Makefile rules. This makes it possible to use the make command to build applications. Secondly, syntax and indentation configurations files for vim can be added to ensure convenient code editing.  Having both, a working make system and a good text editor, allows for almost as efficient a development as with the Eclipse IDE. The only drawback is that, if the developer is not familiar with the TinyOS naming conventions, he won't receive aid from code completion tool.
 
 \section{Development virtual machine}
 
-The setup of all the tools needed to work on the TinyOS Chronos
-platform and application code, is complicated and takes time. To ease
-this step for new developers, a virtual machine image was created.
-All the tools have been installed in it and configured, to work
-out-of-box. The most recent version of the source code is checked out
-and imported into Eclipse IDE, with a run configuration ready to build
-and install TinyOS Blink application.  All that is left to the user,
-is connecting the watch through the USB debug interface and pressing
-Run button.
+Setting up the tools needed for the TinyOS Chronos platform, is complicated and takes time. To ease this step for new developers, we have created a dedicated virtual machine image. It contains all the tools, which, in addition are configured to work out-of-the-box. The most recent version of the source code is checked out from the rhoRoute SVN repository and imported into the Eclipse IDE, with a run configuration ready to build and install the sample TinyOS Blink application.  All that is left to the user is connecting the watch through the USB debug interface and pressing the Run button.
 
-% Vim settings:
-% vim: set textwidth=70:
+% to enable wrapped line navigation:
+% map j gj
+% map k gk
+
+% vim settings:
+% vim: set nonumber:
+% vim: set spell:
+% vim: set linebreak:
+% vim: set wrap:
+% vim: set textwidth=0:
 % vim: set fo+=t:
