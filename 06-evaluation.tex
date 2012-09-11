@@ -44,7 +44,7 @@ Both of the applications are controlled from a PC using the Chronos Control Cent
 
 
 BlueRobin\footnote{BlueRobin is a trademark of BM innovations GmbH} collects data from other ultra-low power sensors.
-It supports retreiving heart beats from wireless belt.
+It supports retrieving heart beats from wireless belt.
 In addition to that, it uses on-board eZ430 accelerometer to estimate speed and distance of person whose wear it.
 Periodically, it transfers all those metrics through radio to a PC.
 The application seems to be a proof of concept of watch for runners, similar to Adidas miCoach. 
@@ -107,8 +107,8 @@ A video was recorded for verification purposes.
 As a final measure, we take the average of observations with a 1 $ mV $ accuracy.
 
 For most of the tests the, the voltage drop was almost constant.
-However, their are certain operations which could not be performed on eZ430 continously.
-In particular, sending series of radio packets is not possible without switching the radio to receiving mode between each tranmission.
+However, their are certain operations which could not be performed on eZ430 continuously.
+In particular, sending series of radio packets is not possible without switching the radio to receiving mode between each transmission.
 Therefore, the sending power consumption was measured only when actual packets were sent.
 
 A similar issue appeared in low-power listening, where we measured the top power consumption of a receive check.
@@ -328,11 +328,11 @@ The RSSI results are presented as box plots.
 The thick line shows the median.
 The box edges are on 1st and 3rd quartile.
 The top and bottom lines are correspondingly the minimal and the maximal element.
-Each point which is more than 1.5 times away than the height of the box is considered as an outlier and marked with a cricle.
+Each point which is more than 1.5 times away than the height of the box is considered as an outlier and marked with a circle.
 
-RSSI is usually used to determink the quality of radio communication.
+RSSI is usually used to determine the quality of radio communication.
 It may be also utilized to estimate the distance between a sender and a listener.
-Though, single meassurment may be misleading, a median from series of transmissions is a good indicator.
+Though, single measurement may be misleading, a median from series of transmissions is a good indicator.
 
 
 \subsubsection{+12 dB}
@@ -361,7 +361,7 @@ Though, single meassurment may be misleading, a median from series of transmissi
 The LQI results have same form as the RSSI results.
 
 LQI is an alternative metric to RSSI.
-Even from a signal LQI data point gives a good prediction of packet losts.
+Even from a signal LQI data point gives a good prediction of packet loss.
 However, it is a bad metric to estimate the distance and RSSI should be used for that purpose instead.
 
 
