@@ -68,7 +68,7 @@ Therefore, having detailed measurements is required to do accurate battery life 
 \subsection{Low-power listening}
 Overall, listening is usually the most power-expensive operation, largerly, because the majority of applications spend much more time listening than sending the data.
 In order to reduce the listening time, TinyOS supports low-power listening (LPL).
-However, sending data to node using LPL requires transmitting additional data.
+However, sending data to node using LPL uses more energy.
 
 In LPL, a listener node, periodically (e.g. every 200 ms) performs clear channel assasment (CCA).
 If the check detects communication, it veryfies whether it is a sender's preamble.
@@ -81,7 +81,7 @@ Having that, after the preamble, both nodes have turned on radio and the sender 
 
 The example communication is showed in Figure \ref{fig:low_power_listening}.
 In addition to that, nodes could continue communication, after the first sender's packet.
-However, if there are no transmissions, both nodes return to original state.
+However, if there are no transmissions, both nodes return to the original state.
 This allows to minimize overhead caused by preamble.
 
 \begin{figure}[h]
@@ -298,7 +298,7 @@ Within short distance, there are very few packets lost\footnote{in our environme
 However, There is a sharp drop in reliability after certain distance.
 This is excepted, as free-space path loss is square proportional to the distance from the source.
 
-Although, radio strangth -30 dB may seems impractical, it is a good method to detect whether sender is close ($< 2m$) to the receiver.
+Although, radio strength -30 dB may seems impractical, it is a good method to detect whether sender is close ($< 2m$) to the receiver.
 
 Overall, radio chip in eZ430 is relaible and provide reasonable radio range.
 
