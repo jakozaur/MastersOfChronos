@@ -289,11 +289,21 @@ Placing two watches closer than this distance disables radio communication compl
 
 \subsection{Reliability results}
 
+The results data show that radio got range of about $50$ meters.
+Within short distance, there are very few packets lost\footnote{in our environment there are almost no collisions}.
+However, There is a sharp drop in reliability after certain distance.
+This is excepted, as free-space path loss is square proportional to the distance from the source.
+
+Although, radio strangth -30 dB may seems impractical, it is a good method to detect whether sender is close ($< 2m$) to the receiver.
+
+Overall, radio chip in eZ430 is relaible and provide reasonable radio range.
+
+
 \subsubsection{+12 dB}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=1.0\textwidth]{img/tests/range/db_12.png}
+  \includegraphics[width=0.9\textwidth]{img/tests/range/db_12.png}
 \end{figure}
 
 
@@ -301,28 +311,35 @@ Placing two watches closer than this distance disables radio communication compl
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=1.0\textwidth]{img/tests/range/db_00.png}
+  \includegraphics[width=0.9\textwidth]{img/tests/range/db_00.png}
 \end{figure}
 
 \subsubsection{-30 dB}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=1.0\textwidth]{img/tests/range/db_m30.png}
+  \includegraphics[width=0.9\textwidth]{img/tests/range/db_m30.png}
 \end{figure}
 
 \subsection{RSSI results}
 
+
+The RSSI results are presented as box plots.
 The thick line shows the median.
 The box edges are on 1st and 3rd quartile.
 The top and bottom lines are correspondingly the minimal and the maximal element.
 Each point which is more than 1.5 times away than the height of the box is considered as an outlier and marked with a cricle.
 
+RSSI is usually used to determink the quality of radio communication.
+It may be also utilized to estimate the distance between a sender and a listener.
+Though, single meassurment may be misleading, a median from series of transmissions is a good indicator.
+
+
 \subsubsection{+12 dB}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=1.0\textwidth]{img/tests/rssi/db_12.png}
+  \includegraphics[width=0.9\textwidth]{img/tests/rssi/db_12.png}
 \end{figure}
 
 
@@ -330,23 +347,29 @@ Each point which is more than 1.5 times away than the height of the box is consi
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=1.0\textwidth]{img/tests/rssi/db_00.png}
+  \includegraphics[width=0.9\textwidth]{img/tests/rssi/db_00.png}
 \end{figure}
 
 \subsubsection{-30 dB}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=1.0\textwidth]{img/tests/rssi/db_m30.png}
+  \includegraphics[width=0.9\textwidth]{img/tests/rssi/db_m30.png}
 \end{figure}
 
 \subsection{LQI results}
+The LQI results have same form as the RSSI results.
+
+LQI is an alternative metric to RSSI.
+Even from a signal LQI data point gives a good prediction of packet losts.
+However, it is a bad metric to estimate the distance and RSSI should be used for that purpose instead.
+
 
 \subsubsection{+12 dB}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=1.0\textwidth]{img/tests/lqi/db_12.png}
+  \includegraphics[width=0.9\textwidth]{img/tests/lqi/db_12.png}
 \end{figure}
 
 
@@ -354,14 +377,14 @@ Each point which is more than 1.5 times away than the height of the box is consi
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=1.0\textwidth]{img/tests/lqi/db_00.png}
+  \includegraphics[width=0.9\textwidth]{img/tests/lqi/db_00.png}
 \end{figure}
 
 \subsubsection{-30 dB}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=1.0\textwidth]{img/tests/lqi/db_m30.png}
+  \includegraphics[width=0.9\textwidth]{img/tests/lqi/db_m30.png}
 \end{figure}
 
 % results
