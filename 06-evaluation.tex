@@ -54,7 +54,7 @@ However, it is impractical, because it requires user to be within radio range of
 SimpliciTI\footnote{SimpliciTi is a trademark of Texas Instrument} is a versatile tool.
 It consists of several modes.
 PowerPoint Control mode (PPT) allows to map eZ430 buttons to PC keys.
-That way an user can control a presentation, a music player, etc.
+That way a user can control a presentation, a music player, etc.
 Acceleration data mode (ACC) enables transmitting eZ430 acceleration data to a PC through the radio.
 It is also possible to control a PC mouse using the accelerometer data.
 Synchronization mode (SYNC) allows for calibration of the device sensors and setting the time on eZ430 from a PC.
@@ -239,7 +239,7 @@ Because of that, real world applications have shorter battery lives than what es
 \section{Radio range}
 
 Range is one of the most important parameters of a radio module.
-However, there is no official specification of the eZ460 range.
+However, there is no official specification of the eZ430 range.
 The user documentation (\cite{eZ430Chronos}) gives only a vague description:
 \begin{quote}
 In free field distances of up to 100 m (328 ft) have been measured. The range in other conditions,
@@ -267,7 +267,7 @@ It took a few iteration to produce results which were repeatable.
 Tests inside of building, without line-of-sight, with used batteries or with fixed watch rotation result in inconsistent or hard to reproduce data.
 
 All these tasks were performed using a ChronosConnectivityAssesment application.
-The application provides an user interface using the LCD and buttons.
+The application provides a user interface using the LCD and buttons.
 One of it its features is the ability to change the radio output power level.
 
 For all tests we collected the following three metrics:
@@ -313,7 +313,10 @@ Placing two watches closer than this distance disables radio communication compl
 
 \subsection{RSSI results}
 
-The thick line shows median. The box edges are on 1st and 3rd quartile. The line top and bottom line are correspondingly minimal and maximal element. Each point which is more than 1.5 times away than height of the box is considered as outlier and marked in a cricle.
+The thick line shows the median.
+The box edges are on 1st and 3rd quartile.
+The top and bottom lines are correspondingly the minimal and the maximal element.
+Each point which is more than 1.5 times away than the height of the box is considered as an outlier and marked with a cricle.
 
 \subsubsection{+12 dB}
 
@@ -366,26 +369,26 @@ The thick line shows median. The box edges are on 1st and 3rd quartile. The line
 \section{Radio throughput}
 
 % methodology
-The theoretical throughput is the 250 kBaud rate.
-However, the communication requires sending frame headers and footers .
-In addition to that the radio driver checks performs clean channel assessment before each transfer.
-That reduces package collision, but takes some time.
+The theoretical throughput is 250 kbits.
+However, the communication requires sending frame headers and footers.
+In addition to that, the radio driver performs clean channel assessment before each transfer.
+This reduces packet collisions, but reduce the bandwidth.
 
 % results
-Using maximal packets size (63 bytes) we send 8000 packets as fast as possible.
-It took 45 seconds, which gives 11.2 kB/s measured transfer.
-If both watches were close enough there were no packets losts.
+Using the maximal packets size (63 bytes) we sent 8000 packets as fast as possible.
+It took 45 seconds, which gives 11.2 kB/s as the measured transfer.
+Provided that two watches were close enough, such that there are no packets lost.
 
 
-\section{Example application: Zordon}
+\section{Sample application: Zordon}
 
-Also as part of evaluation, we implemented an example application.
-Each watch is associated with a name and has radio in low-power listening mode.
-An user could select one of this name from LCD menu, then it could send beep request over radio to it.
-If the watch receive beep request addressed to its name, it playes a sound using build-in buzzer and display the sender name.
+Also as part of evaluation, we implemented sample application.
+Each watch is associated with a name and has the radio in low-power listening mode.
+A user select one of the names from the LCD menu, then he could send a beep request over radio.
+If the watch receives beep request addressed to its name, it plays a sound using a built-in buzzer and displays the sender's name.
 
 This application can be used to call friends who are in nearby rooms.
-It is an useful example which shows the major TinyOS advantage: it allows to write application just by describing its logic without worrying about underlying hardware.
+It is a useful example which shows the major TinyOS advantage: it allows to write application just by describing its logic without worrying about underlying hardware.
 
 
 
