@@ -8,6 +8,7 @@ However, when a code is first written, more often than not, it does not work as 
 Existing tools were able to provide most of the needed functionality, however, some of them required project specific configuration, because none of the tools were previously tested with Chronos.
 
 \section{MSPDebug}
+\label{ch:mspdebug}
 
 MSPDebug\footnote{MSPDebug: \url{http://mspdebug.sourceforge.net/} created by Daniel Beer} is a debugger and a chip programmer for MSP430 microprocessor architecture.
 It is a manufacturer-independent, open source implementation of few debugging protocols.
@@ -21,10 +22,12 @@ SPI is a two-wire serialised variant of Join Test Action Group (JTAG) protocol.
 Despite MSPDebug claimed to support eZ430-FET chip programmer, the version 0.16-1 available in Ubuntu 11.04 does not work with our hardware Luckily, the most recent version of code from project's repository does not have this flaw.
 
 \subsection{Bugs}
+\label{ch:mspd_bugs}
 In addition to that, the programs on eZ430 could not be resumed correctly by the debugger.
 We fixed this bug by correcting one of the constant value.
 
 \subsection{Limitations}
+\label{ch:mspd_limitations}
 
 % Transfer speed
 Programming the Chronos is rather slow. While it is possible to increase the speed by manually setting the transfer block size, this also increases the risk of programming failure.
@@ -69,6 +72,7 @@ Before we delve in to the specific implementations of printf, note the following
 To overcome this, a single task should not print more text then the buffer space.
 
 \subsection{MSPDebug printf}
+\label{ch:mspd_printf}
 
 Our first approach utilize MSPDebug.
 It is a debugger capable of stopping/starting a program and dumping/uploading device RAM to connected PC.
@@ -85,6 +89,7 @@ This was our first printf library, which allowed to debug basic programs, but wa
 Later, we discontinued this approach, because next methods are superior in all of our scenarios.
 
 \subsection{Radio printf}
+\label{ch:radio_printf}
 
 % just use radio and gnode
 
