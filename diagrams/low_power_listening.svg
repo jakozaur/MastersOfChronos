@@ -18,22 +18,6 @@
    sodipodi:docname="low_power_listening.svg">
   <defs
      id="defs4">
-    <pattern
-       inkscape:stockid="Stripes 1:1"
-       id="Strips1_1"
-       patternTransform="translate(0,0) scale(10,10)"
-       height="1"
-       width="2"
-       patternUnits="userSpaceOnUse"
-       inkscape:collect="always">
-      <rect
-         id="rect4352"
-         height="2"
-         width="1"
-         y="-0.5"
-         x="0"
-         style="fill:black;stroke:none" />
-    </pattern>
     <marker
        inkscape:stockid="Arrow2Lend"
        orient="auto"
@@ -155,40 +139,33 @@
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
        x="415.71426"
-       y="435.1391"
+       y="513.1391"
        id="text2849"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan2851"
          x="415.71426"
-         y="435.1391"
+         y="513.1391"
          style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans">Sender</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
        x="417.85715"
-       y="514.06586"
+       y="436.06586"
        id="text2853"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan2855"
          x="417.85715"
-         y="514.06586"
+         y="436.06586"
          style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans">Listener</tspan></text>
     <rect
-       style="fill:url(#Strips1_1);fill-opacity:1;fill-rule:evenodd;stroke:none"
+       style="fill:#000000;fill-opacity:0.49019608;fill-rule:evenodd;stroke:none"
        id="rect2857"
        width="109.84126"
        height="34.126972"
        x="252.93651"
-       y="471.013" />
-    <rect
-       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.98039615px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       id="rect5292"
-       width="30.019604"
-       height="34.305321"
-       x="362.84735"
-       y="470.92383" />
+       y="471.59238" />
     <path
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow2Lend)"
        d="M 290.71429,542.97534 290,505.11819"
@@ -201,14 +178,14 @@
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
        x="257.14285"
-       y="557.40265"
+       y="555.07648"
        id="text6407"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan6409"
          x="257.14285"
-         y="557.40265"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans">I want to send</tspan></text>
+         y="555.07648"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans">preamble</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text6439"
@@ -222,97 +199,109 @@
          id="tspan6441"
          sodipodi:role="line">sending</tspan></text>
     <rect
-       y="393.1387"
-       x="344.34796"
-       height="34.161243"
-       width="5.5898161"
-       id="rect6447"
-       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.12446976px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-    <rect
-       y="393.10999"
-       x="359.31921"
-       height="34.218719"
-       width="35.647289"
+       y="394.1626"
+       x="297.51468"
+       height="33.542091"
+       width="97.113518"
        id="rect6491"
-       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.06699777px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.74362588px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     <rect
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.12446976px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        id="rect6493"
        width="5.5898161"
        height="34.161243"
-       x="245.77652"
-       y="393.1387" />
+       x="289.34796"
+       y="393.853" />
     <rect
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.12446976px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        id="rect6495"
        width="5.5898161"
        height="34.161243"
-       x="147.20509"
-       y="393.853" />
+       x="190.77652"
+       y="394.56729" />
     <rect
-       y="393.853"
-       x="48.633667"
+       y="394.56729"
+       x="92.205093"
        height="34.161243"
        width="5.5898161"
        id="rect6497"
        style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.12446976px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     <path
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
-       d="m 249.28571,349.50504 0,36.42857"
+       d="m 291.42857,354.50504 0,36.42857"
        id="path6503" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
-       d="M 244.28571,346.6479 51.428571,387.36218"
+       style="fill:none;stroke:#000000;stroke-width:0.47841465px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
+       d="M 143.83222,354.24425 96.23145,391.99951"
        id="path6691" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
-       d="M 250,347.36218 150.71429,386.6479"
+       style="fill:none;stroke:#000000;stroke-width:0.54242384px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
+       d="m 162.91407,354.27625 31.06052,36.94793"
        id="path6879" />
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="129.28571"
-       y="339.14789"
+       x="114.99999"
+       y="346.02524"
        id="text7067"><tspan
          sodipodi:role="line"
          id="tspan7069"
-         x="129.28571"
-         y="339.14789"
-         style="font-size:12px">checking if sombody is sending</tspan></text>
-    <path
-       id="path7071"
-       d="m 347.14285,350.21933 0,36.42857"
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)" />
+         x="114.99999"
+         y="346.02524"
+         style="font-size:12px">receive check</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="333.57144"
-       y="331.64789"
+       x="252.14287"
+       y="337.36215"
        id="text7075"><tspan
          sodipodi:role="line"
          id="tspan7077"
-         x="333.57144"
-         y="331.64789"
-         style="font-size:12px">somebody is sending,</tspan><tspan
+         x="252.14287"
+         y="337.36215"
+         style="font-size:12px">receive check</tspan><tspan
          sodipodi:role="line"
-         x="333.57144"
-         y="346.64789"
+         x="252.14287"
+         y="352.36215"
          id="tspan7079"
-         style="font-size:12px">I let him know that I'm ready</tspan></text>
-    <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
-       d="m 421.42857,370.21932 -42.14286,17.85715"
-       id="path7081" />
+         style="font-size:12px">detects preamble</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="423.57141"
-       y="374.50504"
+       x="373.57141"
+       y="344.86215"
        id="text7269"><tspan
          sodipodi:role="line"
          id="tspan7271"
-         x="423.57141"
-         y="374.50504"
+         x="373.57141"
+         y="344.86215"
          style="font-size:12px">listening</tspan></text>
+    <rect
+       y="471.70102"
+       x="355.76743"
+       height="33.465202"
+       width="39.179485"
+       id="rect7298"
+       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.10622752px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       id="path7315"
+       d="m 390,353.79075 0,36.42857"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)" />
+    <image
+       style="fill:#000000;fill-opacity:1"
+       xlink:href="file:///Users/jakozaur/Projects/rhoRoute/MastersOfChronos/diagrams/inkscape_pasted_image_20120903_233742.png"
+       width="387.14285"
+       height="1"
+       id="image7317"
+       x="26.863329"
+       y="505.39551" />
+    <image
+       y="505.39551"
+       x="26.863329"
+       id="image7319"
+       height="1"
+       width="387.14285"
+       xlink:href="file:///Users/jakozaur/Projects/rhoRoute/MastersOfChronos/diagrams/inkscape_pasted_image_20120903_233742.png"
+       style="fill:#000000;fill-opacity:1" />
   </g>
 </svg>

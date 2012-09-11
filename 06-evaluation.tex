@@ -65,6 +65,32 @@ Moreover, there are no data about the most power intensive operations: receiving
 Such operations consume orders of magnitude more energy, than those listed in Table \ref{tab:power-specification}.
 Therefore, having detailed measurements is required to do accurate battery life estimations.
 
+\subsection{Low-power listening}
+Overall, listening is usually the most power-expensive operation, largerly, because the majority of applications spend much more time listening than sending the data.
+In order to reduce the listening time, TinyOS supports low-power listening (LPL).
+However, sending data to node using LPL requires transmitting additional data.
+
+In LPL, a listener node, periodically (e.g. every 200 ms) performs clear channel assasment (CCA).
+If the check detects communication, it veryfies whether it is a sender's preamble.
+If it is so, it starts regular radio listening, until the end of communication.
+
+On the other hand, sender has to prelude its packet with a preamble of length at least equal to interval between listener's CCA checks.
+A preamble is pre-defined by protocol and consist of repeated signal pattern.
+That way, the listener node will always perform periodical check during sender's preamble and could easily identify it.
+Having that, after the preamble, both nodes have turned on radio and the sender could transmit packet to the listener.
+
+The example communication is showed in Figure \ref{fig:low_power_listening}.
+In addition to that, nodes could continue communication, after the first sender's packet.
+However, if there are no transmissions, both nodes return to original state.
+This allows to minimize overhead caused by preamble.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.6\textwidth]{diagrams/low_power_listening.eps}
+  \caption{Timeline of communication with low-power listening}
+  \label{fig:low_power_listening}
+\end{figure}
+
 \subsection{Test setup and methodology}
 
 \begin{figure}[h]
@@ -175,37 +201,14 @@ Sending at minimal power      & 12 $ mA $ & 15 $ mA $            & 102 $ mV $  \
   \label{tab:power-usage}
 \end{table}
 
-\subsection{Low-power listening}
+\subsection{Energy cost of low-power listening}
 
-Overall, listening is usually the most power expensive operation.
-Mostly, because majority of the application spend much more time listening than sending the data.
-In our previous example described in \ref{eqn:power_example}, listening uses:
-$$
-\frac{1 \% \cdot 10 mA}{0.158 mA} = 66 \%
-$$
-of total energy budget.
+Listening and sending the data takes roughly the same amount of power as described in Table \ref{tab:power-usage}.
+Also sending a preamble consumes the same amount of power as sending the data.
+The only unknown is thus how much power a receive check costs.
 
-In order to reduce listening time, the TinyOS supports low-power listening (LPL) mode.
-In that mode listener node, periodically (e.g. every 200 ms) checks if someone is wanting to send data.
-If the check detects, it answer that it is ready to send data and start listening.
-Sender node, has to indicate several times that it wants to send data (sending preamble) while waiting until other node will be ready.
-Then it sends the actual data.
-The example communication is showed in \ref{fig:low_power_listening}.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.6\textwidth]{diagrams/low_power_listening.eps}
-  \caption{Low-power listening, black boxes indicate when radio is active}
-  \label{fig:low_power_listening}
-\end{figure}
-
-The question is how much power is used in that kind of communication?
-Listening and sending the data takes the same amount of power as described in Table \ref{tab:power-usage}.
-Also sending preamble consumes same amount of power as sending the data itself.
-The only unknown is how much power takes receive check.
-
-The single check uses clear channel assessment, which could give false positive, but uses less power than listening.
-It takes 4 $ ms $, peak usage is 10 $ mA $, while the average 5 $ mA $ during the whole check Figure \ref{fig:low_power_receive_check}.
+A single check uses clear channel assessment, which could give a false positive, but uses less power than listening.
+It takes 4 $ ms $ with the average 5 $ mA $ current during the whole check (see Figure \ref{fig:low_power_receive_check}).
 
 \begin{figure}[h]
   \centering
@@ -214,20 +217,21 @@ It takes 4 $ ms $, peak usage is 10 $ mA $, while the average 5 $ mA $ during th
   \label{fig:low_power_receive_check}
 \end{figure}
 
-For example, listening using LPL with 250 $ ms $ sleep interval takes:
+For example, idly listening with LPL with a 250 $ ms $ sleep interval consumes:
 $$
 \frac{4 \cdot 4 ms \cdot 5 mA}{1000 ms} \approx 0.08 mA
 $$
-In addition to that, we need to calculate power consumption of actual transfer.
-Let say we transfer take 50 $ ms $ every 30 $ s $.
-Then listener node uses also:
+In addition to that, we need to calculate the power consumption of an actual transfer.
+Let say we transfer take 50 $ ms $ every 30 $ s $, also we will be listening on average half of the preamble: $\frac{250 ms}{2} =  125 ms$.
+
+So the listener uses:
 $$
-\frac{50 ms \cdot 16 mA}{30 \cdot 1000 ms} \approx 0.027 mA
+\frac{(125 ms + 50 ms) \cdot 16 mA}{30 \cdot 1000 ms}  + 0.08 mA \approx 0.09 mA + 0.08 mA = 0.17 mA
 $$
 
-The sender node on average needs to send preamble for $ \frac{250 ms}{2} = 125 ms$, so it uses:
+While sender node uses:
 $$
-\frac{(125 + 50) ms \cdot 30 mA}{30 \cdot 1000 ms} \approx 0.175 mA
+\frac{(250 + 50) ms \cdot 30 mA}{30 \cdot 1000 ms} \approx 0.3 mA
 $$
 
 \subsection{Other considerations}
