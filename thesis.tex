@@ -41,8 +41,6 @@ Institute of Computer Science\\
 }
 
 \klasyfikacja{
-%  D.4.3 File systems management~---~\textit{Distributed file systems}\\
-%  E.5 Files~---~\textit{Organization/structure}\\
   C.1.4.b Mobile processors \\
   C.2.1.k Wireless communication \\
   C.2.7.c Sensor networks \\
@@ -54,7 +52,7 @@ Institute of Computer Science\\
 }
 
 % Słowa kluczowe:
-\keywords{sensor network, wireless network, mobile nodes, eZ430-Chronos, TinyOS, Internet of Things ???}
+\keywords{wireless sensor network, mobile nodes, eZ430, Chronos, TinyOS, NesC, rhoRoute, Internet of Things}
 
 % Tu jest dobre miejsce na Twoje własne makra i~rodowiska
 % \newtheorem{defi}{Definicja}[section]
@@ -65,8 +63,11 @@ Institute of Computer Science\\
 \maketitle
 
 \begin{abstract}
-ABSTRACT
-% ewaluacja pokazala, ze to dziala i ze ma reasonable performance
+  \emph{The eZ430-Chronos is a wireless sensor node in form of a hand-watch. Besides typical watch elements, it has a fully programmable MCU, a built-in radio transceiver and sensors. This unique platform gives ample opportunities for innovative applications. However, any advanced application requires a set of solid system services. To provide them, we ported TinyOS to the Chronos platform. TinyOS is an open source operating system for low-power wireless devices and is written in a dialect of the C language, called NesC. It provides various abstractions and architectural solutions, that solve many problems encountered in such platforms.}
+
+\emph{In this work, we first describe the watch's hardware. Then we explain the more important concepts of the TinyOS and NesC language. Finally, we present the code that was added to support Chronos hardware and conclude, by giving the evaluation results and ideas for future work.}
+
+\emph{The project was supported by sponsored by the Foundation for Polish Science under grant no. HOMING PLUS/2010-2/4, co-financed from the Regional Development Fund of the European Union. In addition, both authors received stipends.}
 \end{abstract}
 
 \tableofcontents
@@ -130,3 +131,16 @@ ABSTRACT
 %%% TeX-master: t
 %%% coding: utf-8
 %%% End:
+
+% To enable wrapped line navigation:
+% map j gj
+% map k gk
+
+% Vim settings:
+% vim: set nonumber:
+% vim: set spell:
+% vim: set linebreak:
+% vim: set wrap:
+% vim: set textwidth=0:
+% vim: set fo+=t:
+
