@@ -1,4 +1,5 @@
 \chapter{Porting TinyOS for Chronos hardware}
+\label{ch:porting}
 
 This chapter describes the work done to make TinyOS run on Chronos watch. Firstly, we show how we added a minimal, yet functional, platform to the OS. Then, we discuss the methodology used for introducing new code and go over a basic MCU configuration, which is fundamental for the operation of other systems. Afterwards, we present a conceptual schema of the watch circuits that, most notably, shows connections between the hardware components. The remainder part of the chapter describes the hardware drivers we have created, starting with the MCU internal systems and going towards the peripherals.
 
@@ -210,7 +211,7 @@ The support for the Buzzer, the LCD display, and the buttons allow Chronos to be
 
 \subsection{The CC1101-based radio module}
 
-The CC1101 is a radio transceiver chip made by Texas Instruments. Among others, it is used in the SOWNet's \cite{G-Node} wireless sensor node, depicted in Figure~\ref{fig:gnode}. This platform is important to us, for two reasons. Firstly, a large testbed of G-Nodes has been deployed in our faculty (see \cite{MM}). Secondly, TinyOS was ported to G-Node by SOWNet's developers. This ensures the quality of the code and an ongoing support. Moreover, the port was released on a license similar to that used in the rest of TinyOS, allowing for royalty-free use and even modification.
+The CC1101 is a radio transceiver chip made by Texas Instruments. Among others, it is used in the SOWNet's \cite{G-Node} wireless sensor node, depicted in Figure~\ref{fig:gnode}. This platform is important to us, for two reasons. Firstly, a large testbed of G-Nodes has been deployed in our faculty (see \cite{SensorNet}). Secondly, TinyOS was ported to G-Node by SOWNet's developers. This ensures the quality of the code and an ongoing support. Moreover, the port was released on a license similar to that used in the rest of TinyOS, allowing for royalty-free use and even modification.
 
 \begin{figure}[h]
   \centering
