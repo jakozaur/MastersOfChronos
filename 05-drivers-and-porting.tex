@@ -397,6 +397,25 @@ Multiple times we had to adjust the interface connecting them to implement their
 
 To avoid the above mistakes, we plan to employ test-driven development during our second approach. Very recently this was made possible by \cite{TOSMock}. This technique tends to produce smaller, more loosely coupled components with better interfaces, and helps find programming errors early in the development cycle. These are the virtues that the current implementation lacks.
 
+%\subsection{The temperature and pressure sensor}
+%Chronos has SCP1000-D11 chip, which measure absolute pressure and temperature.
+%The sensing element is a silicon wafer that is locally thinned to form a pressure sensitive diaphragm.
+%
+%The chip provide four reading modes: high resolution, high speed, ultra low power and low power with external trigger.
+%First three of them continuously provide new data, while the last one refreshes data after the update is triggered.
+%In every mode the temperature and pressure is available for each measurement.
+%The chip communicate with MCU using $I^2C$ interface. 
+%However, in some parts of documentations this interface is called TWI to avoid trademark issues.
+%
+%The implementation provide four components: 
+% diagrams does not work :-(
+
+
+
+
+
+
+
 % to enable wrapped line navigation:
 % map j gj
 % map k gk

@@ -397,14 +397,32 @@ However, it is a bad metric to estimate the distance and RSSI should be used for
 
 % methodology
 The theoretical throughput is 250 kbits.
-However, the communication requires sending frame headers and footers.
+However, the communication requires sending frame header and footer (11 and 3 bytes respectively) for each packet.
+The packet maximal size is 64 bytes, so at most 50 bytes remains for payload.
 In addition to that, the radio driver performs clean channel assessment before each transfer.
 This reduces packet collisions, but reduce the bandwidth.
+Moreover, in practical applications we also need to take into account time needed to copy memory block of packet payload.
+
 
 % results
-Using the maximal packets size (63 bytes) we sent 8000 packets as fast as possible.
-It took 45 seconds, which gives 11.2 kB/s as the measured transfer.
-Provided that two watches were close enough, such that there are no packets lost.
+We performed series of experiments which measure the throughput, which we define as a rate of successful delivered total size of payload.
+The watches were placed close to each other, MCU frequency was set to 8 MHz and radio baud rate to 250 kbits.
+In this setup packet delivery failure was negligible.
+As excepted, the measured bandwidth in Table \ref{tab:radio-throughput} is fraction ($\frac{250}{6.10 \cdot 8} \approx 5.1$) of theoretical throughput.
+
+\begin{table}[h]
+  \centering
+    \begin{tabular}{|r|r|r|}
+        \hline
+        \textbf{Payload size in packet} & \textbf{Time required to send 1000 packets} & \textbf{Throughput} \\ \hline
+        50 bytes& 8.2 s & 6.10 KBps \\ \hline
+        30 bytes& 6.5 s & 4.46 KBps \\ \hline
+        10 bytes& 5.1 s & 1.96 KBps \\ \hline
+    \end{tabular}
+  \caption{eZ430 Chronos radio throughput}
+  \label{tab:radio-throughput}
+\end{table}
+
 
 
 \section{Sample application: Zordon}
