@@ -398,18 +398,81 @@ Multiple times we had to adjust the interface connecting them to implement their
 
 To avoid the above mistakes, we plan to employ test-driven development during our second approach. Very recently this was made possible by \cite{TOSMock}. This technique tends to produce smaller, more loosely coupled components with better interfaces, and helps find programming errors early in the development cycle. These are the virtues that the current implementation lacks.
 
-%\subsection{The temperature and pressure sensor}
-%Chronos has SCP1000-D11 chip, which measure absolute pressure and temperature.
-%The sensing element is a silicon wafer that is locally thinned to form a pressure sensitive diaphragm.
-%
-%The chip provide four reading modes: high resolution, high speed, ultra low power and low power with external trigger.
-%First three of them continuously provide new data, while the last one refreshes data after the update is triggered.
-%In every mode the temperature and pressure is available for each measurement.
-%The chip communicate with MCU using $I^2C$ interface. 
-%However, in some parts of documentations this interface is called TWI to avoid trademark issues.
-%
-%The implementation provide four components: 
-% diagrams does not work :-(
+\subsection{The temperature and pressure sensor}
+Chronos has SCP1000-D11 chip, which measure absolute pressure and temperature.
+
+The chip provides four reading modes: high resolution, high speed, ultra low power and low power with external trigger.
+First three of them continuously provide new data, while the last one require trigger to refresh data.
+In every mode the temperature and pressure is available for each measurement.
+The chip communicate with MCU using TWI or SPI interface.
+On Chronos it is connected with TWI interface.
+The TWI is just another name for $I^2C$\footnote{TWI is used instead of $I^2C$ to avoid trademark issues}.
+
+Although, we found \cite{SCP1000SpiDriver} created by R. Steve McKown, its supports only SPI interface and is not structured into HPL, HAL, HPI layers.
+Even worse, it only provides low power mode with external trigger.
+Because of this limitations, we wrote our own driver.
+
+The top level HAA design is similar to accelerometer driver (see Fig \ref{fig:scp1000_haa}).
+It connects hardware pins to $I^2C$ bus driver (\emph{Msp430I2CC}).
+Using that interface, \emph{HplScp1000TwiC} component implements the communication logic between MCU and chip.
+The device specific API is provided by \emph{HalScp1000ContinuousC} and \emph{HalScp1000TriggeredC}.
+To avoid concurrency issues on HAL layer, the resource \emph{HalScp1000TwiOwnershipC} is used as mutual exclusion lock.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{diagrams/scp1000_haa.eps}
+  \caption{HAA diagram of SCP1000 driver}
+  \label{fig:scp1000_haa}
+\end{figure}
+
+Handling low power mode with external trigger is fairly standard.
+It is done by an asynchronous read with start and stop. 
+Rest of modes fit perfectly to \emph{Notify} interface.
+However, The only difference between them is the frequency of notifications and the measurement accuracy.
+So instead of creating three different components with different constants, it would be better to create one and allow mode selection using commands (see Fig \ref{fig:scp1000_continous}).
+That way it is possible to pragmatically select the most suitable mode (e.g. one with best resolution).
+
+In our implementation, continuous mode management is accomplished by interface \emph{Scp1000Mode}.
+It allows to select mode by id from $0$ to $MAX - 1$, where MAX could be obtained by calling command \verb|getMaxModelId()|.
+Moreover, it is possible to check mode parameters using command \verb|describeMode()|, which return following struct:
+\begin{verbatim}
+typedef struct {
+  int time_between_notify_ms;
+  long resolution_press; // minimal difference registered by device
+  long resolution_temp; // as above
+} scp_mode_desc_t;
+\end{verbatim}
+
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.6\textwidth]{diagrams/scp1000_continous.eps}
+  \caption{HAL continuous interface of SCP1000 driver}
+  \label{fig:scp1000_continous}
+\end{figure}
+
+To provide the most accurate data, the HAL components return raw sensor measurements.
+In most scenarios, it is easier to use HPI layer, which translate data to SI units: Pa for pressure and $\frac{1}{100}$ C for temperature.
+In addition to that, on HPI level there is separate component for reading temperature and pressure (see Fig \ref{fig:scp1000_hpi}).
+This is convenient and abstract hardware dependency between those sensors.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.4\textwidth]{diagrams/scp1000_hpi.eps}
+  \caption{HPI interfaces of SCP1000 driver}
+  \label{fig:scp1000_hpi}
+\end{figure}
+
+However, we could not completely hide the fact that we use the same bus for temperature and pressure sensor.
+In particular we could not use them simultaneously with different mode.
+To mitigate that issue, the driver uses \emph{Scp1000ModeLock} which allow to enable sensor, only if no one use it or the other sensor is enabled with the same mode.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.4\textwidth]{diagrams/scp1000_lock.eps}
+  \caption{Mode lock}
+  \label{fig:scp1000_lock}
+\end{figure}
 
 
 
