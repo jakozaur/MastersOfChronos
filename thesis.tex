@@ -40,15 +40,21 @@ Institute of Computer Science\\
 11.3 Informatics\\
 }
 
+\def\category#1#2#3{%
+    \begingroup
+        \let\and\relax
+            #1 [\textbf{#2}]%
+                \if!#3!\else : #3\fi
+    \endgroup
+}
+
+
 \klasyfikacja{
-  C.1.4.b Mobile processors \\
-  C.2.1.k Wireless communication \\
-  C.2.7.c Sensor networks \\
-  C.2.7.e Wireless \\
-  C.2.8.c Mobile communication systems \\
-  C.2.8.d Mobile environments \\
-  J.9.e Wearable computers and body area networks \\
-  J.9.f Wireless sensor networks \\
+\category{C.2.1.k}{Network Architecture and Design}{Wireless communication} \\
+\category{C.2.8.c}{Mobile Computing}{Mobile communication systems} \\
+\category{C.2.8.d}{Mobile Computing}{Mobile environments} \\
+\category{J.9.e}{Mobile Applications}{Wearable computers and body area networks} \\
+\category{J.9.f}{Mobile Applications}{Wireless sensor networks} \\
 }
 
 % Słowa kluczowe:

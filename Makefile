@@ -5,7 +5,7 @@ all: thesis.pdf
 
 thesis.pdf: *.tex $(EPS)
 #	$(MAKE) -C diagrams
-	pdflatex thesis.tex
+	pdflatex -synctex=1 thesis.tex
 
 %.eps: %.svg
 	sed -i '' 's/Visual Paradigm for UML Standard Edition(Warsaw University)//' $<

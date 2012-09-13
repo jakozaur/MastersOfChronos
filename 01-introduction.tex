@@ -110,38 +110,47 @@ The thesis is organized into 6 chapters. Chapter 2 discusses the Chronos hardwar
 The research presented in this thesis was conducted as part of the {\it``Scalable Self-Managed Point-to-Point Routing for the Internet of Things Applications''} project, which was sponsored by the Foundation for Polish Science under grant no. HOMING PLUS/2010-2/4, co-financed from the Regional Development Fund of the European Union. In addition authors received stipends.
 
 \section{Individual contributions of the authors}
-In this section we list the contribution of each author in writing this thesis and Chronos software.
+\label{ch:contributions}
 
-\begin{itemize}
-  \item Chapter \ref{ch:intro} was written by Jacek, with the exception of this section.
-  \item Chapter \ref{ch:chronos_hardware} was written by Przemek, except Section \ref{ch:intended_use_of_watch}.
-  \item Chapter \ref{ch:tos_and_nesc} was written by Przemek.
-  \item Chapter \ref{ch:porting} was written by Przemek.
-  \item The support for programming Chronos MCU was added by Jacek, while the compilers were built and configured by Przemek.
-  \item The EM430 code was first found and experimented with by Jacek.
-  \item The minimal \emph{chronos} platform was created by Przemek.
-  \item The microsecond Alarm support was added by Przemek.
-  \item The Power Management Module configuration was added by Przemek.
-  \item The HPL layer of the LCD driver was added by Przemek, while the  \emph{LCDDriverC} component and helpers were added by Jacek.
-  \item The \emph{PlatformLedsC} components and helpers were added by Przemek.
-  \item The button support was first added by Jacek and then refined by Przemek.
-  \item The buzzer support was added by Przemek.
-  \item The porting of the radio stack was started by Jacek. Then progress on interrupt support and communication with the radio core was made by Przemek. Jacek found and helped to remove programming errors from the code.
-  \item The Centralized Port Management was added by Przemek.
-  \item The serial connection support was added by Przemek.
-  \item The accelerometer driver was written by Przemek.
-  \item The faulty persistence storage implementation was created by Przemek.
-  \item Chapter \ref{ch:evaluation} was written by Jacek.
-  \item All radio and power performance evaluations were done by Jacek.
-  \item Chapter \ref{ch:conclusions} was written by Jacek.
-  \item The Zordon demo application was written by Przemek.
-  \item Appendix \ref{ch:prog_env} was written by Przemek, except Sections \ref{ch:mspdebug}, \ref{ch:mspd_bugs}, \ref{ch:mspd_limitations}, \ref{ch:mspd_printf}, \ref{ch:radio_printf}.
-  \item The support for \emph{mspdebug-printf} and \emph{radio-printf} was added by Jacek.
-  \item The support for \emph{serial-printf} was added by Przemek.
-  \item The Eclipse IDE was configured for use with Chronos by Przemek.
-  \item Appendix \ref{appendix:uart_pins} was written by Przemek.
-  \item The hardware modification enabling Chronos serial communication was devised by Przemek.
-  \item The Appendix \ref{appendix:watch_schematics} was added by Przemek.
+We collaborated closely on all parts of the project. Typically, when a new task was defined, we started to work on it together. Sharing ideas helped to solve problems and find efficient solutions. Then, as gradually each task became more labor, rather than idea, intensive, the responsibility for it was claimed by one of us. This allows us list the main contributions of each author, although in many cases both were actively involved.\\
+Przemysław Horban was the main contributor to:
+\begin{itemize}\addtolength{\itemsep}{-.35\baselineskip} 
+  \item building and configuring the compilers
+  \item the Eclipse IDE configuration for use with Chronos
+  \item minimal \emph{chronos} platform
+  \item HPL layer of the LCD driver
+  \item interrupt support and communication with the radio core
+  \item the hardware modification enabling Chronos serial communication
+  \item UART serial connection support
+  \item support for \emph{serial-printf}
+  \item Power Management Module configuration
+  \item improvement of the button support
+  \item buzzer support
+  \item the Zordon demo application
+  \item Centralized Port Management
+  \item microsecond Alarm support
+  \item accelerometer driver
+  \item faulty persistence storage implementation
+  \item chapters \ref{ch:tos_and_nesc}, \ref{ch:porting}, \ref{ch:chronos_hardware}
+  \item Section \ref{ch:contributions} and the Abstract
+  \item Appendices \ref{ch:prog_env}, \ref{appendix:uart_pins}, \ref{appendix:watch_schematics}
+\end{itemize}
+Jacek Migdał was the main contributor to:
+\begin{itemize}\addtolength{\itemsep}{-.35\baselineskip} 
+  \item finding and experimenting with the EM430 code
+  \item support for programming the Chronos MCU
+  \item the \emph{LCDDriverC} component and helpers
+  \item initial work on porting the radio stack
+  \item runtime communication with the watch using \emph{mspdebug}
+  \item support for \emph{mspdebug-printf}
+  \item support for \emph{radio-printf}
+  \item button support first implementation
+  \item finding programming errors in the radio stack port
+  \item all radio performance evaluations
+  \item power consumption evaluations
+  \item the temperature and pressure sensor driver
+  \item Chapters \ref{ch:intro}, \ref{ch:evaluation}, \ref{ch:conclusions}
+  \item Sections \ref{ch:intended_use_of_watch}, \ref{ch:mspdebug}, \ref{ch:mspd_bugs}, \ref{ch:mspd_limitations}, \ref{ch:mspd_printf}, \ref{ch:radio_printf}
 \end{itemize}
 
 
