@@ -263,13 +263,13 @@ Radios were configured for the 868 MHz frequency with a 250 kbit transmission ra
 All watches were fully assembled and placed about 80 $ cm $ above the ground.
 The power was supplied by previously unused CR2032 batteries, which were replaced in the middle of the tests to provide a more consistent environment.
 
-The test consisted of sending 100 20-byte packets.
+A test consisted of sending 100 20-byte packets.
 Between each packet, there was a 256 $ ms $ sleeping interval.
-During the test s watch was rotated to simulate real hand movements.
+During the test a watch was rotated to simulate real hand movements.
 After each test, the data was sent to a PC using radio printf and a GNode as a bridge.
 
-It took a few iteration to produce results which were repeatable.
-Tests inside of building, without line-of-sight, with used batteries or with fixed watch rotation result in inconsistent or hard to reproduce data.
+It took a few iteration to produce results that were repeatable.
+Tests inside of building, without visibility, with used batteries or with a fixed watch rotation resulted in inconsistent or hard to reproduce data.
 
 All these tasks were performed using a ChronosConnectivityAssesment application.
 The application provides a user interface using the LCD and buttons.
@@ -282,9 +282,9 @@ For all tests we collected the following three metrics:
   \item \textbf{average LQI} --- Link quality indicator (LQI), a heuristic quality value provided by the radio chip.
 \end{itemize}
 
-Each test were performed with three different radio strength: +12 dB (maximal), 0 dB and -30 dB (minimal).
+Each test was performed with three different radio strength: +12 dBm (maximal), 0 dBm and -30 dBm (minimal).
 
-All distances are in meters, except the one denoted ``next''  which meant closest possible within a given radio strength.
+All distances are in meters, except the one denoted ``next''  which meant closest possible for a given radio strength.
 Placing two watches closer than this distance disables radio communication completely.
 ``Next'' is about $20 cm$ for $+12 dB$ and close to $0 cm$ for $- 30 dB$.
 
@@ -294,14 +294,14 @@ Placing two watches closer than this distance disables radio communication compl
 
 \subsection{Reliability results}
 
-The results data show that radio got range of about $50$ meters.
-Within short distance, there are very few packets lost\footnote{in our environment there are almost no collisions}.
-However, There is a sharp drop in reliability after certain distance.
-This is excepted, as free-space path loss is square proportional to the distance from the source.
+The results show that the radio range is about $50$ meters.
+Within a short distance, few packets are lost\footnote{in our environment there are almost no collisions}.
+However, there is a sharp drop in reliability after a certain distance.
+This is realistic, as a free-space path loss is square proportional to the distance from the source.
 
-Although, radio strength -30 dB may seems impractical, it is a good method to detect whether sender is close ($< 2m$) to the receiver.
+Although, the radio strength -30 dBm may seem impractical, it is a good method to detect whether the sender is close ($< 2m$) to the receiver.
 
-Overall, radio chip in eZ430 is relaible and provide reasonable radio range.
+Overall, the radio chip in eZ430 is reliable and provides a reasonable radio range.
 
 
 \subsubsection{+12 dB}
@@ -329,7 +329,7 @@ Overall, radio chip in eZ430 is relaible and provide reasonable radio range.
 \subsection{RSSI results}
 
 
-The RSSI results are presented as box plots.
+The results are presented as box plots.
 The thick line shows the median.
 The box edges are on 1st and 3rd quartile.
 The top and bottom lines are correspondingly the minimal and the maximal element.
@@ -337,7 +337,7 @@ Each point which is more than 1.5 times away than the height of the box is consi
 
 RSSI is usually used to determine the quality of radio communication.
 It may be also utilized to estimate the distance between a sender and a listener.
-Though, single measurement may be misleading, a median from series of transmissions is a good indicator.
+However, a single measurement may be misleading, the median from series of transmissions is a good indicator.
 
 
 \subsubsection{+12 dB}
