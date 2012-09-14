@@ -1,19 +1,19 @@
 \chapter{Porting TinyOS for Chronos hardware}
 \label{ch:porting}
 
-This chapter describes the work done to make TinyOS run on Chronos watch. Firstly, we show how we added a minimal, yet functional, platform to the OS. Then, we discuss the methodology used for introducing new code and go over a basic MCU configuration, which is fundamental for the operation of other systems. Afterwards, we present a conceptual schema of the watch circuits that, most notably, shows connections between the hardware components. The remainder part of the chapter describes the hardware drivers we have created, starting with the MCU internal systems and going towards the peripherals.
+This chapter describes the work done to make TinyOS run on a Chronos watch. Firstly, we show how we added a minimal, yet functional platform to the OS. Then, we discuss the methodology used for introducing new code and go over a basic MCU configuration, which is fundamental for the operation of other systems. Afterwards, we present a conceptual schema of the watch circuits that, most notably, shows connections between the hardware components. The remainder part of the chapter describes the hardware drivers we have created, starting with the MCU internal systems and going towards the peripherals.
 
 \section{Adding a minimal functional platform}
 
 The first milestone of our project, was to get to the point, where we could compile the \emph{Null} application and upload its image to the watch. Although this application is of little use, it does basic system initialization. Therefore, it allows for verifying the build configuration. The additional benefit was that we could learn the TinyOS build process.
 
-To compile code for the MSP430 architecture, we used \emph{\bf msp430-gcc}. This was an obvious choice, because the NesC compiler has a built-in support for \emph{gcc}. Its installation wasn't, however, as easy as one might expect. Namely packages provided in Ubuntu were too old and did not contain headers for the \emph{CC430F6137} MCU. In the end, we removed all related system packages and built \emph{msp430-gcc} from sources, using the most recent version available at the time: 4.6.2.  In addition to the compiler, tools like \emph{msp430-gdb} and \emph{mspdebug} were also installed.
+To compile code for the MSP430 architecture, we used \emph{\bf msp430-gcc}. This was an obvious choice, because the NesC compiler has a built-in support for \emph{gcc}. Its installation wasn't, however, as easy as one might expect. Namely, packages provided in Ubuntu were too old and did not contain headers for the \emph{CC430F6137} MCU. In the end, we removed all related system packages and built \emph{msp430-gcc} from sources, using the most recent version available at the time: 4.6.2.  In addition to the compiler, tools like \emph{msp430-gdb} and \emph{mspdebug} were also installed.
 
 The \emph{\bf mspdebug} tool is particularly important for Chronos development, as it allows for flashing software on the watch through the USB debug dongle.  Additionally, it allows for debugging code running on the watch: it provides a primitive gdb server, to which \emph{msp430-gdb} is able to connect\footnote{It's imperative to use the most recent version of \emph{msp430-gdb}, because older versions are not compatible with the \emph{mspdebug} tool.}.
 
-Afterwards, the {\bf NesC compiler} was installed from sources as well. Then we choose and installed a clean upstream version of the TinyOS, provided by \cite{TOSnet}. It contained some tools and scripts and we installed those too.
+Afterwards, the {\bf NesC compiler} was installed from sources as well. Then, we chose and installed a clean upstream version of TinyOS, provided by \cite{TOSnet}. It contained some tools and scripts and we installed those too.
 
-At that point, we had a functional TinyOS installation, capable of targeting MSP430-based boards, like \emph{telosb}. We choose to name the new platform for our watch as \emph{chronos}. To make if fully functional, we had to create a few files under the \emph{tos/platforms/chronos} path, among which only \emph{.platform} was non-trivial. This configuration file holds various compilation parameters, in particular, the exact MCU model used in the watch, so that the generated binary images get correct offsets for the code segment (0x8000) and the interrupt vector (0xFF80).
+At that point, we had a functional TinyOS installation, capable of targeting MSP430-based boards, like \emph{telosb}. We chose to name the new platform for our watch as \emph{chronos}. To make if fully functional, we had to create a few files under the \emph{tos/platforms/chronos} path, among which only \emph{.platform} was non-trivial. This configuration file holds various compilation parameters, in particular, the exact MCU model used in the watch, so that generated binary images get correct offsets for the code segment (0x8000) and the interrupt vector (0xFF80).
 
 We also wanted the build process of an application to be initiated with a standard TinyOS make command:
 \begin{lstlisting}[numbers=none, language=bash]
@@ -25,19 +25,19 @@ These changes may seem obvious, but it took us quite some time to work them out.
 
 \section{Code creation methodology}
 
-The next step was to add code that would make the watch operational. Generally it's considered a good programming practice to reuse existing code rather than write it from scratch. Existing code tends to be more tested and can save considerable time, especially when it contains nontrivial constructions that would otherwise require a test and debug cycle to discover. Such situations are especially frequent when dealing with hardware. Moreover, our project was quite time constrained from the beginning and various delays were to be expected further on. Under those circumstances, saving time wherever possible was particularly important. We benefited greatly from the fact that TinyOS code licensing is very liberal, allowing for free use, with few reasonable restrictions, like preserving the license headers in files.
+The next step was to add code that would make the watch operational. Generally, it's considered a good programming practice to reuse existing code rather than write it from scratch. Existing code tends to be more tested and can save considerable time, especially when it contains nontrivial constructions that would otherwise require a test and debug cycle to discover. Such situations are especially frequent when dealing with hardware. Moreover, our project was quite time constrained from the beginning and various delays were to be expected further on. Under those circumstances, saving time wherever possible was particularly important. We benefited greatly from the fact that TinyOS code licensing is very liberal, allowing for free use, with few reasonable restrictions, like preserving the license headers in files.
 
-Nevertheless, not all goals could be completed by adapting existing components. In cases where no drivers in NesC were available, we had to fall back to the hardware documentation in the form of datasheets. They describe hardware's behaviour well, though sometimes certain issues were only discovered and compensated for after the driver code was implemented and run. As a rule, documentation is low level, describing only control registers available on the device. All higher-layer  abstraction had to be devised and implemented by us. This was a tedious task and applying the Hardware Abstraction Architecture eased it enormously. We didn't know that from the beginning, though. Therefore, some designs follow it better than others. Besides, in practice boundaries between layers aren't always clear.
+Nevertheless, not all goals could be completed by adapting existing components. In cases where no drivers in NesC were available, we had to fall back to the hardware documentation in the form of datasheets. They describe hardware behaviour well, though sometimes certain issues were only discovered and compensated for after the driver code was implemented and run. As a rule, documentation is low level, describing only control registers available on the device. All higher-layer  abstraction had to be devised and implemented by us. This was a tedious task and applying the Hardware Abstraction Architecture eased it enormously. We didn't know that from the beginning, though. Therefore, some designs follow it better than others. Besides, in practice boundaries between layers aren't always clear.
 
-A few times we encountered code that was close to what we needed, but some hardware differences precluded using it directly. Modifications had to be done before it could be added to the Chronos platform. In those cases, we had to mix the above approaches by studying the datasheets to understand the inner workings of the code. However, we found that both contributed to better understanding. Code told us much about the inner workings of the hardware and datasheets helped understanding the constructions used in the code. Most notably, such an approach was used to port the low level radio driver, but the principle extends to other components. As a rule, it was much easier to understand the operation of a hardware device if, even a crude, driver implementation was available.
+A few times we encountered code that was close to what we needed, but some hardware differences precluded using it directly. Modifications had to be done before it could be added to the Chronos platform. In those cases, we had to mix the above approaches by studying the datasheets to understand the inner workings of the code. However, we found that both contributed to better understanding. Code told us much about the inner workings of the hardware, and datasheets helped understand the constructions used in the code. Most notably, such an approach was used to port the low-level radio driver, but the principle extends to other components. As a rule, it was much easier to understand the operation of a hardware device if, even a crude, driver implementation was available.
 
-To implement the code, we first used traditional terminal based tools, like the \emph{vim} editor. Later on, when we discovered the \emph{Yetti 2} plugin (see Appendix \ref{ch:prog_env}), we started using \emph{Eclipse} with all its benefits. This increased our productivity considerably. Moreover, there is no emulator of the watch available. Therefore, all testing had to be done by uploading images to the hardware and observing its responses. At first, we didn't even know if programming was successful, but when the LCD display became available, followed by the serial console, and ultimately visual debugger, the process became quite seamless. See Appendix \ref{ch:prog_env} for details.
+To write the code, we first used traditional terminal based tools, like the \emph{vim} editor. Later on, when we discovered the \emph{Yetti 2} plugin (see Appendix \ref{ch:prog_env}), we started using \emph{Eclipse} with all its benefits. This increased our productivity considerably. Moreover, there is no emulator of the watch available. Therefore, all testing had to be done by uploading images to the hardware and observing its responses. At first, we didn't even know if programming was successful, but when the LCD display became available, followed by the serial console, and ultimately visual debugger, the process became quite seamless. See Appendix \ref{ch:prog_env} for details.
 
-Finally, in what we believe is \emph{the way} to create code for mobile platforms, we tried to use \emph{TOSMOCK} for module unit-testing. This technology, however, became available too late to be widely used in our code.
+Finally, in what we believe is \emph{the way} to create code for mobile platforms, we tried to use \emph{TOSMock} \cite{TOSMock} for module unit-testing. This technology, however, became available too late to be widely used in our code.
 
 \section{MCU configuration}
 
-The MCU configuration was made much easier, thanks to the existence of a partial port of TinyOS to a similar hardware platform. The Texas Instruments \cite{EM430}, shown in Figure~\ref{fig:em430_board}, is a development board which uses the exact same \emph{CC430F6137} MCU chip as Chronos does. Work on the port was done as a part of the \cite{OSIAN} project. Even though Chronos and EM430 differ in peripherals, much of the internal MCU configuration code was compatible and we decided to reuse it.  Minor modifications were required to meet our coding standards and, to fix a few issues.
+The MCU configuration was made much easier, thanks to the existence of a partial port of TinyOS to a similar hardware platform. The Texas Instruments \cite{EM430}, shown in Figure~\ref{fig:em430_board}, is a development board that uses the exact same \emph{CC430F6137} MCU chip as Chronos does. Work on the port was done as a part of the \cite{OSIAN} project. Even though Chronos and EM430 differ in peripherals, much of the internal MCU configuration code was compatible and we decided to reuse it.  Minor modifications were required to meet our coding standards and, to fix a few issues.
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.65\textwidth]{img/em430_board.jpg}
@@ -52,11 +52,11 @@ The entire MCU configuration is done in the \emph{PlatformC} and \emph{PlatformP
   \caption{\emph{PlatformC} performs MCU initialization.}
   \label{fig:platformc}
 \end{figure}
-The first step that \emph{PlatformP} takes is disabling the watchdog timer. Otherwise, the timer would shortly reset the device. Disabling the timer requires only a single register assignment and is done inline. In the future, we may wish to use the watchdog to increase Chronos's reliability, but it wasn't a priority in this stage of the project.
+The first step that \emph{PlatformP} takes is disabling the watchdog timer. Otherwise, the timer would shortly reset the device. Disabling the timer requires only a single register assignment and is done inline. In the future, we may wish to use the watchdog to increase Chronos's reliability, but it wasn't a priority at this stage of the project.
 
 \subsection{Millisecond timers}
 
-One of the primary MCU responsibilities is providing clocks and timing for other subsystems. Let's first look at timers. In Section \ref{ch:timer_subsystem}, we introduced TinyOS timer library stating that \emph{HilTimerMilliC} is provided by each platform. Continuing that discussion, Figure~\ref{fig:hil_timer_milli_c} shows a simplified structure of this component, as it is provided by the \emph{chronos} platform.
+One of the primary MCU responsibilities is providing clocks and timing for other subsystems. Let's first look at timers. In Section \ref{ch:timer_subsystem}, we introduced the TinyOS timer library stating that \emph{HilTimerMilliC} is provided by each platform. Continuing that discussion, Figure~\ref{fig:hil_timer_milli_c} shows a simplified structure of this component, as it is provided by the \emph{chronos} platform.
 Let's explain its operation in a bottom-up order.
 \begin{figure}[h!]
   \centering
@@ -65,7 +65,7 @@ Let's explain its operation in a bottom-up order.
   \label{fig:hil_timer_milli_c}
 \end{figure}
 
-The \emph{Msp430Timer32khzC} gives access to one of the hardware timers. \emph{Msp430AlarmC} uses it to provide an \emph{Alarm} interface with a 32kHz granularity and a 16-bit range. Then, it is transformed by \emph{TransformAlarmC} into a wider 32 bit alarm with 1ms (actually $10^6 / 2^{10} \approx 976.5\upmu$s) granularity. Finally, this alarm is converted into a timer and virtualized. Note that these transforming components all come from the TinyOS library.
+The \emph{Msp430Timer32khzC} gives access to one of the hardware timers. \emph{Msp430AlarmC} uses it to provide an \emph{Alarm} interface with a 32kHz granularity and a 16-bit range. Then, it is transformed by \emph{TransformAlarmC} into a wider 32 bit alarm with 1ms (actually $10^6 / 2^{10} \approx 976.5\upmu$s) granularity. Finally, this alarm is converted into a timer and virtualized. Note that the transforming components all come from the TinyOS library.
 
 \subsection{Microsecond alarms}
 
@@ -77,7 +77,7 @@ The millisecond granularity isn't, however, sufficient for some of the Chronos p
   \label{fig:virutal_alarm_micro_16_c}
 \end{figure}
 
-The MSP430 specific timer code comes from \emph{tos/chips/msp430/timer} library. However, for the CC430 MCUs, the HPL layer has been overwritten with the \emph{tos/chips/msp430/msp430xv2/timer} components, which we've taken from the EM430 port.
+The MSP430 specific timer code comes from \emph{tos/chips/\-msp430/timer} library. However, for the CC430 MCUs, the HPL layer was overwritten with the \emph{tos/chips/msp430/\-msp430xv2/timer} components, which we've taken from the EM430 port.
 
 The \emph{Msp430Timer32khzC} and  \emph{Msp430TimerMicroC} components, used above, provide access to 16-bit hardware counters Timer\_A0 and Timer\_A1, running at 32kHz and 1MHz respectively. They are implemented in this new HPL layer, but their structure is relatively simple and mundane so we will omit it. For details, see the mentioned libraries.
 
@@ -124,14 +124,14 @@ It's worth noting, that we only noticed that PMM needs configuration after exami
 
 \section{Overview of the watch's subsystems}
 
-In this section we present a high level schema of the Chronos systems. The Figure~\ref{fig:chronos_schema} gives a 
+In this section, we present a high level schema of the Chronos systems. Figure~\ref{fig:chronos_schema} gives a
 \begin{figure}[h]
   \centering
   \includegraphics[width=1.05\textwidth]{diagrams/chronos_schema.eps}
   \caption{Overview of Chronos subsystems and circuit board}
   \label{fig:chronos_schema}
 \end{figure}
-practical overview of the platform structure. The central rectangle defines the boundaries of the MCU. Beyond it, lie the external components. The connections between them, roughly present the number of wires used and more importantly, what protocol does the communication conform to. Recall that UART is the Universal Asynchronous Receiver/Transmitter and is typically used to communicate with the PC; SPI is the Serial Peripheral Interface and is used to communicate with more advanced external chips; I$^2$C (aka. I2C) is the Inter-Integrated Circuit bus used to communicate with simpler devices, like thermometers. IO, in turn, means that the interaction is done by simply setting lines to high or low states, without using any specific communication protocol. Finally, LCD segment serialization was described in Section \ref{ch:hardware_functions}. Rectangles with bold font captions name hardware subsystem, while those with regular ones denote software components.
+practical overview of the platform structure. The largest rectangle defines the boundaries of the MCU. Beyond it, the external components lie. The connections between them, roughly present the number of wires used and, more importantly, what protocol the communication conforms to. Recall that UART is the Universal Asynchronous Receiver/Transmitter and is typically used to communicate with the PC; SPI is the Serial Peripheral Interface and is used to communicate with more advanced external chips; I$^2$C (aka. I2C) is the Inter-Integrated Circuit bus used to communicate with simpler devices, like thermometers. IO, in turn, means that the interaction is done by simply setting lines to high or low states, without using any specific communication protocol. Finally, LCD segment serialization was described in Section \ref{ch:hardware_functions}. Rectangles with bold font captions name hardware subsystem, while those with regular ones denote software components.
 
 Rather than give brief descriptions of each of the seven major component groups presented in the schema, and then repeat the same information in the discussion of driver code, we'll end here and refer to the schema from later sections.
 
@@ -140,7 +140,7 @@ Rather than give brief descriptions of each of the seven major component groups 
 Below we describe the code that was created to make the peripherals of Chronos watch operational. We go through the structure of the software of all major elements of the \emph{chronos} platform, while also making notes on some of the difficulties we encountered during our work.
 
 \subsection{LCD display}
-Gaining access to the watch's LCD display was a vitally important step on the path to making Chronos operational.  Before that we had no way of checking if our software is actually running. There are no LEDs on the watch's circuit board, which could normally be used to send first bits of information from the device. We did have the \emph{mspdebug} tool and the USB debug dongle, which together are capable of controlling code execution. However, reasoning anything from raw debug server data proved difficult. Fortunately, a careful study of documentation was enough to blindly configure the LCD\_B subsystem and, with a bit of luck and some hours of restudying the datasheet, we managed to activate the LCD display. Then, we were gradually enhancing the driver, while progress on the rest of the project was made, until it became fully functional. In particular, it even gained the ability to display short text strings.
+Gaining access to the watch's LCD display was an important step on the path to making Chronos operational.  Before that we had no way of checking if our software is actually running. There are no LEDs on the watch's circuit board, which could normally be used to send first bits of information from the device. We did have the \emph{mspdebug} tool and the USB debug dongle, which together are capable of controlling code execution. However, reasoning anything from raw debug server data proved difficult. Fortunately, a careful study of documentation was enough to blindly configure the LCD\_B subsystem and, with a bit of luck and some hours of restudying the datasheet, we managed to activate the LCD display. Then, we were gradually enhancing the driver, while progress on the rest of the project was made, until it became fully functional. In particular, it even gained the ability to display short text strings.
 
 \begin{figure}[h]
   \centering
@@ -160,7 +160,7 @@ On top of the LCD driver, the \emph{PlatformLedsC} component is built. Its struc
 \end{figure}
 The TinyOS libraries expect that it will provide three \emph{GeneralIO} interfaces for the LEDs and take care of their initialization. \emph{LCDIconIO} generic module, adapts a specified LCD icon to the \emph{GeneralIO} interface. This an example of the TinyOS Adapter design pattern, more information on which can be found in \cite[ch. 8]{TOSProg}.
 
-Finally note that the LCD driver is a poor example of applying HAA. However, due to its simplicity we decided that this is acceptable.
+Finally, note that the LCD driver is a poor example of applying HAA. However, due to its simplicity we decided that this is acceptable.
 
 \subsection{Button support}
 
@@ -186,7 +186,7 @@ This component was made generic, because Chronos has five buttons. In Figure~\re
 \end{figure}
 The \emph{HplMsp430GeneralIOC} and the \emph{HplMsp430InterruptC} are TinyOS library components that give access to GIO pins for MSP430 MCUs. The first provides access to pin state control, which allows for setting or probing the value of a pin. The second allows for arming interrupts that fire when the state of a pin changes. This is used to discover when a button is pressed.
 
-An application using a button can either check the button's state with the \emph{Get} interface or be notified about a change through the \emph{Notify} interface. Finally note that thanks to the independency of the button implementations, it is possible to recognize press combinations.
+An application using a button can either check the button's state with the \emph{Get} interface or be notified about a change through the \emph{Notify} interface. Finally, note that thanks to the independence of the button implementations, it is possible to recognize press combinations.
 
 \subsection{Buzzer}
 
@@ -211,7 +211,7 @@ The support for the Buzzer, the LCD display, and the buttons allow Chronos to be
 
 \subsection{The CC1101-based radio module}
 
-The CC1101 is a radio transceiver chip made by Texas Instruments. Among others, it is used in the SOWNet's \cite{G-Node} wireless sensor node, depicted in Figure~\ref{fig:gnode}. This platform is important to us, for two reasons. Firstly, a large testbed of G-Nodes has been deployed in our faculty (see \cite{SensorNet}). Secondly, TinyOS was ported to G-Node by SOWNet's developers. This ensures the quality of the code and an ongoing support. Moreover, the port was released on a license similar to that used in the rest of TinyOS, allowing for royalty-free use and even modification.
+The CC1101 is a radio transceiver chip made by Texas Instruments. Among others, it is used in the SOWNet's \cite{G-Node} wireless sensor node, depicted in Figure~\ref{fig:gnode}. This platform is important to us, for two reasons. Firstly, a large testbed of G-Nodes was deployed in our faculty (see \cite{SensorNet}). Secondly, TinyOS was ported to G-Node by SOWNet's developers. This ensures the quality of the code and an ongoing support. Moreover, the port was released on a license similar to that used in the rest of TinyOS, allowing for royalty-free use and even modification.
 
 \begin{figure}[h]
   \centering
@@ -219,7 +219,7 @@ The CC1101 is a radio transceiver chip made by Texas Instruments. Among others, 
   \caption{The SOWNet's G-Node.}
   \label{fig:gnode}
 \end{figure}
-We took the position that further research would be enhanced if communication was possible between the watches and the G-Nodes\footnote{This way our testbed would become one of the largest academic deployment of wireless sensor nodes in the world, consisting of over 220 devices.}. Even though the CC1101 radio core used in G-Nodes is a stand alone product, recently it was also built into the members of the CC430 family of MCUs, hence the two are hardware-compatible. Adding this to the fact that we were time constrained, we decided to adapt the G-Node's radio stack implementation, so that it could run on Chronos. Having the same code on both types of devices provides maximum compatibility. We also made sure that this step was legitimate by complying with the license restrictions.
+We took the position that further research would be enhanced if communication was possible between the watches and the G-Nodes\footnote{This way our testbed would become one of the largest academic deployment of wireless sensor nodes in the world, consisting of over 200 devices.}. Even though the CC1101 radio core used in G-Nodes is a stand alone product, recently it was also built into the members of the CC430 family of MCUs, hence the two are hardware-compatible. Adding this to the fact that we were time constrained, we decided to adapt the G-Node's radio stack implementation, so that it could run on Chronos. Having the same code on both types of devices provides maximum compatibility. We also made sure that this step was legitimate by complying with the license restrictions.
 
 We do not present the detailed structure of the radio stack here because of its complexity. Instead we focus on our porting efforts. For details on the design of the ActiveMessage communication model please refer to \cite{BHC}, \cite{TEP116} and \cite{TEP126}.
 
@@ -233,7 +233,7 @@ During the development we encountered some serious difficulties. The biggest del
 
 Another issue we had concerned G-Node interoperability. After porting G-Node's radio stack to Chronos, we expected that both would be able to communicate with each other. This wasn't the case though. We made sure that the transmission speeds matched, checked that G-Nodes were able to communicate among themselves and that Chronoses could do the same, but still they couldn't be mixed together. Finally, we found that the problem was rooted in the \emph{support/make/chronos.target} file. Namely, it didn't contain any definition of the \emph{DEFAULT\_LOCAL\_GROUP} constant. This caused the build system to impose a default value, different from the G-Node's default. In effect G-Node and Chronos used different values for the \emph{DEFAULT\_LOCAL\_GROUP}, and nodes from different local groups ignore each other's messages. We fixed it by defining the \emph{DEFAULT\_LOCAL\_GROUP} as empty, in the mentioned file. Interestingly, an empty environment variable is treated differently than an undefined variable. Some may view this as obvious, yet it caused us problems all the same.
 
-Afters solving all problems, we've investigated the maximum length of the data that can be sent in one packet. In TinyOS this value is configured with the \emph{TOSH\_DATA\_LENGTH} constant. The size of the radio internal transmission/reception queue is 64 bytes. 11 are used for TinyOS packet header and 3 for the footer. This leaves 50 bytes for the payload. Interestingly, the radio seems to work even with this value set to 52. However we strongly recommend never to exceed 50.
+Afters solving all problems, we investigated the maximum length of data that can be sent in one packet. In TinyOS, this value is configured with the \emph{TOSH\_DATA\_LENGTH} constant. The size of the radio internal transmission/reception queue is 64 bytes. 11 are used for TinyOS packet header and 3 for the footer. This leaves 50 bytes for the payload. Interestingly, the radio seems to work even with this value set to 52. However we strongly recommend never to exceed 50.
 
 \begin{figure}[h]
   \centering
@@ -242,12 +242,12 @@ Afters solving all problems, we've investigated the maximum length of the data t
   \label{fig:am_sender_c}
 \end{figure}
 
-Finally, note that the radio stack can be used through the interfaces provided by the \emph{ActiveMessageC}\footnote{This is an example of the Placeholder design pattern.} configuration. This however becomes less convenient if multiple message types are to be be sent and received. In such cases it is better to use the \emph{AMSenderC} generic component, shown in Figure~\ref{fig:am_sender_c}, which can be parametrized with the message type. It sends and receives only messages that have a particular id. At most one instance of this component in the system can use a given id, removing the risk of collisions. Moreover it provides a one-element message queue, which helps in arbitration between users of different message types, allowing them to forget about each others existence. For an excellent tutorial on how to use the radio stack in an application, see \cite{MoteToMote}. Also note that using the \emph{Low Power Listening} technique, supported by the radio stack, dramatically reduces power consumption. More on that can be found in \cite{LowPowerApps}.
+Finally, note that the radio stack can be used through the interfaces provided by the \emph{ActiveMessageC}\footnote{This is an example of the Placeholder design pattern.} configuration. This however becomes less convenient if multiple message types are to be be sent and received. In such cases, it is better to use the \emph{AMSenderC} generic component, shown in Figure~\ref{fig:am_sender_c}, which can be parametrized with the message type. It sends and receives only messages that have a particular id. At most one instance of this component in the system can use a given id, removing the risk of collisions. Moreover it provides a one-element message queue, which helps in arbitration between users of different message types, allowing them to forget about each others existence. For an excellent tutorial on how to use the radio stack in an application, see \cite{MoteToMote}. Also note that using the \emph{Low Power Listening} technique, supported by the radio stack, dramatically reduces power consumption. More on that can be found in \cite{LowPowerApps}.
 
 
 \subsection{Centralized port management}
 
-We noticed a bad practice TinyOS developers. Too often, various configurations, directly connect enumerated ports to components, like for example \emph{IO.Port31 -> SPI.ChipEnable}. This hides dependencies, making code much more difficult to understand and reuse. Moreover, experiments and modifications require a detailed review of schematics and datasheets to track the connections. Pin numbers neither indicate the MCU-side special function, nor the function of the pin on the other end. Continuing the above example, we don't know which peripheral device Port31 enables and if this port can even support the peripheral on the MCU side. It is difficult to ensure that one got the connections right, especially when they need to run crossover, like UART's TX and RX.
+We noticed a bad practice of TinyOS developers. Too often, various configurations, directly connect enumerated ports to components, like for example \emph{IO.Port31 -> SPI.ChipEnable}. This hides dependencies, making code much more difficult to understand and reuse. Moreover, experiments and modifications require a detailed review of schematics and datasheets to track the connections. Pin numbers neither indicate the MCU-side special function, nor the function of the pin on the other end. Continuing the above example, we don't know which peripheral device Port31 enables and if this port can even support the peripheral on the MCU side. It is difficult to ensure that one got the connections right, especially when they need to run crossover, like UART's TX and RX.
 
 This matter becomes even more problematic in the case of CC430 MCUs, because they can dynamically reassign pin special functions. Moreover, doing this incorrectly blocks the ability of further port-mapping changes until the device is restarted. Thus, one faulty piece of code can break completely correct code. A source of such an error is difficult to track.
 
@@ -277,7 +277,7 @@ The solution described above is important for Chronos. All external connections,
 % through mspdebug bi-wire ?
 % through radio packets ?
 
-The serial port connection is the most reliable way for the MCU to communicate with a PC. It allows for relying packets between the tools on the PC and the radio mesh network. It also allows for receiving network activity logs to analyze the network operation. During the code development cycle, in turn, it enables printing messages from the MCU on a PC console, greatly reducing the debugging effort.
+The serial port connection is the most reliable way for the MCU to communicate with a PC. It allows for relying packets between the tools on the PC and the radio mesh network. It also allows for receiving network activity logs to analyze the network operation. During the code development cycle, in turn, it enables printing messages from the MCU to a PC console, greatly reducing the debugging effort.
 
 For Chronos, the best way to connect to a PC is to use the UART protocol in conjunction with the USB debug dongle. This protocol uses only two wires and is natively supported by the MCU hardware. There is, however a small hardware modification that needs to be done to the watch to make UART operational. The modification is described in detail in Appendix \ref{appendix:uart_pins}.
 
@@ -308,7 +308,7 @@ After some investigation, we found the \emph{tos/chips/msp430/x2xxx/usci} librar
   \label{fig:platform_serial_c}
 \end{figure}
 
-Figure~\ref{fig:platform_serial_c} presents the \emph{PlatformSerialC} component, that was the result of our work. The \emph{Msp430Uart0C} is the root component of the USCI library. It uses the \emph{Msp430UartConfigure} interface to retrieve the UART configuration parameters and provides the \emph{Resource} interface, which is a part of the integrated concurrency and power management control mechanism used to gain access to the serial line. \emph{ChronosSerialP} only stores the aforementioned configuration parameters. The rest is done behind the scenes, the net result is that the \emph{SerialActiveMessageC} component is available. The \emph{tos/lib/printf} library uses it directly and thus, we also gained the ability to print messages on, PC console. Details on how to use this library are described in Appendix \ref{ch:prog_env}.
+Figure~\ref{fig:platform_serial_c} presents the \emph{PlatformSerialC} component, that was the result of our work. The \emph{Msp430Uart0C} is the root component of the USCI library. It uses the \emph{Msp430UartConfigure} interface to retrieve the UART configuration parameters and provides the \emph{Resource} interface, which is a part of the integrated concurrency and power management control mechanism used to gain access to the serial line. \emph{ChronosSerialP} only stores the aforementioned configuration parameters. The rest is done behind the scenes, the net result is that the \emph{SerialActiveMessageC} component is available. The \emph{tos/lib/printf} library uses it directly and thus, we also gained the ability to print messages on a PC console. Details on how to use this library are described in Appendix \ref{ch:prog_env}.
 
 \subsection{The accelerometer}
 \label{ch:accelerometer}
@@ -365,9 +365,82 @@ The whole HAA structure of the driver is presented in Figure~\ref{fig:accel_haa_
   \label{fig:accel_haa_structure}
 \end{figure}
 
+\subsection{The temperature and pressure sensor}
+Chronos also has the SCP1000-D11 chip, which measures the absolute pressure and temperature. The chip provides four reading modes: high resolution, high speed, ultra-low power and low power with external trigger.
+The first three of them continuously provide new data, while the last one requires triggering to refresh data.
+In every mode, the temperature and pressure is available for each measurement.
+The chip communicates with the MCU using $I^2C$ or SPI interface.
+On Chronos it is connected with the $I^2C$ interface.
+
+Although, we found a driver for the chip \cite{SCP1000SpiDriver} created by R. Steve McKown, it supports only the SPI interface and is not structured into HPL, HAL, HIL layers.
+Even worse, it provides only low power mode with external trigger.
+Because of these limitations, we wrote our own driver.
+
+The top level HAA design, which is similar to the accelerometer's design, is shown in Figure \ref{fig:scp1000_haa}.
+It connects hardware pins to the $I^2C$ bus driver (\emph{Msp430I2CC}).
+Using that interface, the \emph{HplScp1000TwiC} component implements the communication logic between the MCU and chip.
+The device specific API is provided by \emph{HalScp1000ContinuousC} and \emph{HalScp1000TriggeredC}.
+To avoid concurrency issues at the HAL, the resource \emph{HalScp1000TwiOwnershipC} is used as mutual exclusion lock.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{diagrams/scp1000_haa.eps}
+  \caption{HAA diagram of SCP1000 driver}
+  \label{fig:scp1000_haa}
+\end{figure}
+
+Handling the low power mode with an external trigger is fairly standard.
+It is done by an asynchronous read with a start and stop. 
+The remaining modes fit perfectly to the \emph{Notify} interface.
+However, the only difference between them is the frequency of notifications and the measurement accuracy.
+Therefore, instead of creating three different components with different constants, it was better to create one and enable mode selection using commands (see Figure \ref{fig:scp1000_continous}).
+That way it is possible to pragmatically select the most suitable mode (e.g. one with the best resolution).
+
+In our implementation, continuous mode management is accomplished by the  \emph{Scp1000Mode} interface.
+It allows for selecting mode by id from $0$ to $MAX - 1$, where MAX could be obtained by calling the \emph{getMaxModelId()} command.
+Moreover, it is possible to check the mode's parameters using the \emph{describeMode()} command, which returns the following structure:
+\begin{verbatim}
+typedef struct {
+  int time_between_notify_ms;
+  long resolution_press; // minimal difference registered by device
+  long resolution_temp; // as above
+} scp_mode_desc_t;
+\end{verbatim}
+
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.6\textwidth]{diagrams/scp1000_continous.eps}
+  \caption{HAL continuous interface of SCP1000 driver}
+  \label{fig:scp1000_continous}
+\end{figure}
+
+To provide the most accurate data, the HAL components return raw sensor measurements.
+In most scenarios, it is easier to use HIL layer, which translate data to SI units: Pa for pressure and $\frac{1}{100}$ C for temperature.
+In addition to that, at the HIL level, there is a separate component for reading temperature and pressure (see Figure \ref{fig:scp1000_hpi}).
+This is convenient and abstracts hardware dependence between those sensors.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.4\textwidth]{diagrams/scp1000_hpi.eps}
+  \caption{HIL interfaces of SCP1000 driver}
+  \label{fig:scp1000_hpi}
+\end{figure}
+
+However, we could not completely hide the fact that we use the same bus for temperature and pressure sensor.
+In particular we could not use them simultaneously with different modes.
+To mitigate that issue, the driver uses \emph{Scp1000ModeLock} which allows for enabling a sensor only if no one uses it or the other sensor is enabled with the same mode.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.4\textwidth]{diagrams/scp1000_lock.eps}
+  \caption{Mode lock}
+  \label{fig:scp1000_lock}
+\end{figure}
+
 \subsection{Persistent storage}
 
-Many applications, need non-volatile memory to perform their functions. Therefore, we decided that the Chronos platform must provide some form of persistent storage. We tried to add support for it, however, this proved more difficult than anticipated and we haven't succeed yet. This section describes how persistence is supported in TinyOS. We also draw lessons from our flawed design and lay plans for future work.
+Many applications, need non-volatile memory to perform their functions. Therefore, we decided that the Chronos platform must provide some form of persistent storage. We tried to add support for it, however, this proved more difficult than anticipated and we haven't succeeded yet. This section describes how persistence is supported in TinyOS. We also draw lessons from our flawed design and lay plans for future work.
 
 There is a well defined set of HIL interfaces meant to support non-volatile memory in TinyOS. The authors of \cite{TEP103} selected the three most common use cases, and, for each, designed a custom abstraction. The first is represented by the \emph{ConfigStorageC} component, and is used to store application's configuration, which usually is a set of small numeric values. The second, allows for the storage of large binary objects, through the \emph{BlockStorageC} configuration, which provides interfaces for efficient block reads and writes. The third is used to store logs. The \emph{LogStorageC} component ensures consistency of the records and supports circular logging.
 
@@ -397,83 +470,6 @@ It consists of two bulky components, \emph{HilCC430LogReadWriteP} and \emph{HalC
 Multiple times we had to adjust the interface connecting them to implement their logic. The lacking lower layer overly complicates the circular storage component. Moreover, note that there is no trace of any concurrency management, which is required by the specification. At that time, we understood little of how TinyOS handles these issues. In practice the implementation worked poorly and eventually we decided to abandon it.
 
 To avoid the above mistakes, we plan to employ test-driven development during our second approach. Very recently this was made possible by \cite{TOSMock}. This technique tends to produce smaller, more loosely coupled components with better interfaces, and helps find programming errors early in the development cycle. These are the virtues that the current implementation lacks.
-
-\subsection{The temperature and pressure sensor}
-Chronos has SCP1000-D11 chip, which measure absolute pressure and temperature.
-
-The chip provides four reading modes: high resolution, high speed, ultra low power and low power with external trigger.
-First three of them continuously provide new data, while the last one require trigger to refresh data.
-In every mode the temperature and pressure is available for each measurement.
-The chip communicate with MCU using TWI or SPI interface.
-On Chronos it is connected with TWI interface.
-The TWI is just another name for $I^2C$\footnote{TWI is used instead of $I^2C$ to avoid trademark issues}.
-
-Although, we found \cite{SCP1000SpiDriver} created by R. Steve McKown, its supports only SPI interface and is not structured into HPL, HAL, HPI layers.
-Even worse, it only provides low power mode with external trigger.
-Because of this limitations, we wrote our own driver.
-
-The top level HAA design is similar to accelerometer driver (see Fig \ref{fig:scp1000_haa}).
-It connects hardware pins to $I^2C$ bus driver (\emph{Msp430I2CC}).
-Using that interface, \emph{HplScp1000TwiC} component implements the communication logic between MCU and chip.
-The device specific API is provided by \emph{HalScp1000ContinuousC} and \emph{HalScp1000TriggeredC}.
-To avoid concurrency issues on HAL layer, the resource \emph{HalScp1000TwiOwnershipC} is used as mutual exclusion lock.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.8\textwidth]{diagrams/scp1000_haa.eps}
-  \caption{HAA diagram of SCP1000 driver}
-  \label{fig:scp1000_haa}
-\end{figure}
-
-Handling low power mode with external trigger is fairly standard.
-It is done by an asynchronous read with start and stop. 
-Rest of modes fit perfectly to \emph{Notify} interface.
-However, The only difference between them is the frequency of notifications and the measurement accuracy.
-So instead of creating three different components with different constants, it would be better to create one and allow mode selection using commands (see Fig \ref{fig:scp1000_continous}).
-That way it is possible to pragmatically select the most suitable mode (e.g. one with best resolution).
-
-In our implementation, continuous mode management is accomplished by interface \emph{Scp1000Mode}.
-It allows to select mode by id from $0$ to $MAX - 1$, where MAX could be obtained by calling command \verb|getMaxModelId()|.
-Moreover, it is possible to check mode parameters using command \verb|describeMode()|, which return following struct:
-\begin{verbatim}
-typedef struct {
-  int time_between_notify_ms;
-  long resolution_press; // minimal difference registered by device
-  long resolution_temp; // as above
-} scp_mode_desc_t;
-\end{verbatim}
-
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.6\textwidth]{diagrams/scp1000_continous.eps}
-  \caption{HAL continuous interface of SCP1000 driver}
-  \label{fig:scp1000_continous}
-\end{figure}
-
-To provide the most accurate data, the HAL components return raw sensor measurements.
-In most scenarios, it is easier to use HPI layer, which translate data to SI units: Pa for pressure and $\frac{1}{100}$ C for temperature.
-In addition to that, on HPI level there is separate component for reading temperature and pressure (see Fig \ref{fig:scp1000_hpi}).
-This is convenient and abstract hardware dependency between those sensors.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.4\textwidth]{diagrams/scp1000_hpi.eps}
-  \caption{HPI interfaces of SCP1000 driver}
-  \label{fig:scp1000_hpi}
-\end{figure}
-
-However, we could not completely hide the fact that we use the same bus for temperature and pressure sensor.
-In particular we could not use them simultaneously with different mode.
-To mitigate that issue, the driver uses \emph{Scp1000ModeLock} which allow to enable sensor, only if no one use it or the other sensor is enabled with the same mode.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.4\textwidth]{diagrams/scp1000_lock.eps}
-  \caption{Mode lock}
-  \label{fig:scp1000_lock}
-\end{figure}
-
 
 
 
