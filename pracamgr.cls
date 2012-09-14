@@ -83,9 +83,9 @@
    \textbf{\Large Authors' statement}
     \vspace{10mm}
 
-    Hereby I declare that the present thesis was prepared by me and none of its contents was obtained by means that are against the law.
+    Hereby we declare that the present thesis was prepared by us and none of its contents was obtained by means that are against the law.
     The thesis has never before been a subject of any procedure of obtaining an academic degree.
-    Moreover, I declare that the present version of the thesis is identical to the attached electronic version.
+    Moreover, we declare that the present version of the thesis is identical to the attached electronic version.
    \vspace{15mm}
    
    Date \hfill Authors' signature
