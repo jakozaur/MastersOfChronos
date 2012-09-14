@@ -10,7 +10,7 @@ It was accomplished by porting TinyOS to eZ430 Chronos, which is, to the best of
 
 Our work started from scratch, without essential programming tools.
 Reusing existing software, we assembled a convenient development environment, which consist of a compiler, debugger, chip programmer, printf library, build system, IDE and virtual machine.
-However, The core part of our work was the implementation of TinyOS device drivers for eZ430.
+However, the core part of our work was the implementation of TinyOS device drivers for eZ430.
 We also performed a preliminary evaluation in order to test the radio power consumption, range and throughput.
 Last, but not least, we provided a sample application, Zordon, which demonstrates eZ430 hardware features.
 
@@ -25,23 +25,23 @@ We believe it is a great leap forward in development of applications for mobile 
 % complete programming environment
 
 \section{Future work}
-There are a lot of research projects which could take advantage of our TinyOS port to eZ430.
+There are a lot of research projects that could take advantage of our TinyOS port to eZ430.
 Especially two of them seem to be ideal as a next step.
 
-\subsection{Evaluations of existing routing protocols}
-There are many published articles about sensor network protocols which were implemented in TinyOS.
-However, there were few mobile hardware nodes to evaluate them in non-static environment.
+\subsection{Evaluation of existing routing protocols}
+There are many published articles about sensor network protocols that were implemented in TinyOS.
+However, there were few mobile hardware nodes to evaluate them in a non-static environment.
 Using our TinyOS port to eZ430 it is much easier to perform that kind of experiments and provide valuable results for the research community.
 
 \subsection{Better low-power listening}
 Low power consumption is one of the key requirements for sensor nodes.
 Radio communication usually uses most energy, so it is the best candidate for further optimizations.
-The savings are achieved by turning off the radio module whenever it is possible.
+The savings are achieved by turning off the radio module whenever possible.
 However, deciding when radio listening is needed is a hard problem.
 Our eZ430 Chronos port has an implementation of low-power listening, but it is based on a simple algorithm.
 
 Various scientific papers presents more sophisticated solutions (e.g. \cite{DCCLPL}).
-Although implementation and evaluation of those algorithms would require a significant amount of work, it is likely that these solutions would be substantially better than current low-power listening.
+Although implementation and evaluation of those algorithms would require a significant amount of work, it is likely that these solutions would be substantially better than the current low-power listening.
 
 
 % we need a better MAC layer
