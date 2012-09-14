@@ -452,15 +452,15 @@ typedef struct {
 \end{figure}
 
 To provide the most accurate data, the HAL components return raw sensor measurements.
-In most scenarios, it is easier to use HPI layer, which translate data to SI units: Pa for pressure and $\frac{1}{100}$ C for temperature.
-In addition to that, on HPI level there is separate component for reading temperature and pressure (see Fig \ref{fig:scp1000_hpi}).
+In most scenarios, it is easier to use HIL layer, which translate data to SI units: Pa for pressure and $\frac{1}{100}$ C for temperature.
+In addition to that, on HIL level there is separate component for reading temperature and pressure (see Fig \ref{fig:scp1000_hil}).
 This is convenient and abstract hardware dependency between those sensors.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.4\textwidth]{diagrams/scp1000_hpi.eps}
-  \caption{HPI interfaces of SCP1000 driver}
-  \label{fig:scp1000_hpi}
+  \includegraphics[width=0.4\textwidth]{diagrams/scp1000_hil.eps}
+  \caption{HIL interfaces of SCP1000 driver}
+  \label{fig:scp1000_hil}
 \end{figure}
 
 However, we could not completely hide the fact that we use the same bus for temperature and pressure sensor.
