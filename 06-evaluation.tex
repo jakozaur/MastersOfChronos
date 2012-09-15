@@ -49,7 +49,7 @@ It supports retrieving heart beats from a wireless belt.
 In addition to that, it uses the on-board eZ430 accelerometer to estimate a speed and distance of the person who wears it.
 Periodically, it transfers all those metrics through the radio to a PC.
 The application seems to be a proof of concept of a watch for runners, similar to the Adidas miCoach. 
-It uses very little power, just a quarter of that required to use continously the sole accelerometer.
+It uses very little power, just a quarter of that required to use continuously the sole accelerometer.
 However, the application is impractical, because it requires the user to be within the radio range of the PC.
 
 SimpliciTI\footnote{SimpliciTi is a trademark of Texas Instrument} is a versatile tool.
@@ -67,11 +67,11 @@ Such operations consume orders of magnitude more energy than those listed in Tab
 Therefore, having detailed measurements is required to do accurate battery life estimations.
 
 \subsection{Low-power listening}
-Overall, listening with the radio is usually the most power-expensive operation, largerly because the majority of applications spend much more time listening than sending data.
+Overall, listening with the radio is usually the most power-expensive operation, largely because the majority of applications spend much more time listening than sending data.
 In order to reduce the listening time, TinyOS supports low-power listening (LPL).
 However, sending data to a node using LPL uses more energy.
 
-In LPL, a listener node, periodically (e.g. every 200 ms) performs clear channel asseasment (CCA).
+In LPL, a listener node, periodically (e.g. every 200 ms) performs clear channel assessment (CCA).
 If the check detects communication regular radio listening is started until the end of communication.
 
 In contrast, the sender has to precede its packet with a preamble of a length at least equal to the interval between the listener's CCA checks.
