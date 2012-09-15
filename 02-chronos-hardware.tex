@@ -68,14 +68,14 @@ and a {\bf temperature and pressure sensor}. The accelerometer can
 measure the watch's movement, find the Earth's gravity vector,
 notice a sudden motion, and detect if the watch is falling. The
 thermometer simply measures the current air temperature with a
-$1^{\circ}$C accuracy. The pressure, in turn, is precise enough to
+$1^{\circ}$C accuracy. The pressure sensor, in turn, is precise enough to
 measure even a 0.3 meter change in altitude, which is sufficient to
 detect on which floor of a building the watch is. For this reason, the
 pressure sensor is often called an {\bf altimeter}.
 
 Finally, the watch casing is water resistant up to 30 meters and hosts
-typical CR2032 coin-cell batteries, which have a maximal capacity of
-225 mAh and provide a nominal voltage of 3.0 V.
+a typical CR2032 coin-cell battery, which has a maximal capacity of
+225 mAh and provides a nominal voltage of 3.0 V.
 
 \section{Mobile Compute Unit}
 
@@ -84,8 +84,9 @@ low power usage. The one used in Chronos has the MSP430 (Mixed Signal
 microProcessor) architecture, which is particularly suited for
 low-power applications. It belongs to the TI family of products
 codenamed CC430, which features 16-bit, RISC-based (Reduced Instruction
-Set Computing) CPUs \cite{CC430ds}. The exact chip soldered in the
-watch is CC430F6137 \cite{CC430F6137ds}.
+Set Computing) CPUs. The exact chip soldered in the watch is CC430F6137. The
+datasheets \cite{CC430ds} and \cite{CC430F6137ds} are the main source of
+information about this MCU.
 
 Applications that may be run on the watch are limited by the MCU's
 resources. One of the most constrained ones is memory. There are two types
@@ -149,7 +150,7 @@ with its main function: a low-power watch.
 \section{Additional hardware functions}
 \label{ch:hardware_functions}
 
-There are certain functions that, though possible to be implemented in
+There are certain functions that, though possible to implement in
 software, are also implementable in hardware. Choosing the
 hardware approach saves both execution time and energy. Moreover, some
 features can be implemented only with hardware support. Let us discuss
@@ -176,12 +177,11 @@ some crude battery life estimates:
 \subsection{Timers}
 If a battery is to last years, an MCU must spend most of its time in
 the lowest power modes.
-
 For this reason, another vital subsystem is {\bf Timer\_A}, which
-allows for setting an alarm that will fire (interrupt) after a specific
-period of time (on the order of milliseconds) and execute a certain
-piece of code (an interrupt handler). It would be impossible to use low
-power modes without such functionality.
+allows for setting an alarm that will fire (interrupt) after a specific period
+of time (on the order of milliseconds), bring the MCU to Active mode, and
+execute a certain piece of code (an interrupt handler). It would be impossible
+to use low power modes without such functionality.
 
 Since Chronos is primarily a watch, {\bf RTC\_A (Real Time Clock)} is
 an another important component. This module provides wall clock and
@@ -195,12 +195,12 @@ The MCU has 64 pins, most of which are {\bf IO pins}. They can be
 configured to act as an input, output or special function.  In input
 mode, they inform of the signal that's connected to them (high or
 low). Similarly, in output mode, they can generate a high or low
-signal \footnote{If one were tempted to connect input and output pins
+signal\footnote{If one were tempted to connect input and output pins
 to experiment with signal passing, if careless, he could destroy the
 MCU.  An output pin produces a maximum of several mA of current. An
 input pin would then accept all this current. In effect, such a
 connection without a resistor could result in a short circuit {\bf
-through the chip}. Using an appropriate resistor can alleviate the
+through the chip}. Using a strong resistor, like 10k$\Omega$, can alleviate the
 problem.}. Special function mode connects the pin to an internal
 hardware component, for example, the LCD hardware driver of CC430.  It is also possible
 to be notified (via an interrupt) if the state of an input pin changes.
@@ -246,7 +246,7 @@ types of operations, like shifts, thus using this hardware leads to
 considerable speed improvements, especially for large data blocks.
 
 The second one is the {\bf AES128 Accelerator}. Advanced Encryption
-Standard 128 is a secure symmetric cipher. In CC430, complicated
+Standard 128 is a secure symmetric cipher. In CC430, its complicated
 encryption and decryption algorithms were implemented in hardware.
 
 \subsection{Analog interfaces}
@@ -264,7 +264,7 @@ them can be a reference voltage of a known value. Comparators are used
 to interface analog signals to digital circuitry.
 
 Finally {\bf ADC12\_A} is an analog to digital converter
-module. Conceptually it's a generalized comparator \footnote{In
+module. Conceptually it's a generalized comparator\footnote{In
 fact, ADC is implemented using several comparators, with varying
 reference voltages.}, because it returns multiple bits of information
 instead of one.  An ADC circuit can very quickly measure the value of
@@ -288,15 +288,14 @@ software updates through the radio or UART.
 
 In the past, radio transceivers typically comprised separate chips. In
 CC430, however, such a chip, called CC1101, has been integrated into
-the MCU.  It operates on the unlicensed 868 MHz band
-\footnote{However, the European Telecommunications Standards Institute
-limits the duty cycle and maximal power output on the 868 MHz band.}.
-The module is capable of sending and receiving short packets of
-data\footnote{Typically up to 63 bytes long, but through software, it
-is possible to support longer packets. Theoretically even $2^{16}$
-bytes long.}.  The radio module is usually the most power consuming
-component and CC1101 is not an exception. Therefore, it is important
-to keep it off as much as possible.
+the MCU.  It operates on the unlicensed 868 MHz band\footnote{However, the
+European Telecommunications Standards Institute limits the duty cycle and
+maximal power output on the 868 MHz band.}.  The module is capable of sending
+and receiving short packets of data\footnote{Typically up to 63 bytes long, but
+through software, it is possible to support longer packets. Theoretically even
+$2^{16}$ bytes long.}.  The radio module is usually the most power consuming
+component and CC1101 is not an exception. Therefore, it is important to keep it
+off as much as possible.
 
 \section{Other devices included in the kit}
 
@@ -304,7 +303,7 @@ For the developer, an important component is the {\bf USB debug
 interface}. It allows for:
 \begin{itemize}
   \item Programing the watch with a binary image (a .hex or .exe file).
-  \item Receiving text (printf messages) through UART \footnote{A small
+  \item Receiving text (printf messages) through UART\footnote{A small
     hardware modification is necessary for that. It's described in
     Appendix \ref{appendix:uart_pins}.}.
   \item Connecting to the watch with a debugger. In particular, the
@@ -399,8 +398,8 @@ Libraries could alleviate this problem, but without a solid software
 platform, it's difficult to create them. In effect, the developer is forced
 to write both an application and a skeleton operating system.
 
-Secondly, the C language, which, apart from the assembly, is the only
-language supported by MSP430 compilers,  itself makes it difficult to
+Secondly, the C language, which (apart from the assembly) is the only
+language supported by MSP430 compilers, makes it difficult to
 manage larger projects. Basically, all names are in a global name
 space, there are no boundaries between components and it encourages
 poor programing practises, like register bit manipulation without any
@@ -418,6 +417,14 @@ Our thesis aims to alleviate the above shortcomings. To this end, we
 employ the NesC programming language and the TinyOS operating system.
 
 
+% To enable wrapped line navigation:
+% map j gj
+% map k gk
+
 % Vim settings:
-% vim: set textwidth=70:
+% vim: set nonumber:
+% vim: set spell:
+% vim: set linebreak:
+% vim: set wrap:
+% vim: set textwidth=0:
 % vim: set fo+=t:

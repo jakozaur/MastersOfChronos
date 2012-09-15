@@ -17,7 +17,7 @@ Recall traditional C code. In essence, it consists of function definitions and v
 
 \subsection{Modules and interfaces}
 
-In \cite{NesC}, function grouping is solved more systematically. Each code file must {\bf provide} interfaces, and only through these interface, its functions can be called. An {\bf interface} is nothing more but a set of function names that are implemented in the file that provides it. In the NesC terminology, we call such an interface-enriched file a {\bf module}.
+In \cite{NesC}, function grouping is solved more systematically. Each code file must {\bf provide} interfaces, and only through these interfaces, its functions can be called. An {\bf interface} is nothing more but a set of function names that are implemented in the file that provides it. In the NesC terminology, we call such an interface-enriched file a {\bf module}.
 
 Since interfaces can expose functions to external modules then, by symmetry, there must also be a way to call functions exposed by other external modules. To accomplish this, a NesC module is allowed not only to provide interfaces, but can also {\bf use} them. If the module declares using an interface, then it's free to call any function this interface contains. At this point, however, it isn't decided where the used interfaces are implemented. The module merely states that it will need them.
 
@@ -76,7 +76,7 @@ In NesC, this would correspond to providing several \emph{Clock} interfaces, whi
   \label{fig:parametrized_interface}
 \end{figure}
 
-Instead NesC offers {\bf parametrized interfaces}. They differ from regular ones by an additional parameter that their implementing functions receive. This parameter caries the unique identification number of the interface that was used to make the call. It can be treated as a client id.   Notice that this is by far the most convenient way to implement our alarm replicator, because the additional argument, can be used to index and update an array of wakeup times, and then to easily find the earliest one. Sample vitalization of the \emph{Clock} resource is presented in Figure~\ref{fig:parametrized_interface}
+Instead NesC offers {\bf parametrized interfaces}. They differ from regular ones by an additional parameter that their implementing functions receive. This parameter caries the unique identification number of the interface that was used to make the call. It can be treated as a client id.   Notice that this is by far the most convenient way to implement our alarm replicator, because the additional argument, can be used to index and update an array of wakeup times, and then the earliest one can easily be found. Sample virtualization of the \emph{Clock} resource is presented in Figure~\ref{fig:parametrized_interface}
 
 \subsection{Generic components}
 
@@ -146,7 +146,7 @@ Interfaces used by Blink are implemented by three distinct components.  The \emp
 
 This pattern is quite common. Often, platform independent logic is implemented in the library. To support such a library, the platform must implement certain lower-level components.  If it doesn't, an attempt to use the library causes a compilation error.
 
-The timer library requires the \emph{HilTimerMilliC} component, but this is explained in the next section. \emph{MainC} is related to the system initialization sequence. Therefore, a task scheduler must be introduced before we look into it.
+The timer library requires the \emph{HilTimerMilliC} component, but this is explained in the next section. \emph{MainC} is related to the system initialization sequence. Therefore, the task scheduler must be introduced before we look into it.
 
 \subsection{Timer subsystem}
 \label{ch:timer_subsystem}
