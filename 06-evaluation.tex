@@ -46,7 +46,7 @@ Both of the applications are controlled from a PC using the Chronos Control Cent
 
 BlueRobin\footnote{BlueRobin is a trademark of BM innovations GmbH} collects data from external ultra-low power sensors.
 It supports retrieving heart beats from a wireless belt.
-In addition to that, it uses the on-board eZ430 accelerometer to estimate a speed and distance of the person who wears it.
+In addition to that, it uses the on-board eZ430 accelerometer to estimate the speed and distance of the person who wears it.
 Periodically, it transfers all those metrics through the radio to a PC.
 The application seems to be a proof of concept of a watch for runners, similar to the Adidas miCoach. 
 It uses very little power, just a quarter of that required to use continuously the sole accelerometer.
@@ -76,7 +76,7 @@ If the check detects communication regular radio listening is started until the 
 
 In contrast, the sender has to precede its packet with a preamble of a length at least equal to the interval between the listener's CCA checks.
 A preamble is pre-defined by the protocol and consist of repeated signal pattern.
-In this way, the listener node will always perform a periodic check during the sender's preamble and can easily identify the ongoing transmission.
+In this way, the listener node can always perform a periodic check during the sender's preamble and can easily identify the ongoing transmission.
 
 Sample LPL communication is showed in Figure \ref{fig:low_power_listening}.
 
@@ -148,8 +148,8 @@ A similar issue appeared in low-power listening, where we measured the top power
     & unintentionally it is also maxing out CPU \\ \hline
     Radio listening & listen on radio (no difference whether it gets packets) \\ \hline
     Low-power listening & wakes every X $ ms $ to check if someone transmits on radio \\ \hline
-    Sending at maximal power & sends packets with strongest signal - at +12 $ dB $ \\ \hline
-    Sending at minimal power & sends packets with weakest signal - at -30 $ dB $ \\ \hline
+    Sending at maximal power & sends packets with strongest signal - at +12 $ dBm $ \\ \hline
+    Sending at minimal power & sends packets with weakest signal - at -30 $ dBm $ \\ \hline
     \end{tabular}
   \caption{Special purpose application used to measure power usage}
   \label{tab:power-apps}
@@ -299,7 +299,7 @@ Although, the radio strength -30 dBm may seem impractical, it is a good method t
 Overall, the radio chip in eZ430 is reliable and provides a reasonable radio range.
 
 
-\subsubsection{+12 dB}
+\subsubsection{+12 dBm}
 
 \begin{figure}[H]
   \centering
@@ -307,14 +307,14 @@ Overall, the radio chip in eZ430 is reliable and provides a reasonable radio ran
 \end{figure}
 
 
-\subsubsection{0 dB}
+\subsubsection{0 dBm}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\textwidth]{img/tests/range/db_00.png}
 \end{figure}
 
-\subsubsection{-30 dB}
+\subsubsection{-30 dBm}
 
 \begin{figure}[H]
   \centering
@@ -335,7 +335,7 @@ It may be also utilized to estimate the distance between a sender and a listener
 However, a single measurement may be misleading, the median from series of transmissions is a good indicator.
 
 
-\subsubsection{+12 dB}
+\subsubsection{+12 dBm}
 
 \begin{figure}[H]
   \centering
@@ -343,14 +343,14 @@ However, a single measurement may be misleading, the median from series of trans
 \end{figure}
 
 
-\subsubsection{0 dB}
+\subsubsection{0 dBm}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\textwidth]{img/tests/rssi/db_00.png}
 \end{figure}
 
-\subsubsection{-30 dB}
+\subsubsection{-30 dBm}
 
 \begin{figure}[H]
   \centering
@@ -365,7 +365,7 @@ Even a single LQI data point gives a good prediction of packet loss.
 However, it is a bad metric to estimate the distance and RSSI should be used for that purpose instead.
 
 
-\subsubsection{+12 dB}
+\subsubsection{+12 dBm}
 
 \begin{figure}[H]
   \centering
@@ -373,14 +373,14 @@ However, it is a bad metric to estimate the distance and RSSI should be used for
 \end{figure}
 
 
-\subsubsection{0 dB}
+\subsubsection{0 dBm}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\textwidth]{img/tests/lqi/db_00.png}
 \end{figure}
 
-\subsubsection{-30 dB}
+\subsubsection{-30 dBm}
 
 \begin{figure}[H]
   \centering
