@@ -44,46 +44,41 @@ Both of the applications are controlled from a PC using the Chronos Control Cent
 \end{figure}
 
 
-BlueRobin\footnote{BlueRobin is a trademark of BM innovations GmbH} collects data from other ultra-low power sensors.
-It supports retrieving heart beats from wireless belt.
-In addition to that, it uses on-board eZ430 accelerometer to estimate speed and distance of person whose wear it.
-Periodically, it transfers all those metrics through radio to a PC.
-The application seems to be a proof of concept of watch for runners, similar to Adidas miCoach. 
-It uses very little power, just a quarter of those required by using continously accelerometer alone.
-However, it is impractical, because it requires user to be within radio range of a PC.
+BlueRobin\footnote{BlueRobin is a trademark of BM innovations GmbH} collects data from external ultra-low power sensors.
+It supports retrieving heart beats from a wireless belt.
+In addition to that, it uses the on-board eZ430 accelerometer to estimate a speed and distance of the person who wears it.
+Periodically, it transfers all those metrics through the radio to a PC.
+The application seems to be a proof of concept of a watch for runners, similar to the Adidas miCoach. 
+It uses very little power, just a quarter of that required to use continously the sole accelerometer.
+However, the application is impractical, because it requires the user to be within the radio range of the PC.
 
 SimpliciTI\footnote{SimpliciTi is a trademark of Texas Instrument} is a versatile tool.
 It consists of several modes.
-PowerPoint Control mode (PPT) allows to map eZ430 buttons to PC keys.
+PowerPoint Control mode (PPT) allows for mapping eZ430 buttons to PC keys.
 That way a user can control a presentation, a music player, etc.
 Acceleration data mode (ACC) enables transmitting eZ430 acceleration data to a PC through the radio.
-It is also possible to control a PC mouse using the accelerometer data.
+It is also possible to control a PC mouse cursor using the accelerometer data.
 Synchronization mode (SYNC) allows for calibration of the device sensors and setting the time on eZ430 from a PC.
 In addition to that, SimpliciTI provides standard watch functionality, such as clock, timer, alarm, etc. 
 
-However, Important details, such as duty cycle and radio transfer rate are not specified for both applications.
+However, important details, such as the duty cycle and radio transfer rate, are not specified for both applications.
 Moreover, there are no data about the most power intensive operations: receiving and sending radio packets.
-Such operations consume orders of magnitude more energy, than those listed in Table \ref{tab:power-specification}.
+Such operations consume orders of magnitude more energy than those listed in Table \ref{tab:power-specification}.
 Therefore, having detailed measurements is required to do accurate battery life estimations.
 
 \subsection{Low-power listening}
-Overall, listening is usually the most power-expensive operation, largerly, because the majority of applications spend much more time listening than sending the data.
+Overall, listening with the radio is usually the most power-expensive operation, largerly because the majority of applications spend much more time listening than sending data.
 In order to reduce the listening time, TinyOS supports low-power listening (LPL).
-However, sending data to node using LPL uses more energy.
+However, sending data to a node using LPL uses more energy.
 
-In LPL, a listener node, periodically (e.g. every 200 ms) performs clear channel assasment (CCA).
-If the check detects communication, it veryfies whether it is a sender's preamble.
-If it is so, it starts regular radio listening, until the end of communication.
+In LPL, a listener node, periodically (e.g. every 200 ms) performs clear channel asseasment (CCA).
+If the check detects communication regular radio listening is started until the end of communication.
 
-On the other hand, sender has to prelude its packet with a preamble of length at least equal to interval between listener's CCA checks.
-A preamble is pre-defined by protocol and consist of repeated signal pattern.
-That way, the listener node will always perform periodical check during sender's preamble and could easily identify it.
-Having that, after the preamble, both nodes have turned on radio and the sender could transmit packet to the listener.
+In contrast, the sender has to precede its packet with a preamble of a length at least equal to the interval between the listener's CCA checks.
+A preamble is pre-defined by the protocol and consist of repeated signal pattern.
+In this way, the listener node will always perform a periodic check during the sender's preamble and can easily identify the ongoing transmission.
 
-The example communication is showed in Figure \ref{fig:low_power_listening}.
-In addition to that, nodes could continue communication, after the first sender's packet.
-However, if there are no transmissions, both nodes return to the original state.
-This allows to minimize overhead caused by preamble.
+Sample LPL communication is showed in Figure \ref{fig:low_power_listening}.
 
 \begin{figure}[h]
   \centering
@@ -112,11 +107,11 @@ The law states that the potential difference on a resistor (U) is equal to the c
 In our setup, we knew the resistance of the resistor in Ohm and could measure the voltage drop using an oscilloscope (Figure \ref{fig:power}).
 Therefore, we are able to calculate the electric current.
 However, Ohm's law describes an ideal resistor.
-In contrast, our testing setup does not fulfil all of the assumptions.
+In contrast, our testing setup did not fulfil all of the assumptions.
 In particular, we a got a 20 $mV$ baseline difference in potential, which is subtracted from the final measurements.
 
 The oscilloscope used was Owon PDS 5022S (see Figure \ref{fig:owon}).
-It is capable of plotting voltage difference with a $ 0.1 ms$ accuracy.
+It is capable of plotting a voltage difference with a $ 0.1 ms$ accuracy.
 
 \begin{figure}[h]
   \centering
@@ -128,14 +123,14 @@ It is capable of plotting voltage difference with a $ 0.1 ms$ accuracy.
 Instead of batteries, a 3 V direct current (DC) power adapter was used as the power source in order to provide a consistent voltage.
 
 Having that setup we ran series of tests.
-Each one begins with programming an eZ430 with a special purpose application, described in Table \ref{tab:power-apps}.
+Each one began with programming an eZ430 with a special purpose application, described in Table \ref{tab:power-apps}.
 Every application ran for a few minutes, pausing the plot several times and recording the voltage difference.
 A video was recorded for verification purposes.
-As a final measure, we take the average of observations with a 1 $ mV $ accuracy.
+As a final measure, we took the average of observations with a 1 $ mV $ accuracy.
 
-For most of the tests the, the voltage drop was almost constant.
-However, their are certain operations which could not be performed on eZ430 continuously.
-In particular, sending series of radio packets is not possible without switching the radio to receiving mode between each transmission.
+For most of the tests, the voltage drop was almost constant.
+However, there are certain operations which could not be performed on eZ430 continuously.
+In particular, sending a series of radio packets is not possible without switching the radio to receiving mode between each transmission.
 Therefore, the sending power consumption was measured only when actual packets were sent.
 
 A similar issue appeared in low-power listening, where we measured the top power consumption of a receive check.
@@ -168,7 +163,7 @@ In contrast, the onboard sensors consume too little energy to be above the noise
 However, our results are complementary to the official specification.
 Combing both data sources it is possible to estimate the energy budget of a real-world application.
 
-For example, we might assume that our application will listen for $2 \%$i of the time, send for $ 0.1 \% $ and use accelerometer for $ 10 \% $.
+For example, we might assume that our application will listen for $2 \%$ of the time, send for $ 0.1 \% $ and use accelerometer for $ 10 \% $.
 Under these assumption, the estimated average power usage of the application will be:
 \begin{equation}
 0.1 \% \cdot 27 mA + 1 \% \cdot 10 mA + 10 \% \cdot 166 \mu A + 90 \% \cdot 8 \mu A = 0.1508 mA   
@@ -204,8 +199,8 @@ Sending at minimal power      & 12 $ mA $ & 15 $ mA $            & 102 $ mV $  \
 
 \subsection{Energy cost of low-power listening}
 
-Listening and sending the data takes roughly the same amount of power as described in Table \ref{tab:power-usage}.
-Also sending a preamble consumes the same amount of power as sending the data.
+Listening and sending data takes roughly the same amount of power as described in Table \ref{tab:power-usage}.
+Also sending a preamble consumes the same amount of power as sending data.
 The only unknown is thus how much power a receive check costs.
 
 A single check uses clear channel assessment, which could give a false positive, but uses less power than listening.
@@ -237,7 +232,7 @@ $$
 
 \subsection{Other considerations}
 In the real world, there are many other factor that affect the battery life.
-For example, battery capacity depends on temperature and is usually lower than are specified by the manufacturer.
+For example, battery capacity depends on temperature and is usually lower than the volume specified by the manufacturer.
 Because of that, real world applications have shorter battery lives than what estimations would suggest.
 
 
@@ -366,7 +361,7 @@ However, a single measurement may be misleading, the median from series of trans
 The LQI results have same form as the RSSI results.
 
 LQI is an alternative metric to RSSI.
-Even from a signal LQI data point gives a good prediction of packet loss.
+Even a single LQI data point gives a good prediction of packet loss.
 However, it is a bad metric to estimate the distance and RSSI should be used for that purpose instead.
 
 
@@ -398,18 +393,18 @@ However, it is a bad metric to estimate the distance and RSSI should be used for
 
 % methodology
 The theoretical throughput is 250 kbits.
-However, the communication requires sending frame header and footer (11 and 3 bytes respectively) for each packet.
-The packet maximal size is 64 bytes, so at most 50 bytes remains for payload.
+However, the communication requires sending frame header and footer (12 and 2 bytes respectively) for each packet.
+The packet maximal size is 64 bytes, so at most 50 bytes remain for payload.
 In addition to that, the radio driver performs clean channel assessment before each transfer.
-This reduces packet collisions, but reduce the bandwidth.
-Moreover, in practical applications we also need to take into account time needed to copy memory block of packet payload.
+This reduces packet collisions, but also reduces the bandwidth.
+Moreover, in practical applications we also need to take into account the time needed to copy a memory block of the packet payload.
 
 
 % results
-We performed series of experiments which measure the throughput, which we define as a rate of successful delivered total size of payload.
-The watches were placed close to each other, MCU frequency was set to 8 MHz and radio baud rate to 250 kbits.
-In this setup packet delivery failure was negligible.
-As excepted, the measured bandwidth in Table \ref{tab:radio-throughput} is fraction ($\frac{250}{6.10 \cdot 8} \approx 5.1$) of theoretical throughput.
+We performed a series of experiments to measure the throughput, which we define as a rate of successfully delivered total size of payload.
+The watches were placed close to each other, the MCU frequency was set to 8 MHz and the radio baud rate to 250 kbits.
+In this setup packet delivery failures were negligible.
+As the expected, the measured bandwidth (see Table \ref{tab:radio-throughput}) is a fraction ($\frac{250}{6.10 \cdot 8} \approx 5.1$) of the theoretical throughput.
 
 \begin{table}[h]
   \centering
@@ -428,13 +423,14 @@ As excepted, the measured bandwidth in Table \ref{tab:radio-throughput} is fract
 
 \section{Sample application: Zordon}
 
-Also as part of evaluation, we implemented sample application.
-Each watch is associated with a name and has the radio in low-power listening mode.
-A user select one of the names from the LCD menu, then he could send a beep request over radio.
-If the watch receives beep request addressed to its name, it plays a sound using a built-in buzzer and displays the sender's name.
+Finally, as part of the evaluation, we implemented a sample application.
+In the application, each watch is associated with a name and has the radio in low-power listening mode.
+The user selects one of the names from the LCD menu.
+Then, he can send a beep request over radio.
+If a watch receives a beep request addressed to its name, it plays a sound using a built-in buzzer and displays the sender's name.
 
 This application can be used to call friends who are in nearby rooms.
-It is a useful example which shows the major TinyOS advantage: it allows to write application just by describing its logic without worrying about underlying hardware.
+It is a useful example that shows the major TinyOS advantage: it allows writing an application just by describing its logic, without worrying about the underlying hardware.
 
 
 
